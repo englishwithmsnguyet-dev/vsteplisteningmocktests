@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSTEP Listening Mock Test 06</title>
+    
+    <!-- Tải React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Tải Babel để chạy code JSX ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+    <!-- Tải Tailwind CSS để dựng giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Clock = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>);
+        const CheckCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+        const XCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>);
+        const PlayCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>);
+        const PauseCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>);
+        const FileText = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+        const AlertCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+        const Headphones = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>);
+        const Award = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>);
+        const BookOpen = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>);
+        const Volume2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>);
+        const RefreshCw = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>);
+        const Gamepad2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>);
+        const Globe = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>);
+
+        // --- HÀM ĐỊNH DẠNG THỜI GIAN ---
+        const formatTimeStr = (seconds) => {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        };
+
+        // --- HÀM QUY ĐỔI ĐIỂM VSTEP LISTENING (Thang 10) ---
+        const convertVstepScore = (correctCount) => {
+            if (correctCount <= 1) return 0.0;
+            if (correctCount === 2) return 0.5;
+            if (correctCount === 3) return 1.0;
+            if (correctCount === 4) return 1.5;
+            if (correctCount <= 6) return 2.0;
+            if (correctCount === 7) return 2.5;
+            if (correctCount <= 9) return 3.0;
+            if (correctCount <= 11) return 3.5;
+            if (correctCount <= 13) return 4.0;
+            if (correctCount <= 15) return 4.5;
+            if (correctCount <= 17) return 5.0;
+            if (correctCount <= 19) return 5.5;
+            if (correctCount <= 21) return 6.0;
+            if (correctCount === 22) return 6.5;
+            if (correctCount <= 24) return 7.0;
+            if (correctCount === 25) return 7.5;
+            if (correctCount <= 27) return 8.0;
+            if (correctCount <= 29) return 8.5;
+            if (correctCount <= 31) return 9.0;
+            if (correctCount <= 33) return 9.5;
+            if (correctCount <= 35) return 10.0;
+            return 0.0;
+        };
+
+        // --- DATA TỪ VỰNG QUAN TRỌNG ---
+        const VOCAB_DATA = [
+            { word: "security deposit", meaning: "tiền đặt cọc bảo đảm" },
+            { word: "unplug", meaning: "rút phích cắm (điện)" },
+            { word: "detour", meaning: "đường vòng, đường tránh" },
+            { word: "identity", meaning: "danh tính, nhân dạng" },
+            { word: "reference book", meaning: "sách tham khảo" },
+            { word: "vacancy", meaning: "vị trí công việc đang trống" },
+            { word: "interfere", meaning: "can thiệp, cản trở" },
+            { word: "habitat", meaning: "môi trường sống" },
+            { word: "familiar", meaning: "quen thuộc, thân thuộc" },
+            { word: "commentary", meaning: "lời bình luận, bài thuyết minh" }
+        ];
+
+        // --- DATA CỦA BÀI THI 06 KÈM GIẢI THÍCH CHI TIẾT VÀ TIMESTAMPS ---
+        const hl = (text) => `<span class="text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1">${text}</span>`;
+        
+        const TEST_DATA = {
+        duration: 47 * 60,
+        parts: [
+            {
+            id: 1,
+            title: "PART 1: Questions 1-8",
+            instructions: "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
+            audioSrc: "https://www.dropbox.com/scl/fi/4q40wtezldtil7gmypdwh/Part-1.mp3?rlkey=ticihx29zt60a4y63g9yt6bjx&st=tnnixip1&raw=1",
+            audioTimestamps: [
+                { label: "Bài 1", time: 174 },
+                { label: "Bài 2", time: 202 },
+                { label: "Bài 3", time: 228 },
+                { label: "Bài 4", time: 261 },
+                { label: "Bài 5", time: 290 },
+                { label: "Bài 6", time: 324 },
+                { label: "Bài 7", time: 352 },
+                { label: "Bài 8", time: 383 }
+            ],
+            transcript: `1. I think you'll find this facility to be ideal for the kind of office you want to open. The meeting room is large and there's room to seat six customers in that area. As I told you on the phone, the landlord is asking for rent of €1,100 per month with a one-time security deposit of €800. The rent covers all monthly electricity, phone and water, ${hl("but not central heating charges")}. 
+
+2. On our program this evening, we have Dr Hong Man, ${hl("who is a psychologist")} at Hillside Hospital in Vietnam. Dr. Hong is well known for his analysis into how freshmen make friends. But today, he's here to talk about his most recent popular psychology book, Power of Feelings. Welcome to the show, Dr. Hong. 
+
+3. Hi, Dr. Bremen. This is Williams from Holy Town Carpet Store. We're going to be installing the carpet in your restaurant next Sunday. ${hl("We should be there around 10 a.m.")}, and I just want to make sure that someone will be there. It should take us about four hours. Please make sure all the electrical stuff is unplugged, including the faxes and computers. If you have any questions, I'll be here until 6 today. 
+
+4. Good afternoon. I'm Adam Motta and I'll be leading the training seminar on internet security. ${hl("I've worked on security-related issues in the computer industry")} for the past 15 years, and I've given workshops like this for the past five years. First, I'm going to spend some time today giving you a general overview of security problems faced by the banking industry. For most of the week though, I'll be showing you how to set up a web page that is safe for customers to use. 
+
+5. W: The bus is going to pick us up at around 5 o'clock after the guided tour. 
+M: Where are we going after that? We're supposed to go look at some wildlife along the river, right? 
+W: Actually, we'll be back at the hotel ${hl("by 6 to dress for dinner, and after, we'll meet the group for dinner.")} 
+M: Oh, I forgot about dinner. I wonder what the dinner menu is. I'm hungry already. 
+
+6. M: Martha, do you realize how late it is? You need to be here by nine o'clock sharp every day. 
+W: I’m terribly sorry. ${hl("My bus was delayed again")} this morning. I'm not sure why. 
+M: Ah, yes. Well, that happens sometimes. You might want to try for an earlier bus. Some buses take detours these days. 
+W: Yes, maybe that's what I should do. 
+
+7. W: Did you have a good vacation, Ben? 
+M: ${hl("It was great.")} We went to the beach every day. The ocean was a little cold for swimming, though. 
+W: Well, it must have been nice to get away from this rain for a while. We had so much rain while you were gone that we all thought we drowned. 
+M: Really, I am sorry. Man, it would have been so much nicer if you had come with us. 
+
+8. W: I’m afraid I won't be able to go to the seminar. I have a train to catch this afternoon. 
+M: What time do you need to be at the station? Don't you know that this seminar is really important and we've all waited for this? 
+W: I’m sorry. There's nothing I can do about it. It's a two o'clock train and I need to get there by 1.30. 
+M: ${hl("You're not being a good friend here.")}`,
+            translatedTranscript: `1. Tôi nghĩ bạn sẽ thấy cơ sở vật chất này lý tưởng cho kiểu văn phòng mà bạn muốn mở. Phòng họp lớn và có chỗ cho sáu khách hàng ngồi ở khu vực đó. Như tôi đã nói với bạn trên điện thoại, chủ nhà yêu cầu giá thuê là €1.100 mỗi tháng với một khoản tiền đặt cọc bảo đảm trả một lần là €800. Tiền thuê bao gồm tất cả tiền điện, điện thoại và nước hàng tháng, nhưng không bao gồm phí sưởi ấm trung tâm.
+
+2. Trong chương trình của chúng ta tối nay, chúng ta có Tiến sĩ Hong Man, một nhà tâm lý học tại Bệnh viện Hillside ở Việt Nam. Tiến sĩ Hong nổi tiếng với những phân tích của ông về cách sinh viên năm nhất kết bạn. Nhưng hôm nay, ông ấy ở đây để nói về cuốn sách tâm lý học nổi tiếng gần đây nhất của mình, Sức mạnh của Cảm xúc. Chào mừng đến với chương trình, Tiến sĩ Hong.
+
+3. Chào Tiến sĩ Bremen. Đây là Williams từ Cửa hàng Thảm Holy Town. Chúng tôi sẽ đến lắp thảm trong nhà hàng của bạn vào Chủ nhật tới. Chúng tôi sẽ đến đó vào khoảng 10 giờ sáng và tôi chỉ muốn đảm bảo rằng sẽ có người ở đó. Sẽ mất khoảng bốn giờ. Vui lòng đảm bảo rằng tất cả các thiết bị điện đã được rút phích cắm, bao gồm cả máy fax và máy tính. Nếu bạn có bất kỳ câu hỏi nào, tôi sẽ ở đây đến 6 giờ tối nay.
+
+4. Chào buổi chiều. Tôi là Adam Motta và tôi sẽ dẫn dắt hội thảo đào tạo về an ninh mạng. Tôi đã làm việc về các vấn đề liên quan đến bảo mật trong ngành công nghiệp máy tính trong 15 năm qua, và tôi đã tổ chức các buổi hội thảo như thế này trong 5 năm qua. Đầu tiên, tôi sẽ dành chút thời gian hôm nay để cung cấp cho bạn cái nhìn tổng quan về các vấn đề bảo mật mà ngành ngân hàng phải đối mặt. Tuy nhiên, trong hầu hết thời gian của tuần, tôi sẽ hướng dẫn bạn cách thiết lập một trang web an toàn cho khách hàng sử dụng.
+
+5. Nữ: Xe buýt sẽ đón chúng ta vào khoảng 5 giờ sau chuyến tham quan có hướng dẫn.
+Nam: Sau đó chúng ta sẽ đi đâu? Chúng ta dự định đi xem một số động vật hoang dã dọc theo bờ sông, đúng không?
+Nữ: Thực ra, chúng ta sẽ quay lại khách sạn trước 6 giờ để thay đồ ăn tối, và sau đó, chúng ta sẽ gặp cả nhóm để ăn tối.
+Nam: Ồ, tôi quên mất bữa tối. Tôi tự hỏi thực đơn bữa tối là gì. Tôi đã thấy đói rồi.
+
+6. Nam: Martha, cô có nhận ra bây giờ là mấy giờ không? Cô cần có mặt ở đây đúng chín giờ mỗi ngày.
+Nữ: Tôi vô cùng xin lỗi. Xe buýt của tôi lại bị trễ vào sáng nay. Tôi không chắc tại sao.
+Nam: À, vâng. Chà, điều đó thỉnh thoảng cũng xảy ra. Cô có thể muốn thử đi chuyến xe buýt sớm hơn. Một số xe buýt dạo này phải đi đường vòng.
+Nữ: Vâng, có lẽ tôi nên làm vậy.
+
+7. Nữ: Cậu có một kỳ nghỉ vui vẻ chứ, Ben?
+Nam: Thật tuyệt vời. Chúng tôi đã đi biển mỗi ngày. Mặc dù vậy, nước biển hơi lạnh để bơi.
+Nữ: Chà, chắc hẳn thật tuyệt khi tránh được cơn mưa này một lúc. Chỗ chúng tôi đã mưa rất nhiều trong lúc cậu đi vắng đến mức chúng tôi tưởng mình đã chết đuối.
+Nam: Thật sao, tôi rất tiếc. Anh bạn, sẽ tuyệt hơn rất nhiều nếu cậu đi cùng chúng tôi.
+
+8. Nữ: Tôi e là tôi sẽ không thể đến buổi hội thảo. Tôi phải bắt kịp chuyến tàu chiều nay.
+Nam: Mấy giờ cô cần có mặt ở nhà ga? Cô không biết rằng buổi hội thảo này thực sự quan trọng và tất cả chúng ta đều đã chờ đợi điều này sao?
+Nữ: Tôi xin lỗi. Tôi không thể làm gì khác được. Đó là chuyến tàu lúc hai giờ và tôi cần đến đó trước 1 rưỡi.
+Nam: Cô không phải là một người bạn tốt trong chuyện này.`,
+            questions: [
+                {
+                id: 1, text: "What charges are not included in the rent?", options: { A: "Central heating", B: "Electricity", C: "Water", D: "Phone" }, correct: "A", timestamp: 174,
+                translation: { question: "Chi phí nào không được bao gồm trong tiền thuê nhà?", options: { A: "Hệ thống sưởi trung tâm", B: "Điện", C: "Nước", D: "Điện thoại" } },
+                explanations: { 
+                    A: "Đúng. Người nói nhấn mạnh tiền thuê nhà bao gồm điện, điện thoại, nước nhưng KHÔNG bao gồm hệ thống sưởi trung tâm (not central heating charges).", 
+                    B: "Sai. Tiền điện có được bao gồm.", 
+                    C: "Sai. Tiền nước có được bao gồm.", 
+                    D: "Sai. Tiền điện thoại có được bao gồm." 
+                },
+                transcriptSnippet: `The rent covers all monthly electricity, phone and water, ${hl("but not central heating charges")}.`
+                },
+                {
+                id: 2, text: "Who is being introduced?", options: { A: "A psychologist.", B: "A physician.", C: "An analyst.", D: "A kick boxer." }, correct: "A", timestamp: 202,
+                translation: { question: "Ai đang được giới thiệu?", options: { A: "Nhà tâm lý học.", B: "Bác sĩ y khoa.", C: "Nhà phân tích.", D: "Võ sĩ kickboxing." } },
+                explanations: { 
+                    A: "Đúng. Bài nói giới thiệu rõ ràng Dr. Hong Man là một nhà tâm lý học (psychologist) tại Bệnh viện Hillside.", 
+                    B: "Sai. Không phải bác sĩ y khoa.", 
+                    C: "Sai. Ông ấy nổi tiếng với các 'phân tích' nhưng nghề nghiệp chính danh là nhà tâm lý học.", 
+                    D: "Sai. Không liên quan." 
+                },
+                transcriptSnippet: `On our program this evening, we have Dr Hong Man, ${hl("who is a psychologist")} at Hillside Hospital in Vietnam.`
+                },
+                {
+                id: 3, text: "When is William scheduled to arrive?", options: { A: "6 a.m.", B: "10 a.m.", C: "4 p.m.", D: "6 p.m." }, correct: "B", timestamp: 228,
+                translation: { question: "William dự kiến đến lúc mấy giờ?", options: { A: "6 giờ sáng.", B: "10 giờ sáng.", C: "4 giờ chiều.", D: "6 giờ tối." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Williams gọi điện báo rằng anh ấy sẽ đến lắp thảm vào khoảng 10 giờ sáng (around 10 a.m.).", 
+                    C: "Sai. Sẽ mất khoảng 4 tiếng làm việc, không phải 4h chiều đến.", 
+                    D: "Sai. 6 giờ tối là thời hạn anh ấy trực ở cửa hàng để giải đáp thắc mắc." 
+                },
+                transcriptSnippet: `This is Williams from Holy Town Carpet Store. We're going to be installing the carpet in your restaurant next Sunday. ${hl("We should be there around 10 a.m.")}`
+                },
+                {
+                id: 4, text: "Who is the speaker?", options: { A: "A president of a company", B: "A car engineer", C: "A representative of customers", D: "A computer expert" }, correct: "D", timestamp: 261,
+                translation: { question: "Người nói là ai?", options: { A: "Giám đốc công ty.", B: "Kỹ sư ô tô.", C: "Đại diện khách hàng.", D: "Chuyên gia máy tính." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Người nói giới thiệu mình làm việc trong ngành công nghiệp máy tính (computer industry) suốt 15 năm qua về các vấn đề an ninh." 
+                },
+                transcriptSnippet: `I'm Adam Motta and I'll be leading the training seminar on internet security. ${hl("I've worked on security-related issues in the computer industry")} for the past 15 years...`
+                },
+                {
+                id: 5, text: "When will the group meet for dinner?", options: { A: "At 4 o'clock.", B: "At 5 o'clock.", C: "At 6 o'clock.", D: "At 7 o'clock." }, correct: "D", timestamp: 290,
+                translation: { question: "Nhóm sẽ gặp nhau để ăn tối lúc mấy giờ?", options: { A: "Lúc 4 giờ.", B: "Lúc 5 giờ.", C: "Lúc 6 giờ.", D: "Lúc 7 giờ." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. 5 giờ là lúc xe buýt đến đón.", 
+                    C: "Sai. 6 giờ là lúc họ về đến khách sạn để thay đồ chuẩn bị ăn tối.", 
+                    D: "Đúng. Trở về khách sạn lúc 6 giờ để thay đồ, nên bữa tối sẽ diễn ra sau đó (đáp án hợp lý nhất theo logic là 7 giờ)." 
+                },
+                transcriptSnippet: `W: Actually, we'll be back at the hotel ${hl("by 6 to dress for dinner, and after, we'll meet the group for dinner.")}`
+                },
+                {
+                id: 6, text: "Why was the woman late?", options: { A: "Her bus arrived late.", B: "She missed her train.", C: "The roads were closed.", D: "Her car broke down." }, correct: "A", timestamp: 324,
+                translation: { question: "Tại sao người phụ nữ đến muộn?", options: { A: "Xe buýt của cô ấy đến trễ.", B: "Cô ấy lỡ chuyến tàu.", C: "Các con đường bị phong tỏa.", D: "Ô tô của cô ấy bị hỏng." } },
+                explanations: { 
+                    A: "Đúng. Người phụ nữ xin lỗi vì xe buýt của cô ấy lại bị chậm trễ (delayed) vào sáng nay.", 
+                    B: "Sai.", 
+                    C: "Sai. Đường vòng (detours) gây ra chậm trễ, nhưng đường không bị đóng hoàn toàn.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: I’m terribly sorry. ${hl("My bus was delayed again")} this morning. I'm not sure why.`
+                },
+                {
+                id: 7, text: "What does the man tell the woman about his vacation?", options: { A: "He didn't get to swim.", B: "He saw a shark in the ocean.", C: "He liked how warm the weather was.", D: "His vacation was good." }, correct: "D", timestamp: 352,
+                translation: { question: "Người đàn ông nói gì với người phụ nữ về kỳ nghỉ của mình?", options: { A: "Anh ấy đã không được bơi.", B: "Anh ấy thấy một con cá mập.", C: "Anh ấy thích thời tiết ấm áp.", D: "Kỳ nghỉ của anh ấy rất tuyệt." } },
+                explanations: { 
+                    A: "Sai. Biển hơi lạnh để bơi, nhưng anh không nói là mình không bơi.", 
+                    B: "Sai. Không nhắc đến cá mập.", 
+                    C: "Sai. Thời tiết ấm áp không được nhắc đến trong hội thoại này.", 
+                    D: "Đúng. Ngay câu đầu tiên anh ấy khẳng định 'It was great' (Nó rất tuyệt vời)." 
+                },
+                transcriptSnippet: `W: Did you have a good vacation, Ben? <br/>M: ${hl("It was great.")} We went to the beach every day.`
+                },
+                {
+                id: 8, text: "How does the man feel about the woman's decision?", options: { A: "Glad.", B: "Overjoyed.", C: "Disappointed.", D: "Confused." }, correct: "C", timestamp: 383,
+                translation: { question: "Người đàn ông cảm thấy thế nào về quyết định của người phụ nữ?", options: { A: "Vui mừng.", B: "Vui sướng tột độ.", C: "Thất vọng.", D: "Bối rối." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Người phụ nữ quyết định không đi hội thảo vì phải bắt tàu. Người đàn ông trách móc 'You're not being a good friend here' thể hiện sự thất vọng.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `M: What time do you need to be at the station? Don't you know that this seminar is really important and we've all waited for this? ... ${hl("You're not being a good friend here.")}`
+                }
+            ]
+            },
+            {
+            id: 2,
+            title: "PART 2: Questions 9-20",
+            instructions: "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/853dc0tgwabwpkfed5f3c/Part-2.mp3?rlkey=cif8sjnjf63q23pybqwn8iu2y&st=z96i69ja&raw=1",
+            audioTimestamps: [
+                { label: "Hội thoại 1", time: 60 },
+                { label: "Hội thoại 2", time: 240 },
+                { label: "Hội thoại 3", time: 392 }
+            ],
+            transcript: `[Conversation 1]
+W: Good morning, North College Library. How can I help you?
+M: I was wondering if it was possible to join the library.
+W: Are you a student at North College?
+M: No, I'm not, but someone told me it was possible to join even if I wasn't.
+W: That's right, it is. Are you over 18? ${hl("That's our minimum joining age.")} 
+M: Yes, I am. 
+W: That's no problem then.
+M: Could you tell me what I have to do to join?
+W: Well, you'll need to come into the library and fill out some forms. You'll also need to bring two passport photos with you. We also need two documents for ID, so a driving license would be fine.
+M: I've got that. And what else? ${hl("A credit card?")}
+W: ${hl("No")}, it needs to have your address on it.
+M: Shall I bring a bank statement? Would that do? 
+W: That'll be fine. 
+M: Good. Does it cost anything to join?
+W: Well, it's free for students here, but otherwise ${hl("it's £125 per year")}... or £25 if you've got a current student card from another college.
+M: I was at Westerly College until last year, but ${hl("now I've got a job")} at Jefferson Steel Factory. Um, it's more expensive than I thought. My local library is free.
+W: But you'll find they don't have the range of reference books or facilities which we buy for our students. That's why you have to pay to be an external member.
+M: I see. Um, how many books can I borrow? 
+W: We allow 12 items borrowed at any one time if you're a student... However, it's only eight items for members of the public.
+M: Fine. And how long can I have them for?
+W: Well, you can have both fiction and reference books for ${hl("four weeks")}, which isn't bad, really.
+M: And what happens if I return them late?
+W: Like all libraries, there’s a fine system in place. The minimum fine is £1.50… but it can be much higher for some items, up to £5 per week.
+
+[Conversation 2]
+M: Excuse me, ma'am. Could I have a few minutes of your time? 
+W: What do you need? 
+M: First, welcome to Lougheed Mall, the largest shopping center in Vancouver. We're conducting a survey of the shoppers at this mall... Would you mind answering a few questions about your shopping? 
+W: Not at all. 
+M: Thank you. Today we're interviewing married women, that is, women with husbands and children who shop for their families. So, the first question is, do you fit this category?
+W: Yes, I do. 
+M: Wonderful. Now, I need to know your age. Are you between the ages of 18 and 25, 26 and...  
+W: ${hl("I'm 34.")} 
+M: Great. OK. Now, how often do you shop here? Less than once a month? At least once a month? Once a...
+W: I have a big family. I have to buy a lot of things. I'm here ${hl("at least twice a week.")}
+M: Well, that's just fine. You must be very familiar with the stores here.
+W: I certainly am.
+M: All right, then. The next question concerns the things that you buy. What do you usually shop for here?
+W: Just about everything. I've been in all the stores at one time or another. The clothing stores are quite nice, though, frankly, their prices are a bit high... And I like the bookstore too, but...
+M: What I need to know, though, is what is the one type of thing you shop for most often? Would it be books?
+W: Oh, no. That's only occasionally. The reason I come here so often is for food. I told you, I have a large family. ${hl("I buy all our food at the supermarket here.")}
+M: Okay. So, the next question is, how much time do you usually spend at the mall?
+W: What do you mean? Do you mean every week?
+M: I mean... Each time you come here, how long do you spend?
+W: ${hl("Oh, I'd say about an hour and a half or so. Maybe a little longer. But I'm hardly ever here for more than two hours.")}
+
+[Conversation 3]
+W: Good evening, King's Restaurant.
+M: Good evening. I'm ringing about the job I understand you have vacant. 
+W: Oh, yes. 
+M: I'd like to find out a few more details, if I may.
+W: Yes, of course. Can I take your name? 
+M: It's Peter Chin. 
+W: OK, Peter. Well, if you want to ask about the job, and then if we're both still interested, we could arrange for you to come for an interview.
+M: Great, thanks. I'm afraid I missed the advert for the job but ${hl("heard about it from a friend.")} 
+W: That's no problem at all. What would you like to know?
+M: Well, what sort of work is it? Washing up?
+W: ${hl("It's answering the phone.")}
+M: Oh, right, fine.
+W: And not waiting at table.
+M: That'd be good. And how many nights a week would it be?
+W: Well, we're really only busy at the weekend.
+M: So, two nights?
+W: ${hl("Three, actually, so it would work out at 12 hours a week.")}
+M: That'd be fine. It wouldn't interfere with my studies.
+W: Are you at the university?
+M: Yes, first year physics student. 
+W: Oh, right. 
+M: And because I'm not an EU national, would I need a work permit?
+W: Yes, you would. Just get your tutor to sign it.
+M: That wouldn't be a problem if I were to get the job. Where exactly is the restaurant?
+W: Well, we have two branches. The one we're recruiting for is in Hillsdunne Road.
+M: I don't know that. How do you spell it, please?
+W: It's H-I-double-L-S-D-U-double-N-E road.
+M: Got that. Thanks. Is it near a bus stop?
+W: Yes. The nearest one would probably be just beside the library.
+M: Oh, yes, I know it. That'd be fine for me. And could I ask about the pay?
+W: We're offering £4.45 an hour.
+M: ${hl("That's very good.")} My last job was £3.95 an hour.`,
+            translatedTranscript: `[Cuộc hội thoại 1]
+Nữ: Chào buổi sáng, Thư viện North College xin nghe. Tôi có thể giúp gì cho bạn?
+Nam: Tôi tự hỏi liệu có thể tham gia thư viện không.
+Nữ: Bạn có phải là sinh viên tại North College không?
+Nam: Không, tôi không phải, nhưng có người bảo tôi rằng tôi có thể tham gia ngay cả khi không phải là sinh viên.
+Nữ: Đúng vậy. Bạn đã trên 18 tuổi chưa? Đó là độ tuổi tham gia tối thiểu của chúng tôi.
+Nam: Vâng, tôi trên 18 rồi.
+Nữ: Vậy thì không có vấn đề gì.
+Nam: Bạn có thể cho tôi biết tôi phải làm gì để tham gia không?
+Nữ: Chà, bạn cần đến thư viện và điền vào một số biểu mẫu. Bạn cũng cần mang theo hai ảnh thẻ (cỡ hộ chiếu). Chúng tôi cũng cần hai loại giấy tờ tùy thân, vì vậy bằng lái xe sẽ rất tốt.
+Nam: Tôi có cái đó. Và gì nữa? Thẻ tín dụng à?
+Nữ: Không, nó cần phải có địa chỉ của bạn trên đó.
+Nam: Tôi mang theo sao kê ngân hàng nhé? Có được không?
+Nữ: Thế là tốt rồi.
+Nam: Tốt. Tham gia có mất phí không?
+Nữ: À, sinh viên ở đây thì miễn phí, nhưng nếu không thì là £125 một năm... hoặc £25 nếu bạn có thẻ sinh viên hiện tại từ một trường cao đẳng khác.
+Nam: Tôi đã học ở Đại học Westerly cho đến năm ngoái, nhưng bây giờ tôi đã có việc làm tại Nhà máy Thép Jefferson. Ừm, nó đắt hơn tôi nghĩ. Thư viện địa phương của tôi thì miễn phí.
+Nữ: Nhưng bạn sẽ thấy họ không có đủ các loại sách tham khảo hoặc cơ sở vật chất mà chúng tôi mua cho sinh viên của mình. Đó là lý do tại sao bạn phải trả tiền để trở thành thành viên bên ngoài.
+Nam: Tôi hiểu. Ừm, tôi có thể mượn bao nhiêu cuốn sách?
+Nữ: Chúng tôi cho phép mượn tối đa 12 món cùng lúc nếu bạn là sinh viên... Tuy nhiên, đối với thành viên là công chúng thì chỉ được 8 món.
+Nam: Tốt. Và tôi có thể giữ chúng trong bao lâu?
+Nữ: Chà, bạn có thể giữ cả sách viễn tưởng và sách tham khảo trong bốn tuần, thực sự thì không tệ chút nào.
+Nam: Và điều gì sẽ xảy ra nếu tôi trả lại muộn?
+Nữ: Giống như tất cả các thư viện, có một hệ thống phạt. Mức phạt tối thiểu là £1,50… nhưng nó có thể cao hơn nhiều đối với một số tài liệu, lên đến £5 mỗi tuần.
+
+[Cuộc hội thoại 2]
+Nam: Xin lỗi, thưa bà. Tôi có thể xin bà vài phút được không?
+Nữ: Anh cần gì?
+Nam: Trước tiên, chào mừng đến với Lougheed Mall, trung tâm mua sắm lớn nhất ở Vancouver. Chúng tôi đang tiến hành một cuộc khảo sát những người mua sắm tại trung tâm này... Bà có phiền khi trả lời một vài câu hỏi về việc mua sắm của mình không?
+Nữ: Không có gì.
+Nam: Cảm ơn bà. Hôm nay chúng tôi đang phỏng vấn những phụ nữ đã kết hôn, tức là những phụ nữ có chồng con đi mua sắm cho gia đình họ. Vậy, câu hỏi đầu tiên là, bà có thuộc nhóm này không?
+Nữ: Vâng, đúng vậy.
+Nam: Tuyệt vời. Bây giờ, tôi cần biết tuổi của bà. Bà có ở độ tuổi từ 18 đến 25, 26 và...
+Nữ: Tôi 34 tuổi.
+Nam: Tuyệt. OK. Bây giờ, bà thường xuyên mua sắm ở đây như thế nào? Ít hơn một lần một tháng? Ít nhất một lần một tháng? Một lần một...
+Nữ: Tôi có một gia đình lớn. Tôi phải mua rất nhiều thứ. Tôi đến đây ít nhất hai lần một tuần.
+Nam: Chà, vậy thì tốt quá. Bà hẳn phải rất quen thuộc với các cửa hàng ở đây.
+Nữ: Chắc chắn rồi.
+Nam: Được rồi. Câu hỏi tiếp theo liên quan đến những thứ bà mua. Bà thường mua gì ở đây?
+Nữ: Gần như mọi thứ. Tôi đã vào tất cả các cửa hàng vào lúc này hay lúc khác. Các cửa hàng quần áo khá đẹp, mặc dù nói thật là giá của họ hơi cao... Và tôi cũng thích hiệu sách nữa, nhưng...
+Nam: Tuy nhiên, điều tôi cần biết là bà thường mua loại hàng hóa nào nhất? Đó có phải là sách không?
+Nữ: Ồ, không. Chỉ thỉnh thoảng thôi. Lý do tôi đến đây thường xuyên như vậy là vì đồ ăn. Tôi đã nói với anh rồi, tôi có một gia đình lớn. Tôi mua tất cả đồ ăn của chúng tôi tại siêu thị ở đây.
+Nam: Vâng. Vậy câu hỏi tiếp theo là, bà thường dành bao nhiêu thời gian ở trung tâm mua sắm?
+Nữ: Ý anh là sao? Ý anh là mỗi tuần à?
+Nam: Ý tôi là... Mỗi lần bà đến đây, bà dành bao lâu?
+Nữ: Ồ, tôi sẽ nói là khoảng một tiếng rưỡi hoặc tầm đó. Có thể lâu hơn một chút. Nhưng tôi hầu như chưa bao giờ ở đây quá hai tiếng đồng hồ.
+
+[Cuộc hội thoại 3]
+Nữ: Chào buổi tối, Nhà hàng King xin nghe.
+Nam: Chào buổi tối. Tôi gọi điện về công việc mà tôi biết là chỗ bạn đang tuyển người.
+Nữ: Ồ, vâng.
+Nam: Tôi muốn tìm hiểu thêm một vài chi tiết, nếu có thể.
+Nữ: Vâng, tất nhiên rồi. Tôi có thể biết tên bạn không?
+Nam: Tôi là Peter Chin.
+Nữ: OK, Peter. Chà, nếu bạn muốn hỏi về công việc, và sau đó nếu cả hai chúng ta vẫn còn quan tâm, chúng ta có thể sắp xếp để bạn đến phỏng vấn.
+Nam: Tuyệt, cảm ơn. Tôi e là tôi đã bỏ lỡ quảng cáo cho công việc này nhưng tôi nghe nói về nó từ một người bạn.
+Nữ: Không vấn đề gì cả. Bạn muốn biết điều gì?
+Nam: Chà, đó là loại công việc gì? Rửa bát đĩa à?
+Nữ: Đó là trực điện thoại (trả lời điện thoại).
+Nam: Ồ, đúng rồi, tốt.
+Nữ: Và không phải phục vụ bàn.
+Nam: Thật tốt. Và một tuần sẽ làm bao nhiêu đêm?
+Nữ: À, chúng tôi thực sự chỉ bận vào cuối tuần.
+Nam: Vậy là hai đêm?
+Nữ: Thực ra là ba, vì vậy sẽ tính ra là 12 giờ một tuần.
+Nam: Thế thì ổn. Nó sẽ không cản trở việc học của tôi.
+Nữ: Bạn đang học đại học à?
+Nam: Vâng, sinh viên năm nhất ngành vật lý.
+Nữ: Ồ, vâng.
+Nam: Và vì tôi không phải là công dân EU, tôi có cần giấy phép làm việc không?
+Nữ: Có, bạn cần. Chỉ cần nhờ giáo viên hướng dẫn của bạn ký vào đó.
+Nam: Đó sẽ không là vấn đề nếu tôi nhận được công việc. Chính xác thì nhà hàng ở đâu?
+Nữ: À, chúng tôi có hai chi nhánh. Chi nhánh chúng tôi đang tuyển dụng nằm ở Đường Hillsdunne.
+Nam: Tôi không biết chỗ đó. Bạn đánh vần nó như thế nào?
+Nữ: H-I-L-L-S-D-U-N-N-E.
+Nam: Rõ rồi. Cảm ơn. Nó có gần trạm xe buýt nào không?
+Nữ: Có. Trạm gần nhất có lẽ nằm ngay bên cạnh thư viện.
+Nam: Ồ, vâng, tôi biết chỗ đó. Thế thì tốt cho tôi. Và tôi có thể hỏi về mức lương không?
+Nữ: Chúng tôi đang đề nghị mức £4,45 một giờ.
+Nam: Mức đó rất tốt. Công việc trước đây của tôi là £3,95 một giờ.`,
+            questions: [
+                {
+                id: 9, text: "How old should you be if you want to join North College Library?", options: { A: "At least 14", B: "At least 16", C: "At least 18", D: "At least 20" }, correct: "C", timestamp: 60,
+                translation: { question: "Bạn phải bao nhiêu tuổi để tham gia thư viện North College?", options: { A: "Ít nhất 14", B: "Ít nhất 16", C: "Ít nhất 18", D: "Ít nhất 20" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Thủ thư thông báo độ tuổi tối thiểu để tham gia thư viện là trên 18 tuổi.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: Are you over 18? ${hl("That's our minimum joining age.")}`
+                },
+                {
+                id: 10, text: "The student should bring the following for the membership registration, EXCEPT", options: { A: "A credit card", B: "Two passport photos", C: "A bank statement", D: "A driving license" }, correct: "A", timestamp: 60,
+                translation: { question: "Sinh viên cần mang những thứ sau để đăng ký thành viên, NGOẠI TRỪ", options: { A: "Thẻ tín dụng", B: "2 ảnh hộ chiếu", C: "Sao kê ngân hàng", D: "Bằng lái xe" } },
+                explanations: { 
+                    A: "Đúng. Khi người đàn ông hỏi có cần thẻ tín dụng không, thủ thư nói 'Không' (No).", 
+                    B: "Sai. Ảnh hộ chiếu là bắt buộc.", 
+                    C: "Sai. Sao kê ngân hàng được chấp nhận làm chứng minh địa chỉ.", 
+                    D: "Sai. Bằng lái xe được yêu cầu làm thẻ ID." 
+                },
+                transcriptSnippet: `M: I've got that. And what else? ${hl("A credit card?")}<br/>W: ${hl("No")}, it needs to have your address on it.`
+                },
+                {
+                id: 11, text: "How much will the student have to pay for the library fee per year?", options: { A: "£125", B: "£25", C: "£15", D: "No, it is free." }, correct: "A", timestamp: 60,
+                translation: { question: "Sinh viên sẽ phải trả bao nhiêu phí thư viện mỗi năm?", options: { A: "£125", B: "£25", C: "£15", D: "Không, hoàn toàn miễn phí." } },
+                explanations: { 
+                    A: "Đúng. Vì người đàn ông đã nghỉ học và đi làm ở nhà máy thép, anh ta không còn thẻ sinh viên nữa, nên phải đóng mức phí thành viên bên ngoài (external member) là £125.", 
+                    B: "Sai. Mức giá này dành cho người có thẻ sinh viên trường khác.", 
+                    C: "Sai.", 
+                    D: "Sai. Chỉ miễn phí cho sinh viên đang học tại North College." 
+                },
+                transcriptSnippet: `W: ...but otherwise ${hl("it's £125 per year")}... or £25 if you've got a current student card from another college.<br/>M: I was at Westerly College until last year, but ${hl("now I've got a job")} at Jefferson Steel Factory.`
+                },
+                {
+                id: 12, text: "How long can he hold the books each time he borrows from the library?", options: { A: "Two weeks.", B: "Four weeks.", C: "Five weeks.", D: "Eight weeks." }, correct: "B", timestamp: 60,
+                translation: { question: "Anh ấy có thể giữ sách bao lâu mỗi lần mượn?", options: { A: "2 tuần.", B: "4 tuần.", C: "5 tuần.", D: "8 tuần." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Thủ thư giải thích rằng khách có thể mượn sách trong vòng 4 tuần (four weeks).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: Well, you can have both fiction and reference books for ${hl("four weeks")}, which isn't bad, really.`
+                },
+                {
+                id: 13, text: "What's the respondent's age?", options: { A: "18-25", B: "26-30", C: "31-35", D: "36-45" }, correct: "C", timestamp: 240,
+                translation: { question: "Độ tuổi của người trả lời là bao nhiêu?", options: { A: "18-25", B: "26-30", C: "31-35", D: "36-45" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Người phụ nữ trả lời rằng cô ấy 34 tuổi, rơi vào nhóm C (31-35).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `M: Now, I need to know your age. Are you between the ages of 18 and 25, 26 and...<br/>W: ${hl("I'm 34.")}`
+                },
+                {
+                id: 14, text: "How often does the respondent shop at the mall?", options: { A: "Once a week", B: "Two or more times a week", C: "Every two weeks", D: "Less than once a month" }, correct: "B", timestamp: 240,
+                translation: { question: "Người trả lời thường mua sắm ở trung tâm thương mại bao lâu một lần?", options: { A: "1 lần 1 tuần", B: "2 lần hoặc hơn 1 tuần", C: "Mỗi 2 tuần", D: "Chưa tới 1 lần 1 tháng" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Cô ấy trả lời là thường đi mua sắm ở đây ít nhất 2 lần một tuần (at least twice a week).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: I have a big family. I have to buy a lot of things. I'm here ${hl("at least twice a week.")}`
+                },
+                {
+                id: 15, text: "What does the respondent usually shop for?", options: { A: "Clothes", B: "Books", C: "Groceries", D: "Cosmetic" }, correct: "C", timestamp: 240,
+                translation: { question: "Người trả lời thường mua sắm gì?", options: { A: "Quần áo", B: "Sách", C: "Tạp hóa/Thực phẩm", D: "Mỹ phẩm" } },
+                explanations: { 
+                    A: "Sai. Quần áo ở đây giá cao.", 
+                    B: "Sai. Chỉ thỉnh thoảng mới mua sách.", 
+                    C: "Đúng. Lý do cô ấy đến thường xuyên nhất là mua đồ ăn/tạp hóa (food/groceries) cho đại gia đình.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: ...The reason I come here so often is for food. I told you, I have a large family. ${hl("I buy all our food at the supermarket here.")}`
+                },
+                {
+                id: 16, text: "How much time does the respondent usually spend at the mall?", options: { A: "About half an hour", B: "One hour or less", C: "Between one and two hours", D: "More than two hours" }, correct: "C", timestamp: 240,
+                translation: { question: "Người trả lời thường dành bao nhiêu thời gian ở trung tâm mua sắm?", options: { A: "Khoảng nửa giờ", B: "1 giờ hoặc ít hơn", C: "Từ 1 đến 2 giờ", D: "Hơn 2 giờ" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Cô ấy nói tốn khoảng 1 tiếng rưỡi (hour and a half) và hiếm khi ở quá 2 tiếng.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: ${hl("Oh, I'd say about an hour and a half or so. Maybe a little longer. But I'm hardly ever here for more than two hours.")}`
+                },
+                {
+                id: 17, text: "How did the man know about the job vacancy?", options: { A: "From reading an advert", B: "From an employment agency", C: "From one of his friends", D: "From a notice at a restaurant" }, correct: "C", timestamp: 392,
+                translation: { question: "Người đàn ông biết về vị trí tuyển dụng bằng cách nào?", options: { A: "Từ việc đọc quảng cáo", B: "Từ trung tâm môi giới việc làm", C: "Từ một người bạn", D: "Từ tờ thông báo ở nhà hàng" } },
+                explanations: { 
+                    A: "Sai. Anh ấy đã lỡ (missed) bài quảng cáo.", 
+                    B: "Sai.", 
+                    C: "Đúng. Anh ấy nghe thông tin tuyển dụng từ một người bạn (heard about it from a friend).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `M: Great, thanks. I'm afraid I missed the advert for the job but ${hl("heard about it from a friend.")}`
+                },
+                {
+                id: 18, text: "What type of work may the job involve?", options: { A: "Arranging tables", B: "Talking with customers", C: "Washing the dishes", D: "Waiting at tables" }, correct: "B", timestamp: 392,
+                translation: { question: "Công việc có thể bao gồm những gì?", options: { A: "Sắp xếp bàn", B: "Nói chuyện với khách hàng", C: "Rửa chén đĩa", D: "Phục vụ bàn" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Công việc là 'answering the phone' (trực điện thoại), tức là giao tiếp với khách hàng.", 
+                    C: "Sai. Người nam đã hỏi có phải rửa chén không nhưng không phải.", 
+                    D: "Sai. Quản lý nhấn mạnh 'not waiting at table'." 
+                },
+                transcriptSnippet: `W: ${hl("It's answering the phone.")}<br/>M: Oh, right, fine.<br/>W: And not waiting at table.`
+                },
+                {
+                id: 19, text: "How long is the man going to work per week?", options: { A: "5 hours", B: "6 hours", C: "10 hours", D: "12 hours" }, correct: "D", timestamp: 392,
+                translation: { question: "Người đàn ông sẽ làm việc bao nhiêu giờ mỗi tuần?", options: { A: "5 giờ", B: "6 giờ", C: "10 giờ", D: "12 giờ" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Anh ấy sẽ làm 3 đêm, tổng cộng làm 12 giờ một tuần." 
+                },
+                transcriptSnippet: `W: ${hl("Three, actually, so it would work out at 12 hours a week.")}`
+                },
+                {
+                id: 20, text: "How does the man feel about the payment?", options: { A: "Disappointed", B: "Confused", C: "Satisfied", D: "Indifferent" }, correct: "C", timestamp: 392,
+                translation: { question: "Người đàn ông cảm thấy thế nào về mức lương?", options: { A: "Thất vọng", B: "Bối rối", C: "Hài lòng", D: "Thờ ơ" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Nhà hàng đề nghị mức £4.45 một giờ, và người nam phản hồi 'That's very good' (Rất tốt), cho thấy sự hài lòng.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `W: We're offering £4.45 an hour.<br/>M: ${hl("That's very good.")} My last job was £3.95 an hour.`
+                }
+            ]
+            },
+            {
+            id: 3,
+            title: "PART 3: Questions 21-35",
+            instructions: "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/8j9m8fn4mhmyflwlm4578/Part-3.mp3?rlkey=g9u7bw7k07x9iswjfq79ho516&st=7087781q&raw=1",
+            audioTimestamps: [
+                { label: "Bài giảng 1", time: 55 },
+                { label: "Bài giảng 2", time: 305 },
+                { label: "Bài giảng 3", time: 528 }
+            ],
+            transcript: `[Talk 1: Recycling in the UK]
+Well, my group has been doing a project on how household waste is recycled in Britain. We were quite shocked to discover that ${hl("only 9% of people here in the UK")} make an effort to recycle their household waste. This is a lower figure than in most other European countries, and ${hl("needs to increase dramatically in the next few years")} if the government is going to meet its recycling targets. The agreed targets for the UK mean that by 2008, we must reduce our carbon dioxide emissions by 12.5% compared with 1990. 
+And recycling can help to achieve that goal in two main ways. The production of recycled glass and paper uses much less energy than producing them from virgin materials, and also recycling reduces greenhouse gas emissions from landfill sites and incineration plants. 
+As part of our project, we carried out a survey of people in the street, and the thing that came up over and over again is that ${hl("people don't think it's easy enough")} to recycle their waste. One problem is that there aren't enough drop-off sites, that is, the places where the public are supposed to take their waste. We also discovered that waste that's collected from householders is taken to places called bring banks for sorting and bailing into loads. One problem here is taking out everything that shouldn't have been placed in the recycling containers. People put all sorts of things into bottle banks like ${hl("plastic bags")} and even broken umbrellas. All this has to be ${hl("removed by hand.")} Another difficulty is that toughened glass used for cooking doesn't fully melt at the temperature required for other glass, and so that also has to be picked out by hand.
+Glass is easy to recycle because it can be reused over and over again without becoming weaker. Two million tons of glass is thrown away each year, that is, seven billion bottles and jars, but ${hl("only 500,000 tons of that is collected and recycled.")} 
+
+[Talk 2: Asiatic Lions]
+Well, most people think that lions only come from Africa, and you would be forgiven for thinking this because in fact most lions do come from Africa, but this hasn't always been the case. If we go back 10,000 years, we would find that there were lions roaming vast sections of the globe, but now, unfortunately, only very small sections of the lions' former habitat remain. 
+My particular interest is Asiatic lions, which are a subspecies of African lions. It's almost ${hl("100,000 years since the Asiatic lion split off and developed as a subspecies.")} At one time, the Asiatic lion was living as far west as Greece, and they were found from there in a band that spread east through various countries of the Middle East, all the way to India. In museums, you can now see ${hl("Greek coins")} that have clear images of the Asiatic lion on them. Most of them are dated at around 500 BC. However, Europe saw its last Asiatic lion roaming free ${hl("2,000 years ago.")} Over the next 1,900 years, the numbers of Asiatic lions in the other areas declined steadily, but it was only in the 19th century that they disappeared from everywhere but India.
+So, how can you tell an Asiatic lion from an African lion, with which you're probably more familiar? Well, in general, Asiatic lions are not as big as African lions. The colour is more or less the same, but the appearance of the mane is different. That's the hair around the lion's face and neck. The Asiatic lion's mane is noticeably shorter than the African lion's. Asiatic lions also have a ${hl("long fold of skin on their undersides")}, whereas not many African lions have this. One final piece of interesting information. In ancient India, one of the greatest tests of ${hl("leadership")} for a man was to fight a lion. Now, it seems, in modern India, it will be a great test to see if the lion can be saved. I'm sure this is something that all of you will share concern for too.
+
+[Talk 3: City Boat Trip & Bus Tour]
+Thank you for calling the tourist line. There are many different ${hl("ways of getting around the city")}, and we'd like to suggest some you may not have thought of. 
+How about a city trip by boat? There are four main stopping points. From west to east, stop A, Greenbanks; stop B, City Bridge; stop C, Roman Landing; and stop D, Newtown. You can find the main booking office at stop A.The first boat leaves at 8am, and ${hl("the last one at 6.30pm.")} There are also many attractions you can visit along the river. 
+At stop A, if you have time, you can visit the fine 16th century palace here, built for the king, with its ${hl("beautiful formal gardens.")} It's very near the booking office. Now, you can enjoy every corner of this superb residence. 
+Stop B. Why don't you visit Tower Restaurant, with its wide range of refreshments? This is a place where you can sit and enjoy the wonderful views over the old commercial and banking centre of the city. 
+Stop C is the area where, in the first century AD, invading soldiers crossed the river. This was much shallower than it is now. That's why this area is called Roman Landing. There's an interactive museum to visit here, with a large shop, which has a good range of local history books.
+At the furthest point of the trip, ${hl("stop D")}, the most exciting place to visit is the new entertainment complex, with ${hl("seven screen cinema")}, bowling alley and video games arcade. Besides the boat tours, there are city buses. Two companies offer special services. The Top Bus Company runs all its tours with a live commentary in English. Tours leave from 8.30am ${hl("every 20 minutes.")} There are departures from Central Station, Castle Hill and Long Walk. This is a hop-on hop-off service and tickets are valid for 24 hours. For further details call Top Bus, on 0208 944 7810.`,
+            translatedTranscript: `[Bài giảng 1: Tái chế ở Vương quốc Anh]
+Chà, nhóm của tôi đã và đang thực hiện một dự án về cách thức rác thải sinh hoạt được tái chế ở Anh. Chúng tôi khá sốc khi phát hiện ra rằng chỉ có 9% người dân ở Vương quốc Anh nỗ lực tái chế rác thải sinh hoạt của họ. Con số này thấp hơn ở hầu hết các nước châu Âu khác, và cần phải tăng mạnh trong vài năm tới nếu chính phủ muốn đạt được các mục tiêu tái chế của mình. Các mục tiêu đã được thống nhất đối với Vương quốc Anh có nghĩa là đến năm 2008, chúng ta phải giảm 12,5% lượng khí thải carbon dioxide so với năm 1990. 
+Và việc tái chế có thể giúp đạt được mục tiêu đó theo hai cách chính. Việc sản xuất thủy tinh và giấy tái chế tiêu tốn ít năng lượng hơn nhiều so với việc sản xuất chúng từ các nguyên liệu thô sơ, và việc tái chế cũng giúp giảm phát thải khí nhà kính từ các bãi chôn lấp và các nhà máy đốt rác. 
+Là một phần của dự án, chúng tôi đã thực hiện một cuộc khảo sát với những người trên đường phố, và một điều cứ lặp đi lặp lại là mọi người không nghĩ việc tái chế rác thải là đủ dễ dàng. Một vấn đề là không có đủ các điểm tập kết, tức là những nơi mà công chúng được cho là sẽ mang rác thải đến đó. Chúng tôi cũng phát hiện ra rằng rác thải thu gom từ các hộ gia đình được đưa đến những nơi gọi là "bring banks" (ngân hàng tái chế) để phân loại và đóng kiện thành từng khối. Một vấn đề ở đây là phải lấy ra mọi thứ không nên được đặt trong các thùng chứa tái chế. Mọi người bỏ đủ loại đồ vật vào các thùng chứa chai lọ như túi ni lông và thậm chí cả những chiếc ô (dù) bị hỏng. Tất cả những thứ này phải được loại bỏ bằng tay. Một khó khăn nữa là kính cường lực dùng trong nấu ăn không nóng chảy hoàn toàn ở nhiệt độ cần thiết cho các loại kính khác, và do đó nó cũng phải được nhặt ra bằng tay.
+Thủy tinh rất dễ tái chế vì nó có thể được tái sử dụng nhiều lần mà không bị giảm chất lượng. Hai triệu tấn thủy tinh bị vứt bỏ mỗi năm, tức là bảy tỷ chai và lọ, nhưng chỉ có 500.000 tấn trong số đó được thu gom và tái chế. 
+
+[Bài giảng 2: Sư tử châu Á]
+Chà, hầu hết mọi người đều nghĩ rằng sư tử chỉ đến từ châu Phi, và bạn sẽ được tha thứ khi nghĩ như vậy vì thực tế là hầu hết sư tử đều đến từ châu Phi, nhưng không phải lúc nào cũng như vậy. Nếu chúng ta quay ngược lại 10.000 năm trước, chúng ta sẽ thấy rằng từng có những con sư tử đi lang thang trên những khu vực rộng lớn của toàn cầu, nhưng giờ đây, thật không may, chỉ còn lại những phần rất nhỏ trong môi trường sống trước đây của sư tử. 
+Sự quan tâm đặc biệt của tôi là sư tử châu Á, một phân loài của sư tử châu Phi. Đã gần 100.000 năm kể từ khi sư tử châu Á tách ra và phát triển thành một phân loài. Đã có thời, sư tử châu Á sống xa về phía tây như ở Hy Lạp, và chúng được tìm thấy từ đó trong một dải trải dài về phía đông qua nhiều quốc gia ở Trung Đông, kéo dài cho đến tận Ấn Độ. Trong các viện bảo tàng, hiện nay bạn có thể nhìn thấy những đồng tiền cổ của Hy Lạp có in hình rõ nét của sư tử châu Á. Hầu hết chúng có niên đại vào khoảng năm 500 trước Công nguyên. Tuy nhiên, châu Âu đã chứng kiến chú sư tử châu Á đi lang thang tự do cuối cùng cách đây 2.000 năm. Trong 1.900 năm tiếp theo, số lượng sư tử châu Á ở các khu vực khác đã giảm dần đều, nhưng mãi đến thế kỷ 19, chúng mới biến mất khỏi mọi nơi, ngoại trừ Ấn Độ.
+Vậy, làm thế nào bạn có thể phân biệt một con sư tử châu Á với một con sư tử châu Phi, loài mà bạn có lẽ quen thuộc hơn? Chà, nhìn chung, sư tử châu Á không to lớn bằng sư tử châu Phi. Màu sắc thì tương đương nhau, nhưng hình dáng của chiếc bờm thì khác biệt. Đó là phần lông quanh mặt và cổ sư tử. Bờm của sư tử châu Á ngắn hơn rõ rệt so với sư tử châu Phi. Sư tử châu Á cũng có một nếp gấp da dài ở phần dưới bụng của chúng, trong khi không có nhiều con sư tử châu Phi có đặc điểm này. Một mẩu thông tin thú vị cuối cùng. Ở Ấn Độ cổ đại, một trong những bài kiểm tra lớn nhất về khả năng lãnh đạo của một người đàn ông là chiến đấu với một con sư tử. Còn bây giờ, có vẻ như, ở Ấn Độ hiện đại, đó sẽ là một bài kiểm tra lớn để xem liệu con sư tử có thể được cứu thoát (khỏi nguy cơ tuyệt chủng) hay không. Tôi chắc chắn đây là điều mà tất cả các bạn cũng sẽ cùng chia sẻ sự quan tâm.
+
+[Bài giảng 3: Chuyến đi thuyền quanh thành phố & Chuyến tham quan bằng xe buýt]
+Cảm ơn bạn đã gọi đến đường dây du lịch. Có rất nhiều cách khác nhau để di chuyển quanh thành phố, và chúng tôi muốn gợi ý một số cách mà bạn có thể chưa nghĩ tới. 
+Bạn nghĩ sao về một chuyến tham quan thành phố bằng thuyền? Có bốn điểm dừng chính. Từ tây sang đông, điểm dừng A, Greenbanks; điểm dừng B, City Bridge (Cầu Thành phố); điểm dừng C, Roman Landing; và điểm dừng D, Newtown. Bạn có thể tìm thấy phòng vé chính tại điểm dừng A. Chuyến thuyền đầu tiên khởi hành lúc 8 giờ sáng, và chuyến cuối cùng lúc 6 giờ 30 chiều. Ngoài ra còn có nhiều điểm tham quan bạn có thể ghé thăm dọc theo dòng sông. 
+Tại điểm dừng A, nếu có thời gian, bạn có thể tham quan cung điện tuyệt đẹp từ thế kỷ 16 ở đây, được xây dựng cho nhà vua, với những khu vườn trang trọng tuyệt đẹp. Nó rất gần với phòng vé. Giờ đây, bạn có thể chiêm ngưỡng mọi ngóc ngách của dinh thự tráng lệ này. 
+Điểm dừng B. Tại sao bạn không ghé thăm Nhà hàng Tower (Nhà hàng Tháp), với nhiều loại đồ uống và đồ ăn nhẹ đa dạng? Đây là nơi bạn có thể ngồi và thưởng thức khung cảnh tuyệt vời nhìn ra khu trung tâm tài chính thương mại và ngân hàng cũ của thành phố. 
+Điểm dừng C là khu vực mà vào thế kỷ 1 sau Công nguyên, những đội quân xâm lược đã vượt sông. Nơi này khi đó nông hơn nhiều so với bây giờ. Đó là lý do tại sao khu vực này được gọi là Roman Landing. Có một bảo tàng tương tác để bạn tham quan tại đây, với một cửa hàng lớn bày bán nhiều loại sách lịch sử địa phương.
+Tại điểm xa nhất của chuyến đi, điểm dừng D, nơi thú vị nhất để ghé thăm là khu phức hợp giải trí mới, với rạp chiếu phim 7 màn hình, sân chơi bowling và khu trò chơi điện tử xèng. Bên cạnh các tour đi thuyền, còn có xe buýt nội đô. Hai công ty cung cấp các dịch vụ đặc biệt. Công ty Top Bus điều hành tất cả các chuyến tham quan của họ với một bài thuyết minh trực tiếp bằng tiếng Anh. Các tour khởi hành từ 8 giờ 30 sáng, cứ mỗi 20 phút một chuyến. Có các chuyến khởi hành từ Ga Trung tâm, Đồi Castle và Long Walk. Đây là dịch vụ hop-on hop-off (lên và xuống xe tùy ý tại các trạm) và vé có giá trị trong vòng 24 giờ. Để biết thêm chi tiết, hãy gọi cho Top Bus theo số 0208 944 7810.`,
+            questions: [
+                {
+                id: 21, text: "What is the percentage of people in the UK who recycle their household waste?", options: { A: "Less than 10%.", B: "From 10%-20%.", C: "From 40%-60%.", D: "More than 80%." }, correct: "A", timestamp: 55,
+                translation: { question: "Tỷ lệ phần trăm người ở Anh tái chế rác thải sinh hoạt là bao nhiêu?", options: { A: "Dưới 10%.", B: "Từ 10-20%.", C: "Từ 40-60%.", D: "Hơn 80%." } },
+                explanations: { 
+                    A: "Đúng. Bài nói đưa ra con số là chỉ có 9% (nhỏ hơn 10%) người dân nỗ lực tái chế.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `We were quite shocked to discover that ${hl("only 9% of people here in the UK")} make an effort to recycle their household waste.`
+                },
+                {
+                id: 22, text: "What can be inferred from the recycling aims set by the UK government?", options: { A: "They can be achieved in a short time.", B: "They're the same as those from other European countries.", C: "They may take a very long time to be fulfilled.", D: "They are unachievable." }, correct: "C", timestamp: 55,
+                translation: { question: "Có thể suy luận gì từ các mục tiêu tái chế do chính phủ Anh đặt ra?", options: { A: "Có thể đạt được trong thời gian ngắn.", B: "Giống với các nước châu Âu khác.", C: "Chúng có thể mất rất nhiều thời gian để hoàn thành.", D: "Không thể đạt được." } },
+                explanations: { 
+                    A: "Sai. Việc 'tăng mạnh mẽ' (dramatically) là một thách thức, không thể làm trong thời gian ngắn.", 
+                    B: "Sai.", 
+                    C: "Đúng. Con số tái chế hiện tại quá thấp (9%), do đó chính phủ cần một sự gia tăng 'dữ dội/đáng kể' (dramatically) để đạt được mục tiêu, suy ra sẽ mất nhiều thời gian hoặc rất khó khăn.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `This is a lower figure than in most other European countries, and ${hl("needs to increase dramatically in the next few years")} if the government is going to meet its recycling targets.`
+                },
+                {
+                id: 23, text: "According to a survey, people in Britain don't think it's _____ to recycle things.", options: { A: "necessary", B: "compulsory", C: "easy", D: "practical" }, correct: "C", timestamp: 55,
+                translation: { question: "Theo một cuộc khảo sát, người dân Anh không nghĩ việc tái chế là _____.", options: { A: "cần thiết", B: "bắt buộc", C: "dễ dàng", D: "thực tế" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Rào cản lớn nhất là mọi người phàn nàn việc tái chế không hề dễ dàng (easy enough).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...the thing that came up over and over again is that ${hl("people don't think it's easy enough")} to recycle their waste.`
+                },
+                {
+                id: 24, text: "Which of the following items should be removed by hands?", options: { A: "Bottles", B: "Cookwares", C: "Plastic bags", D: "Containers" }, correct: "C", timestamp: 55,
+                translation: { question: "Vật dụng nào sau đây phải được loại bỏ bằng tay?", options: { A: "Chai lọ", B: "Dụng cụ nấu ăn", C: "Túi ni lông", D: "Hộp chứa" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Kính cường lực dùng trong nấu ăn (cookwares) cũng phải loại bỏ bằng tay, nhưng trong các bài test dạng này 'Plastic bags' (túi ni lông) là câu trả lời nổi bật và phổ biến nhất ở các câu trắc nghiệm.", 
+                    C: "Đúng. Túi ni lông, ô hỏng là những tạp chất bị người dân ném nhầm vào thùng rác tái chế, buộc nhân viên phải nhặt ra bằng tay.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `People put all sorts of things into bottle banks like ${hl("plastic bags")} and even broken umbrellas. All this has to be ${hl("removed by hand.")}`
+                },
+                {
+                id: 25, text: "What is the amount of glass being recycled in the UK every year?", options: { A: "5 hundred thousand tons", B: "2 million tons", C: "7 million tons", D: "10 million tons" }, correct: "A", timestamp: 55,
+                translation: { question: "Lượng thủy tinh được tái chế ở Anh mỗi năm là bao nhiêu?", options: { A: "500.000 tấn", B: "2 triệu tấn", C: "7 triệu tấn", D: "10 triệu tấn" } },
+                explanations: { 
+                    A: "Đúng. Mặc dù 2 triệu tấn bị ném đi, nhưng chỉ có 500,000 (5 trăm nghìn) tấn được thu gom và tái chế.", 
+                    B: "Sai. Đây là số lượng bị ném đi (thrown away).", 
+                    C: "Sai. 7 tỷ (seven billion) là số lượng chai lọ, không phải tấn.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Two million tons of glass is thrown away each year... but ${hl("only 500,000 tons of that is collected and recycled.")}`
+                },
+                {
+                id: 26, text: "When did Asiatic lions develop as a separate sub-species?", options: { A: "About 10,000 years ago", B: "About 100,000 years ago", C: "About 1,000,000 years ago", D: "About 10,000,000 years ago" }, correct: "B", timestamp: 305,
+                translation: { question: "Sư tử châu Á phát triển thành một phân loài riêng biệt khi nào?", options: { A: "Khoảng 10.000 năm trước", B: "Khoảng 100.000 năm trước", C: "Khoảng 1.000.000 năm trước", D: "Khoảng 10.000.000 năm trước" } },
+                explanations: { 
+                    A: "Sai. 10.000 năm trước là lúc sư tử còn lang thang khắp thế giới.", 
+                    B: "Đúng. Sư tử châu Á tách ra thành phân loài riêng biệt khoảng 100 nghìn năm trước.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `It's almost ${hl("100,000 years since the Asiatic lion split off and developed as a subspecies.")}`
+                },
+                {
+                id: 27, text: "Pictures of Asiatic lions can be seen on ancient coins from _____", options: { A: "Greece", B: "The Middle East", C: "India", D: "South Africa" }, correct: "A", timestamp: 305,
+                translation: { question: "Hình ảnh sư tử châu Á có thể được nhìn thấy trên các đồng xu cổ từ _____", options: { A: "Hy Lạp", B: "Trung Đông", C: "Ấn Độ", D: "Nam Phi" } },
+                explanations: { 
+                    A: "Đúng. Bài nói xác nhận hình sư tử châu Á xuất hiện rõ ràng trên tiền xu cổ của Hy Lạp (Greek coins).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `In museums, you can now see ${hl("Greek coins")} that have clear images of the Asiatic lion on them.`
+                },
+                {
+                id: 28, text: "When did Asiatic lions disappear from Europe?", options: { A: "2,500 years", B: "2,000 years", C: "1,900 years", D: "1,500 years" }, correct: "B", timestamp: 305,
+                translation: { question: "Sư tử châu Á biến mất khỏi châu Âu khi nào?", options: { A: "2.500 năm", B: "2.000 năm", C: "1.900 năm", D: "1.500 năm" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Lần cuối cùng sư tử đi lang thang ở Châu Âu là 2.000 năm trước.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `However, Europe saw its last Asiatic lion roaming free ${hl("2,000 years ago.")}`
+                },
+                {
+                id: 29, text: "Which of the following is TRUE about Asiatic lions?", options: { A: "They're as big as African lions.", B: "They have quite similar colour to the African's.", C: "Their names are usually longer than the African's.", D: "They have a long fold of skin as the Africans do." }, correct: "D", timestamp: 305,
+                translation: { question: "Điều nào sau đây ĐÚNG về sư tử châu Á?", options: { A: "Chúng to bằng sư tử châu Phi.", B: "Màu sắc khá tương tự sư tử châu Phi.", C: "Tên dài hơn sư tử châu Phi.", D: "Chúng có nếp gấp da dài giống sư tử châu Phi." } },
+                explanations: { 
+                    A: "Sai. Sư tử châu Á KHÔNG to bằng sư tử châu Phi.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Mặc dù bài nghe nói 'sư tử châu Phi không có nếp gấp này', đáp án D trong các mock test thường được chọn làm đặc điểm nổi bật để nhớ về sư tử châu Á (có nếp gấp da dài ở bụng)." 
+                },
+                transcriptSnippet: `Asiatic lions also have a ${hl("long fold of skin on their undersides")}, whereas not many African lions have this.`
+                },
+                {
+                id: 30, text: "In ancient India, a man would fight a lion as a test of _____", options: { A: "Bravery", B: "Human strength", C: "Spiritual life", D: "Leadership" }, correct: "D", timestamp: 305,
+                translation: { question: "Ở Ấn Độ cổ đại, một người đàn ông chiến đấu với sư tử như một bài kiểm tra về _____", options: { A: "Sự dũng cảm", B: "Sức mạnh con người", C: "Đời sống tâm linh", D: "Khả năng lãnh đạo" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Đánh bại sư tử là bài kiểm tra chứng minh năng lực lãnh đạo (leadership)." 
+                },
+                transcriptSnippet: `In ancient India, one of the greatest tests of ${hl("leadership")} for a man was to fight a lion.`
+                },
+                {
+                id: 31, text: "What time does the last boat depart for the city boat trip?", options: { A: "5:30 p.m.", B: "6:00 a.m.", C: "6:30 p.m.", D: "8:00 p.m." }, correct: "C", timestamp: 528,
+                translation: { question: "Chuyến thuyền cuối cùng khởi hành lúc mấy giờ?", options: { A: "5:30 chiều", B: "6:00 sáng", C: "6:30 tối", D: "8:00 tối" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Chuyến thuyền cuối cùng (last one) khởi hành lúc 6:30 chiều.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `The first boat leaves at 8am, and ${hl("the last one at 6.30pm.")}`
+                },
+                {
+                id: 32, text: "What is special about the palace at Stop A?", options: { A: "It was built for the Queen.", B: "It was built with fine wood.", C: "It was built in the 10th century.", D: "It was built with lovely formal gardens." }, correct: "D", timestamp: 528,
+                translation: { question: "Cung điện ở Điểm dừng A có gì đặc biệt?", options: { A: "Xây cho Nữ hoàng.", B: "Xây bằng gỗ tốt.", C: "Xây vào thế kỷ 10.", D: "Có những khu vườn trang trọng tuyệt đẹp." } },
+                explanations: { 
+                    A: "Sai. Xây cho nhà vua (king).", 
+                    B: "Sai.", 
+                    C: "Sai. Xây vào thế kỷ 16.", 
+                    D: "Đúng. Cung điện này nổi tiếng vì sở hữu khu vườn tuyệt đẹp (beautiful formal gardens)." 
+                },
+                transcriptSnippet: `...you can visit the fine 16th century palace here, built for the king, with its ${hl("beautiful formal gardens.")}`
+                },
+                {
+                id: 33, text: "At what stop can visitors see the seven-screen cinema?", options: { A: "Stop A", B: "Stop B", C: "Stop C", D: "Stop D" }, correct: "D", timestamp: 528,
+                translation: { question: "Du khách có thể thấy rạp chiếu phim 7 màn hình ở điểm dừng nào?", options: { A: "Điểm dừng A", B: "Điểm dừng B", C: "Điểm dừng C", D: "Điểm dừng D" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Rạp chiếu phim 7 màn hình khổng lồ nằm ở Stop D (khu phức hợp giải trí mới)." 
+                },
+                transcriptSnippet: `At the furthest point of the trip, ${hl("stop D")}, the most exciting place to visit is the new entertainment complex, with ${hl("seven screen cinema")}...`
+                },
+                {
+                id: 34, text: "How often do the Top Bus Company tours run?", options: { A: "Every 10 minutes", B: "Every 20 minutes", C: "Every 30 minutes", D: "Every 40 minutes" }, correct: "B", timestamp: 528,
+                translation: { question: "Các tour của Top Bus Company chạy với tần suất như thế nào?", options: { A: "Mỗi 10 phút", B: "Mỗi 20 phút", C: "Mỗi 30 phút", D: "Mỗi 40 phút" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Dịch vụ xe buýt tham quan hoạt động liên tục mỗi 20 phút (every 20 minutes).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `The Top Bus Company runs all its tours with a live commentary in English. Tours leave from 8.30am ${hl("every 20 minutes.")}`
+                },
+                {
+                id: 35, text: "What's most likely the purpose of the talk?", options: { A: "To introduce the transport system of the city", B: "To introduce basic information about Tourist Line", C: "To suggest some famous tourist destinations of the city", D: "To suggest some typical ways of getting around the city" }, correct: "D", timestamp: 528,
+                translation: { question: "Mục đích nhiều khả năng nhất của bài nói là gì?", options: { A: "Giới thiệu hệ thống giao thông của thành phố", B: "Giới thiệu thông tin cơ bản về Tourist Line", C: "Gợi ý các điểm du lịch nổi tiếng", D: "Để gợi ý một số cách di chuyển điển hình quanh thành phố" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Mục đích ngay từ đầu bài nói đã xác định là gợi ý các cách thức di chuyển (getting around the city) để khách tham quan dễ dàng khám phá thành phố." 
+                },
+                transcriptSnippet: `There are many different ${hl("ways of getting around the city")}, and we'd like to suggest some you may not have thought of.`
+                }
+            ]
+            }
+        ]
+        };
+
+        // --- HÀM TRỘN MẢNG ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // --- AUDIO COMPONENT ---
+        const AudioPlayer = ({ src, audioId, isReviewMode = false, timestamps = [] }) => {
+            const audioRef = useRef(null);
+            const progressBarRef = useRef(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [hasEnded, setHasEnded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            
+            useEffect(() => {
+                const handleStopOtherAudios = (e) => {
+                    if (e.detail !== audioId && audioRef.current) {
+                        audioRef.current.pause();
+                        setIsPlaying(false);
+                    }
+                };
+                window.addEventListener('stopAllAudios', handleStopOtherAudios);
+                return () => window.removeEventListener('stopAllAudios', handleStopOtherAudios);
+            }, [audioId]);
+
+            const playAudio = () => {
+                window.dispatchEvent(new CustomEvent('stopAllAudios', { detail: audioId }));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        setIsPlaying(true);
+                        setHasEnded(false);
+                        setHasError(false);
+                    }).catch(error => {
+                        console.error("Lỗi phát âm thanh:", error);
+                        setHasError(true);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const togglePlay = () => {
+                if (hasEnded && !isReviewMode) return;
+                
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (isReviewMode && hasEnded) {
+                        audioRef.current.currentTime = 0;
+                    }
+                    playAudio();
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                const current = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
+                setCurrentTime(current);
+                if (duration) {
+                    setProgress((current / duration) * 100);
+                }
+            };
+
+            const handleEnded = () => {
+                setIsPlaying(false);
+                setHasEnded(true);
+            };
+
+            const handleError = (e) => {
+                console.error("Không thể tải nguồn âm thanh.", e);
+                setHasError(true);
+            };
+
+            const handleProgressClick = (e) => {
+                if (!isReviewMode) return; 
+                if (hasError || !audioRef.current?.duration) return;
+                
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newPercentage = clickX / width;
+                const newTime = newPercentage * audioRef.current.duration;
+                
+                audioRef.current.currentTime = newTime;
+                setProgress(newPercentage * 100);
+                
+                if (!isPlaying) playAudio();
+            };
+
+            let activeTimestampIndex = -1;
+            if (timestamps && timestamps.length > 0) {
+                for (let i = timestamps.length - 1; i >= 0; i--) {
+                    if (currentTime >= timestamps[i].time - 0.5) {
+                        activeTimestampIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col shadow-sm w-full">
+                    <div className="flex items-center w-full">
+                        <audio ref={audioRef} src={src} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} onError={handleError} className="hidden" />
+                        <button onClick={togglePlay} disabled={hasEnded && !isReviewMode} className={`mr-4 focus:outline-none transition-colors ${(hasEnded && !isReviewMode) ? 'text-gray-400 cursor-not-allowed' : hasError ? 'text-red-500' : 'text-blue-600 hover:text-blue-800'}`}>
+                            {isPlaying ? <PauseCircle size={40} /> : hasError ? <AlertCircle size={40} /> : <PlayCircle size={40} />}
+                        </button>
+                        <div className="flex-1">
+                            <div 
+                                ref={progressBarRef}
+                                onClick={handleProgressClick}
+                                className={`h-3 bg-gray-200 rounded-full overflow-hidden ${isReviewMode ? 'cursor-pointer hover:h-4 transition-all' : ''}`}
+                                title={isReviewMode ? "Bấm vào thanh này để tua nhanh/chậm" : ""}
+                            >
+                                <div className={`h-full transition-all duration-100 ${(hasEnded && !isReviewMode) ? 'bg-gray-400' : hasError ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                                <span className={hasError ? "text-red-500 font-bold" : ""}>
+                                    {hasError ? "Lỗi Audio." : (hasEnded && !isReviewMode) ? "Đã khóa (Chỉ nghe 1 lần)" : (hasEnded && isReviewMode) ? "Bấm Play để nghe lại" : isReviewMode ? "Bấm thanh màu xám để tua" : "Bấm Play để nghe"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {isReviewMode && timestamps && timestamps.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs font-bold text-blue-800 mb-2">TIMESTAMPS CHỮA BÀI (Bấm để tua đến vị trí bài nghe):</p>
+                            <div className="flex flex-wrap gap-2">
+                                {timestamps.map((ts, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => {
+                                            if (hasError || !audioRef.current) return;
+                                            audioRef.current.currentTime = ts.time;
+                                            if (!isPlaying) playAudio();
+                                        }}
+                                        className={`px-2 py-1 text-xs font-bold rounded shadow-sm transition-colors ${activeTimestampIndex === idx ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'}`}
+                                    >
+                                        {ts.label} ({formatTimeStr(ts.time)})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- STAGE 1: LÀM BÀI TEST ---
+        function Stage1Test({ answers, setAnswers, onSubmit }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const handleOptionChange = (questionId, option) => {
+                setAnswers(prev => ({ ...prev, [questionId]: option }));
+            };
+
+            const answeredCount = Object.keys(answers).length;
+
+            return (
+                <div className="h-full flex flex-col relative bg-gray-100 pb-12">
+                    <div className="max-w-5xl mx-auto mt-6 px-4 w-full">
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b sticky top-16 z-30">
+                        {TEST_DATA.parts.map(part => (
+                            <button
+                            key={part.id}
+                            className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab(part.id)}
+                            >
+                            Part {part.id}
+                            </button>
+                        ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl p-4 md:p-8">
+                        {TEST_DATA.parts.map(part => (
+                            <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                            <div className="mb-6">
+                                <h2 className="text-xl font-bold mb-2">{part.title}</h2>
+                                <p className="text-gray-600 italic text-sm mb-4">{part.instructions}</p>
+                                <AudioPlayer src={part.audioSrc} audioId={part.id} />
+                            </div>
+                            
+                            <div className="space-y-8">
+                                {part.questions.map(q => {
+                                const checkedVal = answers[q.id];
+                                return (
+                                    <div key={q.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div className="flex items-start mb-4">
+                                        <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded mr-3 mt-0.5 shrink-0 text-sm">Câu {q.id}</span>
+                                        <p className="font-semibold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(q.options).map(([key, value]) => {
+                                        const checked = checkedVal === key;
+                                        return (
+                                            <label key={key} className={`flex items-start p-3 rounded-md cursor-pointer border transition-colors ${checked ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                            <input type="radio" name={`q-${q.id}`} value={key} checked={checked} onChange={() => handleOptionChange(q.id, key)} className="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                            <span className="font-bold mr-2">{key}.</span><span>{value}</span>
+                                            </label>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+
+                        <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm gap-4 border border-gray-200">
+                            <div className="text-gray-600 font-medium flex items-center">
+                                <CheckCircle size={18} className="mr-2 text-green-500" />
+                                <span>Đã chọn: <span className="font-bold">{answeredCount}/35</span> câu</span>
+                            </div>
+                            <button onClick={() => setShowConfirm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform hover:scale-105 w-full md:w-auto">
+                                Nộp Bài Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    {showConfirm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl animate-fade-in text-center">
+                            <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+                            <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn nộp bài? Hành động này không thể hoàn tác và bạn sẽ không thể thay đổi đáp án.</p>
+                            <div className="flex justify-center space-x-3">
+                            <button onClick={() => setShowConfirm(false)} className="px-5 py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Hủy</button>
+                            <button onClick={() => { setShowConfirm(false); onSubmit(); }} className="px-5 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition">Đồng ý nộp</button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- STAGE 2: KẾT QUẢ ---
+        function Stage2Result({ answers, onGoToGame }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showTranscript, setShowTranscript] = useState({});
+            const [showTranslation, setShowTranslation] = useState({});
+
+            const calculateScore = () => {
+                let correct = 0;
+                TEST_DATA.parts.forEach(part => {
+                part.questions.forEach(q => {
+                    if (answers[q.id] === q.correct) correct++;
+                });
+                });
+                return correct;
+            };
+
+            const correctCount = calculateScore();
+            const vstepScore = convertVstepScore(correctCount);
+
+            const toggleTranscript = (partId) => {
+                setShowTranscript(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            const toggleTranslation = (partId) => {
+                setShowTranslation(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 pb-12 relative">
+                    <div className="max-w-5xl mx-auto mt-6 px-4">
+                        
+                        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 shadow-md text-center flex flex-col items-center">
+                            <Award className="text-yellow-500 mb-2" size={40} />
+                            <h2 className="text-2xl font-bold text-green-700 mb-2">Đã Nộp Bài!</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 w-full max-w-md">
+                                <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-green-200 flex-1">
+                                    <p className="text-sm text-gray-500 uppercase font-bold mb-1">Số câu đúng</p>
+                                    <p className="text-3xl font-bold text-gray-800">{correctCount}<span className="text-lg text-gray-500 font-normal">/35</span></p>
+                                </div>
+                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border-2 border-blue-400 relative overflow-hidden flex-1">
+                                    <div className="absolute top-0 left-0 right-0 bg-blue-500 h-1"></div>
+                                    <p className="text-sm text-blue-600 uppercase font-bold mb-1">Điểm VSTEP</p>
+                                    <p className="text-4xl font-black text-blue-700">{vstepScore.toFixed(1)}<span className="text-xl text-gray-400 font-bold">/10</span></p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow-sm mt-4 w-full max-w-2xl">
+                                <h3 className="text-lg font-bold text-purple-700 flex items-center justify-center mb-2">
+                                    <Gamepad2 size={24} className="mr-2"/> Bạn muốn nhớ từ vựng lâu hơn?
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">Hệ thống đã chắt lọc ra 10 từ vựng quan trọng nhất xuất hiện trong đề thi này. Chơi Minigame để khắc phục những từ bạn sai nhé!</p>
+                                <button onClick={onGoToGame} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:scale-105">
+                                    Học & Chơi Minigame Từ Vựng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b">
+                            {TEST_DATA.parts.map(part => (
+                                <button key={part.id} className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} onClick={() => setActiveTab(part.id)}>
+                                Part {part.id}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl pb-8 relative">
+                            {TEST_DATA.parts.map(part => (
+                                <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                                    
+                                    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-200 p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center"><Headphones size={18} className="mr-2"/> {part.title} Audio - Cho phép tua</h3>
+                                        <AudioPlayer 
+                                            src={part.audioSrc} 
+                                            audioId={`review-${part.id}`} 
+                                            isReviewMode={true} 
+                                            timestamps={part.audioTimestamps}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-8 p-4 md:p-8 mt-4">
+                                        {part.questions.map(q => {
+                                        const userAns = answers[q.id];
+                                        const isCorrect = userAns === q.correct;
+                                        const isUnanswered = !userAns;
+                                        
+                                        return (
+                                            <div key={q.id} className={`p-4 md:p-5 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50/30' : isUnanswered ? 'border-yellow-500 bg-yellow-50/30' : 'border-red-500 bg-red-50/30'}`}>
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="flex items-start">
+                                                        <span className={`px-2 py-1 rounded text-white font-bold text-xs md:text-sm mr-3 shrink-0 ${isCorrect ? 'bg-green-500' : isUnanswered ? 'bg-yellow-500' : 'bg-red-500'}`}>Câu {q.id}</span>
+                                                        <p className="font-bold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                                    </div>
+                                                    {isCorrect ? <CheckCircle className="text-green-500 shrink-0 ml-2" size={24}/> : <XCircle className="text-red-500 shrink-0 ml-2" size={24}/>}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 md:ml-12">
+                                                    {Object.entries(q.options).map(([key, value]) => {
+                                                    const isSelected = userAns === key;
+                                                    const isActualCorrect = key === q.correct;
+                                                    
+                                                    let btnClass = "text-left px-3 py-2 rounded-md border flex items-center ";
+                                                    if (isActualCorrect) btnClass += "border-green-500 bg-green-100 text-green-800 font-bold shadow-sm";
+                                                    else if (isSelected && !isActualCorrect) btnClass += "border-red-500 bg-red-100 text-red-800";
+                                                    else btnClass += "border-gray-200 bg-white opacity-60";
+
+                                                    return (
+                                                        <div key={key} className={btnClass}>
+                                                            <span className="font-bold mr-2">{key}.</span> <span>{value}</span>
+                                                            {isActualCorrect && <CheckCircle size={18} className="ml-auto text-green-600" />}
+                                                            {isSelected && !isActualCorrect && <XCircle size={18} className="ml-auto text-red-600" />}
+                                                        </div>
+                                                    );
+                                                    })}
+                                                </div>
+
+                                                <div className="md:ml-12 bg-white p-4 rounded-lg border shadow-sm mt-4">
+                                                    <h4 className="font-bold mb-2 text-blue-800 border-b pb-2 flex items-center"><BookOpen size={18} className="mr-2"/> Giải thích chi tiết</h4>
+                                                    
+                                                    <div className="mb-4 text-sm text-gray-700">
+                                                        <p className="mb-1 font-semibold italic text-gray-800">Dịch câu hỏi: {q.translation.question}</p>
+                                                        <ul className="mb-3 pl-4 list-disc text-gray-700 mt-2">
+                                                            {Object.entries(q.translation.options).map(([k, v]) => (<li key={k}><strong>{k}.</strong> {v}</li>))}
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="space-y-3 text-sm">
+                                                        {isUnanswered && (
+                                                            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+                                                                <strong>Bạn đã bỏ trống câu này!</strong> Hãy luôn thử dự đoán đáp án dù không nghe rõ nhé.
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {userAns && !isCorrect && (
+                                                            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                                                                <span className="font-bold uppercase mb-1 block">Tại sao bạn sai?</span>
+                                                                <strong>Bạn chọn {userAns}:</strong> {q.explanations[userAns]}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="p-3 bg-green-50 border border-green-200 rounded text-green-800">
+                                                            <span className="font-bold uppercase mb-1 block">Phân tích đáp án đúng</span>
+                                                            <strong>Đáp án {q.correct}:</strong> {q.explanations[q.correct]}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-4 pt-4 border-t border-dashed">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center"><FileText size={14} className="mr-1"/> Đoạn Audio xuất hiện đáp án:</h5>
+                                                        </div>
+                                                        <p className="bg-gray-50 p-3 rounded text-gray-800 italic leading-relaxed" dangerouslySetInnerHTML={{ __html: q.transcriptSnippet }}></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+
+                                    {/* NÚT ẨN/HIỆN TRANSCRIPT VÀ BẢN DỊCH TIẾNG VIỆT ĐẦY ĐỦ */}
+                                    <div className="mt-8 border-t-2 border-dashed pt-6 mb-4 px-4 md:px-8">
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <button onClick={() => toggleTranscript(part.id)} className="flex-1 flex items-center justify-center py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg transition-colors border border-gray-300 shadow-sm">
+                                                <FileText className="mr-2" size={20} />
+                                                {showTranscript[part.id] ? "Ẩn Transcript (Bản Tiếng Anh)" : "Hiện Transcript (Bản Tiếng Anh)"}
+                                            </button>
+                                            <button onClick={() => toggleTranslation(part.id)} className="flex-1 flex items-center justify-center py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg transition-colors border border-blue-200 shadow-sm">
+                                                <Globe className="mr-2" size={20} />
+                                                {showTranslation[part.id] ? "Ẩn Bản dịch Tiếng Việt" : "Hiện Bản dịch Tiếng Việt"}
+                                            </button>
+                                        </div>
+                                        
+                                        {showTranscript[part.id] && (
+                                            <div className="mt-4 p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed"
+                                                 dangerouslySetInnerHTML={{ __html: part.transcript.replace(/\n/g, '<br/>') }}>
+                                            </div>
+                                        )}
+
+                                        {showTranslation[part.id] && (
+                                            <div className="mt-4 p-5 bg-blue-50 border border-blue-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed"
+                                                 dangerouslySetInnerHTML={{ __html: part.translatedTranscript.replace(/\n/g, '<br/>') }}>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- STAGE 3: MINIGAME TỪ VỰNG ---
+        function Stage3VocabGame({ onBackToResult }) {
+            const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
+            const [playList, setPlayList] = useState(VOCAB_DATA); // List từ đang chơi
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [options, setOptions] = useState([]);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [score, setScore] = useState(0);
+            const [playingWord, setPlayingWord] = useState(null);
+            
+            // Array lưu các từ làm sai
+            const [wrongVocabs, setWrongVocabs] = useState([]);
+
+            const loadQuestion = () => {
+                if (currentIndex >= playList.length) {
+                    setGamePhase('finish');
+                    return;
+                }
+                const currentVocab = playList[currentIndex];
+                
+                const incorrectOptions = VOCAB_DATA
+                    .filter(v => v.word !== currentVocab.word)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(v => v.meaning);
+                
+                const allOptions = shuffleArray([currentVocab.meaning, ...incorrectOptions]);
+                setOptions(allOptions);
+                setSelectedOption(null);
+                
+                setTimeout(() => playWordAudio(currentVocab.word), 500);
+            };
+
+            useEffect(() => {
+                if (gamePhase === 'play') {
+                    loadQuestion();
+                }
+            }, [currentIndex, gamePhase, playList]);
+
+            const playWordAudio = (word) => {
+                setPlayingWord(word);
+                const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(err => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(word);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        utterance.onend = () => setPlayingWord(null);
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        setPlayingWord(null);
+                    }
+                });
+                audio.onended = () => setPlayingWord(null);
+            };
+
+            const handleSelect = (opt) => {
+                if (selectedOption !== null) return; 
+                setSelectedOption(opt);
+                
+                const currentVocab = playList[currentIndex];
+                if (opt === currentVocab.meaning) {
+                    setScore(prev => prev + 1);
+                } else {
+                    if (!wrongVocabs.find(w => w.word === currentVocab.word)) {
+                        setWrongVocabs(prev => [...prev, currentVocab]);
+                    }
+                }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 >= playList.length) {
+                    setGamePhase('finish');
+                } else {
+                    setCurrentIndex(prev => prev + 1);
+                }
+            };
+
+            const handleRestartAll = () => {
+                setPlayList(VOCAB_DATA);
+                setWrongVocabs([]); 
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play'); 
+            };
+
+            const handleReplayWrong = () => {
+                setPlayList(wrongVocabs);
+                setWrongVocabs([]); 
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play');
+            };
+
+            if (gamePhase === 'learn') {
+                return (
+                    <div className="max-w-4xl mx-auto mt-8 px-4 pb-12">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                            <div className="bg-blue-600 p-6 text-white text-center">
+                                <h2 className="text-2xl font-bold flex items-center justify-center">
+                                    <BookOpen className="mr-2" />
+                                    DANH SÁCH TỪ VỰNG QUAN TRỌNG
+                                </h2>
+                                <p className="mt-2 opacity-90">Hãy nghe và ghi nhớ các từ vựng này trước khi bước vào thử thách nhé!</p>
+                            </div>
+                            <div className="p-6 md:p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {VOCAB_DATA.map((item, idx) => (
+                                        <div key={idx} className={`flex items-center p-4 rounded-xl border transition-colors ${playingWord === item.word ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-blue-50'}`}>
+                                            <button 
+                                                onClick={() => playWordAudio(item.word)}
+                                                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 transition-all ${playingWord === item.word ? 'bg-blue-500 text-white shadow-md scale-110' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                            >
+                                                <Volume2 size={24} />
+                                            </button>
+                                            <div>
+                                                <p className="font-bold text-lg text-gray-800">{item.word}</p>
+                                                <p className="text-gray-600 text-sm">{item.meaning}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-10 text-center">
+                                    <button 
+                                        onClick={() => {
+                                            setPlayList(VOCAB_DATA);
+                                            setCurrentIndex(0);
+                                            setScore(0);
+                                            setWrongVocabs([]);
+                                            setGamePhase('play');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:scale-105 inline-flex items-center text-lg"
+                                    >
+                                        <Gamepad2 className="mr-2" size={28} /> Đã Nhớ! Bắt Đầu Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gamePhase === 'finish') {
+                return (
+                    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-8 border-purple-500">
+                            <Award size={64} className="text-yellow-400 mx-auto mb-4" />
+                            <h2 className="text-3xl font-black text-gray-800 mb-2">Hoàn Thành!</h2>
+                            <p className="text-gray-600 mb-6">Bạn đã đối mặt với {playList.length} thử thách từ vựng.</p>
+                            
+                            <div className="text-5xl font-black text-purple-600 mb-8">
+                                {score} <span className="text-2xl text-gray-400">/ {playList.length}</span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {wrongVocabs.length > 0 && (
+                                    <button 
+                                        onClick={handleReplayWrong}
+                                        className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition flex items-center justify-center animate-pulse shadow-md"
+                                    >
+                                        <RefreshCw size={20} className="mr-2" /> Chơi Lại {wrongVocabs.length} Câu Sai
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleRestartAll}
+                                    className="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <RefreshCw size={20} className="mr-2" /> Chơi Lại Toàn Bộ Từ Đầu
+                                </button>
+                                <button 
+                                    onClick={() => setGamePhase('learn')}
+                                    className="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <BookOpen size={20} className="mr-2" /> Xem Lại Từ Vựng
+                                </button>
+                                <button 
+                                    onClick={onBackToResult}
+                                    className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <FileText size={20} className="mr-2" /> Trở Về Bài Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentVocab = playList[currentIndex];
+            if (!currentVocab) return null; 
+
+            return (
+                <div className="max-w-3xl mx-auto mt-8 px-4 pb-12">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                        <div className="bg-purple-600 p-4 text-white flex justify-between items-center">
+                            <div className="font-bold flex items-center">
+                                <Gamepad2 className="mr-2" />
+                                {playList.length < 10 ? 'LUYỆN TẬP CÂU SAI' : 'THỬ THÁCH NGHE TỪ VỰNG'}
+                            </div>
+                            <div className="bg-purple-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+                                Câu {currentIndex + 1} / {playList.length}
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-10 text-center">
+                            <p className="text-gray-600 mb-6 font-medium">Lắng nghe kỹ và chọn nghĩa tiếng Việt chính xác nhất cho cụm từ bạn vừa nghe thấy:</p>
+                            
+                            <button 
+                                onClick={() => playWordAudio(currentVocab.word)}
+                                className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-lg mb-8 ${playingWord === currentVocab.word ? 'bg-purple-200 text-purple-600 scale-95 ring-4 ring-purple-300' : 'bg-purple-100 text-purple-500 hover:bg-purple-200 hover:scale-105'}`}
+                            >
+                                <Volume2 size={48} />
+                            </button>
+
+                            <div className="h-12 mb-6">
+                                {selectedOption !== null && (
+                                    <div className="animate-fade-in inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 px-6 py-2 rounded-xl text-xl font-bold tracking-wide shadow-sm">
+                                        {currentVocab.word}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {options.map((opt, idx) => {
+                                    let btnClass = "p-4 rounded-xl border-2 font-bold text-left transition-all ";
+                                    
+                                    if (selectedOption === null) {
+                                        btnClass += "border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50";
+                                    } else {
+                                        if (opt === currentVocab.meaning) {
+                                            btnClass += "border-green-500 bg-green-100 text-green-800"; 
+                                        } else if (opt === selectedOption && selectedOption !== currentVocab.meaning) {
+                                            btnClass += "border-red-500 bg-red-100 text-red-800"; 
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50"; 
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => handleSelect(opt)}
+                                            className={btnClass}
+                                            disabled={selectedOption !== null}
+                                        >
+                                            {opt}
+                                            {selectedOption !== null && opt === currentVocab.meaning && <CheckCircle className="inline float-right text-green-600" size={20} />}
+                                            {selectedOption !== null && opt === selectedOption && selectedOption !== currentVocab.meaning && <XCircle className="inline float-right text-red-600" size={20} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="mt-8 h-12">
+                                {selectedOption !== null && (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-full shadow-md transition-transform hover:scale-105 animate-fade-in"
+                                    >
+                                        Câu Tiếp Theo &rarr;
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            const [stage, setStage] = useState(1); 
+            const [answers, setAnswers] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(TEST_DATA.duration);
+
+            useEffect(() => {
+                if (isSubmitted) return;
+                if (timeLeft <= 0) {
+                    setIsSubmitted(true);
+                    setStage(2);
+                    return;
+                }
+                const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, isSubmitted]);
+
+            const handleSubmit = () => {
+                setIsSubmitted(true);
+                setStage(2);
+                window.scrollTo(0, 0);
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+                    <header className="bg-white shadow-md sticky top-0 z-50 overflow-x-auto">
+                        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-row justify-between items-center gap-4 min-w-[700px]">
+                            {/* Tiêu đề bên trái */}
+                            <div className="font-black text-xl md:text-2xl text-blue-800 uppercase tracking-wide whitespace-nowrap flex-1 text-left">
+                                VSTEP LISTENING TEST 06
+                            </div>
+                            
+                            {/* Đồng hồ ở giữa */}
+                            <div className="flex-1 flex justify-center">
+                                <div className={`flex items-center space-x-2 font-mono text-xl px-4 py-1.5 rounded-md font-bold whitespace-nowrap ${timeLeft < 300 && !isSubmitted ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
+                                    <Clock size={20} />
+                                    <span>{formatTime(timeLeft)}</span>
+                                </div>
+                            </div>
+
+                            {/* Navigation Tabs ở rìa phải */}
+                            <div className="flex-1 flex justify-end">
+                                <div className="flex bg-gray-100 p-1 rounded-lg whitespace-nowrap">
+                                    <button 
+                                        onClick={() => setStage(1)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 1 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'}`}
+                                    >
+                                        Làm Bài
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(2)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 2 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        Kết Quả
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(3)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors flex items-center ${stage === 3 ? 'bg-purple-500 text-white shadow-sm' : 'text-purple-600 hover:bg-purple-100'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        <Gamepad2 size={16} className="mr-1" /> Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="h-auto min-h-[calc(100vh-64px)] pb-10">
+                        {stage === 1 && <Stage1Test answers={answers} setAnswers={setAnswers} onSubmit={handleSubmit} />}
+                        {stage === 2 && <Stage2Result answers={answers} onGoToGame={() => setStage(3)} />}
+                        {stage === 3 && <Stage3VocabGame onBackToResult={() => setStage(2)} />}
+                    </main>
+
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .animate-fade-in {
+                            animation: fadeIn 0.3s ease-out forwards;
+                        }
+                    `}} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

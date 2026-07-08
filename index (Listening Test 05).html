@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSTEP Listening Mock Test 05</title>
+    
+    <!-- Tải React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Tải Babel để chạy code JSX ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+    <!-- Tải Tailwind CSS để dựng giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Clock = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>);
+        const CheckCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+        const XCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>);
+        const PlayCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>);
+        const PauseCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>);
+        const FileText = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+        const AlertCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+        const Headphones = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>);
+        const Award = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>);
+        const BookOpen = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>);
+        const Volume2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>);
+        const RefreshCw = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>);
+        const Gamepad2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>);
+
+        // --- HÀM ĐỊNH DẠNG THỜI GIAN ---
+        const formatTimeStr = (seconds) => {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        };
+
+        // --- HÀM QUY ĐỔI ĐIỂM VSTEP LISTENING (Thang 10) ---
+        const convertVstepScore = (correctCount) => {
+            if (correctCount <= 1) return 0.0;
+            if (correctCount === 2) return 0.5;
+            if (correctCount === 3) return 1.0;
+            if (correctCount === 4) return 1.5;
+            if (correctCount <= 6) return 2.0;
+            if (correctCount === 7) return 2.5;
+            if (correctCount <= 9) return 3.0;
+            if (correctCount <= 11) return 3.5;
+            if (correctCount <= 13) return 4.0;
+            if (correctCount <= 15) return 4.5;
+            if (correctCount <= 17) return 5.0;
+            if (correctCount <= 19) return 5.5;
+            if (correctCount <= 21) return 6.0;
+            if (correctCount === 22) return 6.5;
+            if (correctCount <= 24) return 7.0;
+            if (correctCount === 25) return 7.5;
+            if (correctCount <= 27) return 8.0;
+            if (correctCount <= 29) return 8.5;
+            if (correctCount <= 31) return 9.0;
+            if (correctCount <= 33) return 9.5;
+            if (correctCount <= 35) return 10.0;
+            return 0.0;
+        };
+
+        // --- DATA TỪ VỰNG QUAN TRỌNG TỪ TEST 05 ---
+        const VOCAB_DATA = [
+            { word: "inconvenience", meaning: "sự bất tiện, sự phiền phức" },
+            { word: "bargain", meaning: "món hời, sự mặc cả" },
+            { word: "polluted", meaning: "bị ô nhiễm" },
+            { word: "insect", meaning: "côn trùng" },
+            { word: "route", meaning: "tuyến đường, lộ trình" },
+            { word: "anxious", meaning: "lo âu, băn khoăn, lo lắng" },
+            { word: "reservation", meaning: "sự đặt chỗ trước" },
+            { word: "environment", meaning: "môi trường" },
+            { word: "souvenir", meaning: "quà lưu niệm" },
+            { word: "equipment", meaning: "thiết bị, trang thiết bị" }
+        ];
+
+        // --- DATA CỦA BÀI THI 05 KÈM GIẢI THÍCH CHI TIẾT VÀ TIMESTAMPS ---
+        const hl = (text) => `<span class="text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1">${text}</span>`;
+        
+        const TEST_DATA = {
+        duration: 47 * 60,
+        parts: [
+            {
+            id: 1,
+            title: "PART 1: Questions 1-8",
+            instructions: "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
+            audioSrc: "https://www.dropbox.com/scl/fi/cwiwsjyem0vbzpl6s4rti/Part-1.mp3?rlkey=xkoeqqx0jtq6a25hpk6o2kr0e&st=pmung83f&raw=1",
+            audioTimestamps: [
+                { label: "Bài 1", time: 96 },
+                { label: "Bài 2", time: 116 },
+                { label: "Bài 3", time: 147 },
+                { label: "Bài 4", time: 167 },
+                { label: "Bài 5", time: 191 },
+                { label: "Bài 6", time: 214 },
+                { label: "Bài 7", time: 244 },
+                { label: "Bài 8", time: 266 }
+            ],
+            transcriptTranslations: [
+                { label: "Bài 1", text: "Xin hành khách trên chuyến bay KL 162 từ Tây Ban Nha đến Ireland lưu ý. Chuyến bay này đã bị hoãn do thời tiết xấu. Chuyến bay sẽ khởi hành lúc 7:15 tối từ cổng 22A. Chúng tôi xin lỗi vì bất kỳ sự bất tiện nào." },
+                { label: "Bài 2", text: "Xin quý khách mua sắm lưu ý, trong 15 phút tới, chúng tôi sẽ có chương trình giảm giá áo len tại quầy quần áo trẻ em. Mọi chiếc áo len sẽ được giảm giá 50%. Vâng, đúng vậy. Chỉ trong một phần tư giờ, bạn có thể mua bất kỳ chiếc áo len trẻ em nào với chỉ một nửa giá gốc. Đây là một món hời mà bạn không thể bỏ lỡ. Hãy nhanh lên, thời gian đang trôi qua." },
+                { label: "Bài 3", text: "Điểm dừng tiếp theo là Đường Main. Cửa ra ở phía bên trái. Bạn có thể chuyển sang Tuyến Trắng, tuyến số 4, để đến Sân vận động Bóng đá Seoul. Xin vui lòng cẩn thận khi rời khỏi tàu." },
+                { label: "Bài 4", text: "Một chú chó nhỏ đã đi lạc ở trung tâm thành phố hai ngày trước. Nó có màu nâu với bàn chân trắng và phản ứng với cái tên Sam. Nó đang đeo một chiếc vòng cổ màu nâu. Sẽ có phần thưởng 50 đô la cho sự giúp đỡ trong việc tìm kiếm nó. Vui lòng liên hệ với Brian theo số 655-7951." },
+                { label: "Bài 5", text: "Thứ Hai sẽ ấm áp ở hầu hết các khu vực, với một vài cơn mưa ở phía bắc của đất nước. Nhiệt độ sẽ lên tới 25 độ ở phía nam, và khoảng 20 độ ở phía bắc. Thứ Ba cũng sẽ có điều kiện tương tự, với nhiệt độ cao hơn một chút là khoảng 23 độ ở phía bắc." },
+                { label: "Bài 6", text: "Xin toàn thể học sinh lưu ý. Do vỡ đường ống dẫn khí đốt, cũng như thời tiết cực kỳ lạnh giá, các lớp học hôm nay sẽ bị hủy bỏ. Xe buýt của trường sẽ đến trong vòng 20 phút nữa để đưa mọi người về nhà. Các lớp học ngày mai rất có thể cũng sẽ bị hủy, nhưng đài phát thanh địa phương sẽ đưa ra thông báo vào buổi sáng." },
+                { label: "Bài 7", text: "Thưa quý vị, chúng ta đang gặp phải một số thời tiết xấu, vì vậy tất cả hành khách phải trở về chỗ ngồi và thắt chặt dây an toàn. Tôi xin nhắc lại rằng đây là chuyến bay không hút thuốc, vì vậy việc hút thuốc sẽ không được phép. Chúng ta sẽ vượt qua vùng thời tiết xấu trong vòng 30 phút nữa, và sau thời gian đó bữa trưa sẽ được phục vụ." },
+                { label: "Bài 8", text: "Xin chủ nhân của chiếc Datsun Santa Lucia màu xanh lá cây và đỏ, biển số đăng ký ST 4571, vui lòng đến bãi đậu xe ngay lập tức? Xe của bạn đang cản trở lối vào. Một chiếc xe tải giao hàng không thể vào được, và điều này đang gây ra ùn tắc giao thông trên đường bên ngoài cửa hàng." }
+            ],
+            transcript: `Question 1
+Attention all passengers on flight KL 162 from Spain to Ireland. This flight has been delayed due to bad weather. The flight will now be leaving at 7:15 PM from gate 22A. We apologize for any inconvenience.
+
+Question 2
+Attention shoppers, for the next 15 minutes, we will have a sale on sweaters in the children's department. Every sweater will be 50% off. Yes, that's right. For just a quarter of an hour, you can buy any child's sweater at just half the original price. Now there is a bargain you can't afford to miss. Hurry now, the clock is ticking.
+
+Question 3
+The next stop is Main Street. The exit doors are on the left side. You can transfer to the White Line, line number 4, to Seoul Soccer Stadium. Please be careful as you leave the train.
+
+Question 4
+A small dog was lost in the city center two days ago. It is brown with white paws and answers to the name Sam. It was wearing a brown collar. A reward of $50 will be given for help in finding him. Please contact Brian at 655-7951.
+
+Question 5
+Monday will be warm in most areas, with some rain in the north of the country. Temperatures will reach up to 25 degrees in the south, and around 20 degrees in the north. Tuesday will also have similar conditions, with slightly higher temperatures of about 23 degrees in the north.
+
+Question 6
+Attention all students. Due to a burst in the gas pipes, as well as the extremely cold weather, today's classes will be canceled. The school buses will be arriving in 20 minutes to take everyone home. Tomorrow's classes will most likely be canceled also, but the local radio station will make an announcement in the morning.
+
+Question 7
+Ladies and gentlemen, we are experiencing some bad weather, so all passengers must return to their seats and fasten their seat belts. I would like to remind you that this is a non-smoking flight, so smoking will not be permitted. We should pass through the bad weather within 30 minutes, at which time lunch will be served.
+
+Question 8
+Could the owner of a green and red Datsun Santa Lucia, registration number ST 4571, please come to the parking lot immediately? Your car is blocking the entrance. A delivery truck is unable to enter, and this is causing a traffic jam in the street outside the store.`,
+            questions: [
+                {
+                id: 1, text: "What time will the flight now be leaving at?", options: { A: "At 6:00", B: "At 7:00", C: "At 7:15", D: "At 7:50" }, correct: "C", timestamp: 96,
+                translation: { question: "Chuyến bay bây giờ sẽ khởi hành lúc mấy giờ?", options: { A: "Lúc 6:00", B: "Lúc 7:00", C: "Lúc 7:15", D: "Lúc 7:50" } },
+                explanations: { 
+                    A: "Sai. Thời gian này không được nhắc đến.", 
+                    B: "Sai. Thời gian này không được nhắc đến.", 
+                    C: "Đúng. Thông báo xác nhận chuyến bay sẽ rời đi lúc 7:15 PM.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `The flight will now be leaving at ${hl("7:15 PM")} from gate 22A.`
+                },
+                {
+                id: 2, text: "How much will a $50 sweater cost now?", options: { A: "$50", B: "$5", C: "$15", D: "$25" }, correct: "D", timestamp: 116,
+                translation: { question: "Một chiếc áo len 50 đô la bây giờ sẽ có giá bao nhiêu?", options: { A: "50 đô la", B: "5 đô la", C: "15 đô la", D: "25 đô la" } },
+                explanations: { 
+                    A: "Sai. Đây là giá ban đầu.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Thông báo nói rằng tất cả áo len được giảm giá 50% (half the original price), vì vậy một chiếc áo len 50 đô la sẽ còn 25 đô la." 
+                },
+                transcriptSnippet: `Every sweater will be ${hl("50% off")}. Yes, that's right. For just a quarter of an hour, you can buy any child's sweater at just ${hl("half the original price")}.`
+                },
+                {
+                id: 3, text: "What number is the white line?", options: { A: "6", B: "4", C: "7", D: "3" }, correct: "B", timestamp: 147,
+                translation: { question: "Tuyến Trắng (White line) là số mấy?", options: { A: "6", B: "4", C: "7", D: "3" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Hành khách được hướng dẫn đổi sang Tuyến Trắng, tuyến số 4 (line number 4).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `You can transfer to the ${hl("White Line, line number 4")}, to Seoul Soccer Stadium.`
+                },
+                {
+                id: 4, text: "What color is the dog?", options: { A: "White with brown paws", B: "Brown with white paws", C: "Brown with black paws", D: "Black with brown paws" }, correct: "B", timestamp: 167,
+                translation: { question: "Chú chó có màu gì?", options: { A: "Màu trắng với bàn chân nâu", B: "Màu nâu với bàn chân trắng", C: "Màu nâu với bàn chân đen", D: "Màu đen với bàn chân nâu" } },
+                explanations: { 
+                    A: "Sai. Bị ngược màu.", 
+                    B: "Đúng. Chú chó được mô tả là 'brown with white paws' (màu nâu với bàn chân trắng).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `It is ${hl("brown with white paws")} and answers to the name Sam.`
+                },
+                {
+                id: 5, text: "What difference will be seen between Monday and Tuesday?", options: { A: "Monday will be far hotter.", B: "Tuesday will have more rain.", C: "There will be some higher temperatures on Tuesday.", D: "There will be some extra rain showers on Mon day." }, correct: "C", timestamp: 191,
+                translation: { question: "Sự khác biệt nào sẽ được nhìn thấy giữa Thứ Hai và Thứ Ba?", options: { A: "Thứ Hai sẽ nóng hơn nhiều.", B: "Thứ Ba sẽ có nhiều mưa hơn.", C: "Sẽ có nhiệt độ cao hơn vào Thứ Ba.", D: "Sẽ có một số trận mưa rào thêm vào Thứ Hai." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Thời tiết tương tự nhau về lượng mưa.", 
+                    C: "Đúng. Thứ Hai ở phía bắc là 20 độ, trong khi Thứ Ba được dự báo có điều kiện tương tự nhưng với 'slightly higher temperatures' (nhiệt độ cao hơn một chút) khoảng 23 độ ở phía bắc.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Tuesday will also have similar conditions, with ${hl("slightly higher temperatures")} of about 23 degrees in the north.`
+                },
+                {
+                id: 6, text: "Why are the students being sent home?", options: { A: "It is a school holiday.", B: "There is a problem with the heating system.", C: "Some of the teachers are absent.", D: "The water pipes burst" }, correct: "B", timestamp: 214,
+                translation: { question: "Tại sao học sinh bị đuổi về nhà?", options: { A: "Đó là ngày nghỉ học.", B: "Hệ thống sưởi có vấn đề.", C: "Một số giáo viên vắng mặt.", D: "Vỡ đường ống nước" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Audio nhắc đến việc vỡ đường ống dẫn khí đốt (burst in the gas pipes). Khí đốt thường được dùng để sưởi ấm trong thời tiết siêu lạnh (extremely cold weather), do đó có thể suy ra hệ thống sưởi bị hỏng.", 
+                    C: "Sai.", 
+                    D: "Sai. Audio nói là 'gas pipes' (ống khí đốt) chứ không phải 'water pipes'." 
+                },
+                transcriptSnippet: `Due to a ${hl("burst in the gas pipes")}, as well as the extremely cold weather, today's classes will be canceled.`
+                },
+                {
+                id: 7, text: "What will happen in thirty minutes?", options: { A: "They will land.", B: "Dinner will be served.", C: "They will enter into some bad weather.", D: "Lunch will be served." }, correct: "D", timestamp: 244,
+                translation: { question: "Điều gì sẽ xảy ra trong 30 phút nữa?", options: { A: "Họ sẽ hạ cánh.", B: "Bữa tối sẽ được phục vụ.", C: "Họ sẽ đi vào khu vực thời tiết xấu.", D: "Bữa trưa sẽ được phục vụ." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Là bữa trưa, không phải bữa tối.", 
+                    C: "Sai. Trong 30 phút nữa họ sẽ ĐI QUA (pass through) vùng thời tiết xấu, chứ không phải đi vào.", 
+                    D: "Đúng. Trong 30 phút nữa khi bay qua vùng thời tiết xấu, bữa trưa sẽ được phục vụ (lunch will be served)." 
+                },
+                transcriptSnippet: `We should pass through the bad weather within 30 minutes, at which time ${hl("lunch will be served")}.`
+                },
+                {
+                id: 8, text: "What is the problem?", options: { A: "A car has a flat tire.", B: "A car has been stolen.", C: "A car has broken down.", D: "A car is blocking the entrance." }, correct: "D", timestamp: 266,
+                translation: { question: "Vấn đề là gì?", options: { A: "Một chiếc ô tô bị xịt lốp.", B: "Một chiếc xe đã bị đánh cắp.", C: "Một chiếc xe ô tô bị hỏng.", D: "Một chiếc ô tô đang cản lối vào." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Thông báo tìm chủ nhân một chiếc xe vì nó đang chắn lối vào (blocking the entrance), khiến xe tải giao hàng không vào được." 
+                },
+                transcriptSnippet: `${hl("Your car is blocking the entrance.")} A delivery truck is unable to enter...`
+                }
+            ]
+            },
+            {
+            id: 2,
+            title: "PART 2: Questions 9-20",
+            instructions: "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/arpi74ecfbytpx32liwyl/Part-2.mp3?rlkey=j298ezuftxhnyio6mv0bo800a&st=ousgfg7e&raw=1",
+            audioTimestamps: [
+                { label: "Hội thoại 1", time: 78 },
+                { label: "Hội thoại 2", time: 272 },
+                { label: "Hội thoại 3", time: 448 }
+            ],
+            transcriptTranslations: [
+                { label: "Hội thoại 1", text: "Người phỏng vấn: Rachel, hãy cho chúng tôi biết các chương trình biểu diễn cho trẻ em của cô bắt đầu như thế nào. Cô đã học nghệ thuật ở trường đại học phải không?\nRachel: Đúng vậy. Nhưng tôi đã từ bỏ sự nghiệp họa sĩ khi hai con gái sinh đôi của tôi ra đời. Việc vẽ tranh chiếm quá nhiều thời gian khi tôi phải chăm sóc chúng. Tôi đã nghĩ đến việc dạy các lớp nghệ thuật bán thời gian, nhưng thay vào đó, tôi bắt đầu làm búp bê cho các con gái của mình. Tôi thích diễn xuất, vì vậy tôi thường tự sáng tác những vở kịch nhỏ cho búp bê, và tự lồng tiếng.\n\nNgười phỏng vấn: Và khi nào cô bắt đầu biểu diễn cho người khác xem?\nRachel: Khi các con gái của chúng tôi lên năm tuổi, chồng tôi gợi ý dùng những con búp bê để giải trí cho bọn trẻ tại bữa tiệc sinh nhật của chúng. Tôi đã viết một vở diễn nhỏ, và anh ấy dựng một rạp hát múa rối. Các con gái tôi và bạn bè của chúng rất thích. Kết quả là, các phụ huynh khác yêu cầu tôi đến và biểu diễn tại các bữa tiệc của con họ. Mọi chuyện bắt đầu như thế đấy.\n\nNgười phỏng vấn: Chắc hẳn có rất nhiều việc cho cô phải làm.\nRachel: Vâng, tôi thích làm búp bê, nhưng tôi quyết định rằng mình cần ai đó giúp đỡ trong các buổi biểu diễn. May mắn thay, người hàng xóm của tôi, Lena, rất hào hứng biểu diễn cùng tôi. Chồng cô ấy thu âm âm nhạc đi kèm với các chương trình. Thật không thể tự mình làm mọi thứ được.\n\nNgười phỏng vấn: Cô đã bao giờ gặp vấn đề gì chưa?\nRachel: Chỉ một lần duy nhất. Tôi biểu diễn cho một nhóm trẻ ba tuổi, và tôi đã viết một câu chuyện về một con sư tử. Thật không may, bọn trẻ thực sự sợ con sư tử và bắt đầu khóc. Tôi lo lắng các phụ huynh có thể phàn nàn, nhưng may mắn là sau đó tất cả họ đều có thể cười đùa về chuyện đó.\n\nNgười phỏng vấn: Và cô đã học được gì từ việc đó?\nRachel: Trải nghiệm đó dạy tôi rằng tôi phải tìm hiểu trước xem bọn trẻ thực sự thích gì. Giống như tôi, Lena có hai cô con gái, vì vậy bất cứ khi nào chúng tôi nghĩ ra một câu chuyện mới, chúng tôi đều cho bốn đứa con gái của mình xem trước. Bọn trẻ luôn nói cho chúng tôi biết chính xác chúng nghĩ gì về vở diễn. Và đôi khi tôi mang những con búp bê mới đến trường tiểu học địa phương để kiểm tra xem bọn trẻ có thích chúng không.\n\nNgười phỏng vấn: Và các chương trình vẫn tiếp tục thành công chứ?\nRachel: Đúng vậy. Tôi có nhiều chương trình khác nhau cho trẻ từ năm đến chín tuổi. Thật ra, các chương trình đã trở nên thành công đến mức tôi có thể biểu diễn mỗi ngày, nhưng tôi không muốn làm điều đó. Lý do các chương trình trở nên phổ biến, tôi nghĩ, là vì tôi yêu từng phút của mỗi buổi biểu diễn, và vì vậy người khác cũng yêu thích chúng. Tôi chắc chắn không nhận ra khi tôi tổ chức bữa tiệc sinh nhật đó cho các con gái tôi nhiều năm trước rằng nó sẽ làm thay đổi cuộc đời tôi nhiều đến thế." },
+                { label: "Hội thoại 2", text: "Người phỏng vấn: Và hôm nay tại trường quay, chúng ta có một gương mặt quen thuộc trên truyền hình, Angela Bond, phóng viên tin tức. Angela, công việc của cô đã đưa cô đi khắp thế giới phải không?\nAngela: Vâng. Tôi đã đưa tin từ một số quốc gia ở châu Á, và tôi vừa trở về từ Hoa Kỳ. Tôi phải nói rằng, thật tốt khi có thể dỡ hành lý bây giờ vì công việc đã đưa tôi trở lại Anh trong ít nhất sáu tháng.\n\nNgười phỏng vấn: Việc đi lại có phải là điều cô thích ở công việc này không?\nAngela: Nó chắc chắn rất thú vị, nhưng đôi khi có thể gây bực mình khi không bao giờ biết tuần tới mình sẽ đi đâu. Đối với tôi, điều thực sự thú vị là có mặt ở đâu đó khi một tin tức lớn đang diễn ra và nhìn thấy nó tiến triển. Đôi khi điều đó có thể khá nguy hiểm, nhưng mọi công việc đều có nhược điểm của nó, và việc đi lại cho tôi cơ hội sưu tầm quà lưu niệm.\n\nNgười phỏng vấn: Những loại đồ vật nào?\nAngela: Chủ yếu là đồ dùng cho căn hộ của tôi. Tôi say mê bất cứ thứ gì của Trung Quốc, vì vậy khi ở Hồng Kông, tôi đã mua một cái bàn rất đẹp và một vài chiếc ghế, và ở Thổ Nhĩ Kỳ, tôi đã tiêu khá nhiều tiền để mua thảm. Sau đó, tôi còn có tranh và các tác phẩm nghệ thuật khác từ Thái Lan và Ấn Độ. Căn hộ đang trở nên hơi chật chội rồi.\n\nNgười phỏng vấn: Nghe có vẻ nhiều màu sắc đấy. Cô có một ngày làm việc cố định không?\nAngela: Không hẳn. Hiện tại, tôi là một trong những thành viên của nhóm đọc bản tin buổi tối, vì vậy đôi khi tôi lên sóng lúc 6:30 và đôi khi lúc 10 giờ. Nhưng đó là vào cuối ngày. Mọi thứ bắt đầu vào buổi sáng lúc 8:30 khi tôi gọi điện thoại đến văn phòng để xem chuyện gì đã xảy ra và họ muốn tôi đi đưa tin về vấn đề gì.\n\nNgười phỏng vấn: Vậy cô không có nhiều thời gian cho đời sống xã hội?\nAngela: Tốt hơn rồi kể từ khi tôi ở London và có thể gặp bạn trai thường xuyên hơn. Chị gái tôi đã giới thiệu chúng tôi. Anh ấy đến ăn tối khi tôi đang ở nhà chị gái cách đây một năm. Chúng tôi có rất nhiều điểm chung. Anh ấy là luật sư và tôi đã học luật ở trường đại học. Ngoài ra, chúng tôi phát hiện ra rằng chúng tôi đã sống ở Hồng Kông cùng một thời điểm, mặc dù chúng tôi chưa bao giờ gặp nhau.\n\nNgười phỏng vấn: Cô thích làm gì trong thời gian rảnh rỗi?\nAngela: Chà, nấu ăn là một điều mới mẻ mà tôi đang thử, vì tôi không thể làm điều đó khi đi công tác, nhưng tôi chưa giỏi lắm, nên tôi cảm thấy hơi áp lực. Một trong những thứ tuyệt vời nhất tôi mua gần đây là một chiếc thuyền, và khi tôi muốn cảm thấy bình tĩnh và yên bình, tôi đi chèo thuyền trên sông. Nó không bao giờ thất bại trong việc làm tôi thư giãn.\n\nNgười phỏng vấn: Cảm ơn Angela." },
+                { label: "Hội thoại 3", text: "Người phỏng vấn: Ồ, một khung cảnh tuyệt vời. Tôi đang ở đây cùng Jack Williams, người đang kể cho tôi nghe về quê hương Swanton của ông ấy.\nJack: Vâng, đỉnh ngọn đồi này là nơi tốt nhất để ngắm nhìn khu vực. Swanton nằm trên bờ biển, bạn có thể nhìn thấy bến cảng từ đây, nhưng trên thực tế thị trấn được xây dựng dọc theo Sông Dean. Con sông này bắt nguồn từ một cái hồ trên những ngọn núi đằng xa kia, sau đó chảy xuống vùng đất bằng phẳng bên dưới chúng ta, nơi thị trấn được xây dựng.\n\nNgười phỏng vấn: Ông thích điều gì nhất khi sống ở đây?\nJack: Ở Swanton á? Ồ, đây là một thị trấn công nghiệp quan trọng và là một bến cảng, vì vậy có rất nhiều hoạt động, và có một khu rừng đằng sau thị trấn với động vật hoang dã thú vị. Nhưng điều thú vị nhất đối với tôi là những ngọn núi. Tôi đi leo núi bất cứ khi nào có cơ hội.\n\nNgười phỏng vấn: Còn về giải trí thì sao?\nJack: Có rất nhiều hình thức giải trí. Một trung tâm lớn đã được xây dựng vào năm ngoái để khuyến khích nghệ thuật, rất hiện đại. Nó có rạp chiếu phim, nhà hát và phòng trưng bày nghệ thuật. Và có cả bóng đá. Đội bóng địa phương dạo này thi đấu không tốt lắm. Vài năm trước, chúng tôi gần như đã giành được cúp. Và khu vực của chúng tôi nổi tiếng về âm nhạc, không phải ở chính Swanton, mà có một lễ hội âm nhạc nổi tiếng ở thị trấn bên cạnh.\n\nNgười phỏng vấn: Nhưng có những vấn đề về môi trường phải không?\nJack: Chúng tôi đang giải quyết điều đó. Con sông từng là một nơi tuyệt vời cho cá, nhưng nước bị ô nhiễm bởi các nhà máy đến nỗi hầu hết các loài cá biến mất. Chà, bây giờ chúng tôi đã dọn sạch dòng sông, và lũ cá đang bắt đầu quay trở lại. Nhưng tôi cảm thấy buồn về Rừng Swanton. Các cây cối thì khá khỏe mạnh, nhưng nếu bạn nhìn kỹ, không có loài chim nào ở đó, và đó là do ô nhiễm đã làm giảm số lượng côn trùng.\n\nNgười phỏng vấn: Swanton đang phát triển nhanh chóng. Ông có hài lòng về cách nó thay đổi không?\nJack: Bạn phải thay đổi theo thời đại thôi. Nó hoàn toàn khác khi tôi còn là một cậu bé. Hồi đó, mọi người đều làm việc trong các nhà máy, và các gia đình đều biết nhau. Có lẽ nó hơi nhàm chán một chút. Ngày nay, có hàng trăm công ty khác nhau, và quá nhiều ngôi nhà mới đến mức một số người thậm chí không biết hàng xóm của họ. Có những nhược điểm, nhưng bạn không thể nào cảm thấy nhàm chán với mọi thứ đang diễn ra.\n\nNgười phỏng vấn: Và còn tương lai của Swanton thì sao?\nJack: Giáo dục rất quan trọng đối với chúng tôi. Chúng tôi có một trường đại học tốt, chuyên về công nghệ tiên tiến, và một trung tâm mua sắm khổng lồ, vừa được xây dựng, đang thu hút lượng du khách đông gấp đôi. Tin tốt cho chúng tôi. Và năm ngoái, chúng tôi đã cải thiện sân bay của mình, vì vậy sẽ có nhiều máy bay hơn có thể bay vào." }
+            ],
+            transcript: `Questions 9 to 12
+Interviewer: Rachel, tell us how your shows for children started. You studied art at college, didn't you?
+Rachel: That's right. But I gave up my career as an artist when my twin daughters were born. Painting took up too much time when I was looking after them. I thought about teaching art classes part-time, but instead I started making dolls for my daughters. I love acting, so I often invented little plays for the dolls, doing the voices myself.
+
+Interviewer: And when did you start doing shows for other people?
+Rachel: When our daughters were five, my husband suggested using the dolls to entertain the children at their birthday party. I wrote a little show, and he built a doll's theatre. My daughters and their friends loved it. As a result, other parents asked me to come and do the show at their children's parties. That's how it all began.
+
+Interviewer: Must be a lot of work for you.
+Rachel: Yes, I love making the dolls, but I decided that I needed someone to help me with the shows. Luckily, my neighbour, Lena, was keen to perform with me. Her husband records the music to go with the shows. It would be impossible to do everything on my own.
+
+Interviewer: Have you ever had any problems?
+Rachel: Only once. I did a show for a group of three-year-olds, and I'd written a story about a lion. Unfortunately, the children were really afraid of the lion and started crying. I was worried the parents might complain, but luckily they were all able to laugh about it afterwards.
+
+Interviewer: And what did you learn from that?
+Rachel: The experience taught me that I had to find out beforehand just what children enjoy. Like me, Lena has two daughters, so whenever we've invented a new story, we show it to our four girls first. They always tell us exactly what they think of it. And sometimes I take new dolls to the local primary school to check that children like them.
+
+Interviewer: And the shows continue to be successful?
+Rachel: They do. I have a range of different shows for five to nine-year-olds. In fact, the shows have become so successful I could do one every day, but I don't want to do that. The reason the shows have become popular, I think, is because I love every minute of every show, and so other people love them too. I certainly didn't realise when I organised that birthday party for my daughters all those years ago that it would change my life so much.
+
+Questions 13 to 16
+Interviewer: And today in the studio, we have a familiar face on television, Angela Bond, the news reporter. Angela, your job has taken you all over the world, hasn't it?
+Angela: Yes. I've reported from a number of countries in Asia, and I've just returned from the United States. I must say, it's good to be able to unpack my suitcase now that the job has brought me to Britain for at least six months.
+
+Interviewer: Is the travelling what you enjoy about the job?
+Angela: It's certainly interesting, but it can be annoying never knowing where I'm going to be next week. For me, the really exciting thing is being somewhere when a big news story is taking place and seeing it develop. Sometimes that can be quite dangerous, but all jobs have their disadvantages, and travelling gives me the chance to collect souvenirs.
+
+Interviewer: What kind of things?
+Angela: Mostly things for my flat. I'm mad about anything Chinese, and so when I was in Hong Kong, I got a really nice table and some chairs, and in Turkey, I spent a lot of money on carpets. Then I've got pictures and other bits of art from Thailand and India. The flat's getting a bit crowded.
+
+Interviewer: It sounds colourful. Do you have a regular working day?
+Angela: Not really. At the moment, I'm one of the team that reads the evening news, so sometimes I'm on at 6:30 and sometimes at 10 o'clock. But that's at the end of the day. It all starts in the morning at 8:30 when I phone the office to see what has happened and what they want me to go and report on.
+
+Interviewer: So you don't have much time for a social life?
+Angela: It's better now I'm in London and can see my boyfriend more often. My sister introduced us. He came round for dinner when I was staying with her a year ago. We have a lot in common. He's a lawyer and I studied law at university. Also, we've found that we lived in Hong Kong at the same time, although we never met.
+
+Interviewer: What do you like to do in your free time?
+Angela: Well, cooking is something new I'm trying, because I can't do it when I'm travelling, but I'm not very good at it yet, so I find it a bit stressful. One of the best things I've bought recently was a boat, and when I want to feel calm and peaceful, I go for a sail on the river. It never fails.
+
+Interviewer: Angela, thanks.
+
+Questions 17 to 20
+Interviewer: Oh, what a wonderful view. I'm here with Jack Williams, who's telling me about his home town of Swanton.
+Jack: Yes, the top of this hill is the best place to see the area. Swanton is on the coast, you can see the harbour from here, but in fact the town is built along the River Dean. This river comes from a lake in the mountains over there in the distance, then flows down to the flat land below us where the town is built.
+
+Interviewer: What do you most like about living here?
+Jack: About Swanton? Oh, it's an important industrial town, and a port, so there's lots of activity, and there's a forest behind the town with interesting wildlife. But the most exciting thing for me is the mountains. I go climbing whenever I get the chance.
+
+Interviewer: What about entertainment?
+Jack: There's plenty of entertainment. A big centre was built last year to encourage the arts, very modern. It's got a cinema, a theatre, and an art gallery. And there's football. The local team hasn't done so well lately. A few years ago, we nearly won the cup. And our area is famous for music, not in Swanton itself, but there's a well-known music festival in the next town.
+
+Interviewer: But there are problems with the environment?
+Jack: We're working on that. The river was a great place for fish, but the water got so polluted by the factories that most of the fish disappeared. Well, we've cleaned the river up now, and the fish are starting to come back. But I'm unhappy about Swanton Woods. The trees are quite healthy, but if you look, there are no birds there, and that's because pollution has reduced the number of insects.
+
+Interviewer: Swanton's growing fast. Are you pleased about the way it's changed?
+Jack: You've got to move with the times. It was completely different when I was a boy. In those days, everybody worked in the factories, and the families all knew each other. Maybe it was a little boring. Today, there are hundreds of different companies, and so many new houses that some people don't even know their neighbours. There are disadvantages, but it's impossible to be bored with all the things going on.
+
+Interviewer: And what about Swanton's future?
+Jack: Education is important to us. We have a fine university, which specialises in advanced technology, and a huge shopping centre, just built, which is bringing in double the number of visitors. Good news for us. And last year, we improved our airport, so more planes can come in.`,
+            questions: [
+                {
+                id: 9, text: "What did Rachel do before her children were born?", options: { A: "an art teacher.", B: "a painter.", C: "an actor.", D: "a doll maker." }, correct: "B", timestamp: 78,
+                translation: { question: "Rachel đã làm gì trước khi những đứa con của cô ấy chào đời?", options: { A: "giáo viên mỹ thuật.", B: "họa sĩ.", C: "diễn viên.", D: "thợ làm búp bê." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Rachel nói rằng cô ấy đã từ bỏ sự nghiệp nghệ sĩ/họa sĩ (artist/painting) của mình khi hai con gái sinh đôi chào đời.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `But I gave up my career as an ${hl("artist")} when my twin daughters were born. ${hl("Painting")} took up too much time...`
+                },
+                {
+                id: 10, text: "Who first thought of doing a show at a party?", options: { A: "Rachel's husband", B: "Rachel's children", C: "Rachel's parents", D: "friends of Rachel's daughter" }, correct: "A", timestamp: 78,
+                translation: { question: "Ai là người đầu tiên nghĩ đến việc làm một buổi biểu diễn tại một bữa tiệc?", options: { A: "Chồng của Rachel", B: "Các con của Rachel", C: "Bố mẹ của Rachel", D: "bạn bè của con gái Rachel" } },
+                explanations: { 
+                    A: "Đúng. Rachel nói chồng cô đã gợi ý dùng búp bê để mua vui cho bọn trẻ tại tiệc sinh nhật.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `When our daughters were five, ${hl("my husband suggested")} using the dolls to entertain the children at their birthday party.`
+                },
+                {
+                id: 11, text: "How does Rachel's neighbour, Lena, help?", options: { A: "makes some dolls for the shows.", B: "performs in the shows.", C: "writes the music for the shows.", D: "records music for the show" }, correct: "B", timestamp: 78,
+                translation: { question: "Hàng xóm của Rachel, Lena, giúp đỡ như thế nào?", options: { A: "làm một số búp bê cho các chương trình.", B: "biểu diễn trong các chương trình.", C: "viết nhạc cho các buổi biểu diễn.", D: "thu âm nhạc cho buổi biểu diễn" } },
+                explanations: { 
+                    A: "Sai. Việc làm búp bê là do chính Rachel làm.", 
+                    B: "Đúng. Lena rất hào hứng biểu diễn cùng cô ấy (perform with me).", 
+                    C: "Sai.", 
+                    D: "Sai. Việc thu âm nhạc là do chồng của Lena làm." 
+                },
+                transcriptSnippet: `Luckily, my neighbour, Lena, was keen to ${hl("perform with me")}.`
+                },
+                {
+                id: 12, text: "How do Rachel's daughters help her?", options: { A: "They show new dolls to their school friends.", B: "They think of ideas for new stories.", C: "They give her their opinions on her new plays.", D: "They help her make new dolls." }, correct: "C", timestamp: 78,
+                translation: { question: "Các con gái của Rachel giúp cô ấy bằng cách nào?", options: { A: "Chúng khoe búp bê mới cho bạn bè ở trường.", B: "Chúng nghĩ ra ý tưởng cho những câu chuyện mới.", C: "Chúng cho cô ấy biết ý kiến của chúng về vở kịch mới.", D: "Chúng giúp cô làm búp bê mới." } },
+                explanations: { 
+                    A: "Sai. Việc mang búp bê đến trường là do Rachel tự làm.", 
+                    B: "Sai.", 
+                    C: "Đúng. Rachel diễn thử cho các con gái xem trước và bọn trẻ luôn nói chính xác chúng nghĩ gì (tell us exactly what they think) về vở kịch.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...whenever we've invented a new story, we show it to our four girls first. They always ${hl("tell us exactly what they think of it.")}`
+                },
+                {
+                id: 13, text: "Where is Angela working at the moment?", options: { A: "Britain", B: "the USA", C: "Thailand", D: "India" }, correct: "A", timestamp: 272,
+                translation: { question: "Hiện tại Angela đang làm việc ở đâu?", options: { A: "Nước Anh", B: "Hoa Kỳ", C: "Thái Lan", D: "Ấn Độ" } },
+                explanations: { 
+                    A: "Đúng. Angela vừa trở về từ Hoa Kỳ và công việc đã đưa cô trở lại Anh (Britain) trong ít nhất 6 tháng tới.", 
+                    B: "Sai. Cô ấy vừa trở về từ Hoa Kỳ (returned from the United States).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `I must say, it's good to be able to unpack my suitcase now that the job has brought me to ${hl("Britain")} for at least six months.`
+                },
+                {
+                id: 14, text: "What does Angela like about her job?", options: { A: "She loves being in dangerous situations.", B: "She never knows where she'll go next.", C: "She enjoys watching important events happen.", D: "She likes collecting souvenirs." }, correct: "C", timestamp: 272,
+                translation: { question: "Angela thích điều gì ở công việc của mình?", options: { A: "Cô ấy thích ở trong những tình huống nguy hiểm.", B: "Cô ấy không bao giờ biết mình sẽ đi đâu tiếp theo.", C: "Cô ấy thích xem những sự kiện quan trọng xảy ra.", D: "Cô ấy thích sưu tầm quà lưu niệm." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Đây là nhược điểm (annoying).", 
+                    C: "Đúng. Cô ấy thích thú nhất khi có mặt ở nơi một tin tức lớn đang diễn ra và thấy nó tiến triển (seeing it develop).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `For me, the really exciting thing is being somewhere when a ${hl("big news story is taking place and seeing it develop.")}`
+                },
+                {
+                id: 15, text: "What did Angela bring home from Hong Kong?", options: { A: "pictures", B: "carpets", C: "furniture", D: "postcards" }, correct: "C", timestamp: 272,
+                translation: { question: "Angela đã mang gì về nhà từ Hồng Kông?", options: { A: "những bức tranh", B: "thảm", C: "đồ nội thất", D: "bưu thiếp" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Thảm (carpets) được mua ở Thổ Nhĩ Kỳ.", 
+                    C: "Đúng. Khi ở Hồng Kông cô ấy đã mua một cái bàn và một vài cái ghế (a table and some chairs), đó chính là đồ nội thất (furniture).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...so when I was in Hong Kong, I got a really nice ${hl("table and some chairs")}...`
+                },
+                {
+                id: 16, text: "Where did Angela meet her boyfriend?", options: { A: "at her sister's house", B: "at university", C: "in Hong Kong", D: "in a law firm" }, correct: "A", timestamp: 272,
+                translation: { question: "Angela đã gặp bạn trai ở đâu?", options: { A: "tại nhà chị gái cô ấy", B: "tại trường đại học", C: "ở Hồng Kông", D: "ở một công ty luật" } },
+                explanations: { 
+                    A: "Đúng. Chị gái cô đã giới thiệu và anh ấy đến ăn tối khi cô đang ở nhà chị gái một năm trước.", 
+                    B: "Sai.", 
+                    C: "Sai. Dù cùng sống ở Hồng Kông một thời điểm nhưng họ chưa bao giờ gặp nhau ở đó.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `He came round for dinner ${hl("when I was staying with her (my sister)")} a year ago.`
+                },
+                {
+                id: 17, text: "Where is the town of Swanton located?", options: { A: "near the sea", B: "by a lake", C: "on a hill", D: "in the mountains" }, correct: "A", timestamp: 448,
+                translation: { question: "Thị trấn Swanton nằm ở đâu?", options: { A: "gần biển", B: "bên một cái hồ", C: "trên đồi", D: "trên núi" } },
+                explanations: { 
+                    A: "Đúng. Swanton nằm trên bờ biển (on the coast), đồng nghĩa với gần biển (near the sea).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Swanton is ${hl("on the coast")}, you can see the harbour from here...`
+                },
+                {
+                id: 18, text: "What does Jack say about entertainment in Swanton?", options: { A: "A music festival takes place in the town.", B: "Its football club has done well this year.", C: "An arts centre consists of a cinema, a theatre and an art gallery.", D: "The arts centre is old." }, correct: "C", timestamp: 448,
+                translation: { question: "Jack nói gì về giải trí ở Swanton?", options: { A: "Một lễ hội âm nhạc diễn ra trong thị trấn.", B: "Câu lạc bộ bóng đá của thị trấn đã chơi tốt năm nay.", C: "Một trung tâm nghệ thuật bao gồm rạp chiếu phim, nhà hát và phòng trưng bày nghệ thuật.", D: "Trung tâm nghệ thuật đã cũ." } },
+                explanations: { 
+                    A: "Sai. Lễ hội âm nhạc diễn ra ở thị trấn bên cạnh (next town).", 
+                    B: "Sai. Đội bóng thi đấu không tốt dạo gần đây.", 
+                    C: "Đúng. Trung tâm nghệ thuật có rạp chiếu phim (cinema), nhà hát (theatre) và phòng trưng bày nghệ thuật (art gallery).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `A big centre was built last year to encourage the arts... It's got a ${hl("cinema, a theatre, and an art gallery.")}`
+                },
+                {
+                id: 19, text: "Why is Jack worried about the environment of Swanton?", options: { A: "the water in the river is dirty.", B: "there are few wild birds around today.", C: "pollution has destroyed the plants in one area.", D: "There are no fish in the river." }, correct: "B", timestamp: 448,
+                translation: { question: "Tại sao Jack lo lắng về môi trường của Swanton?", options: { A: "nước trên sông bị bẩn.", B: "hiện nay có rất ít chim hoang dã xung quanh.", C: "ô nhiễm đã phá hủy thực vật ở một khu vực.", D: "Không có cá dưới sông." } },
+                explanations: { 
+                    A: "Sai. Dòng sông đã được dọn sạch.", 
+                    B: "Đúng. Anh ấy không vui vì trong rừng cây không có loài chim nào ở đó (no birds there) do ô nhiễm làm giảm côn trùng.", 
+                    C: "Sai. Cây cối vẫn khá khỏe mạnh (quite healthy).", 
+                    D: "Sai. Cá đã quay trở lại." 
+                },
+                transcriptSnippet: `But I'm unhappy about Swanton Woods. The trees are quite healthy, but if you look, ${hl("there are no birds there")}...`
+                },
+                {
+                id: 20, text: "What does Jack say about the way Swanton has changed?", options: { A: "He preferred the town when it was smaller.", B: "He thinks it is a more interesting place.", C: "He is sorry that there are fewer jobs available.", D: "He thinks it's impossible to change people's way of life." }, correct: "B", timestamp: 448,
+                translation: { question: "Jack nói gì về cách Swanton đã thay đổi?", options: { A: "Ông ấy thích thị trấn này hơn khi nó còn nhỏ hơn.", B: "Ông ấy nghĩ rằng nó là một nơi thú vị hơn.", C: "Ông ấy rất tiếc vì có ít việc làm hơn.", D: "Ông ấy nghĩ rằng không thể thay đổi lối sống của người dân." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Ông ấy so sánh thời xưa khá nhàm chán (boring), còn bây giờ thì không thể nào chán được với mọi thứ đang diễn ra (impossible to be bored). Điều này đồng nghĩa với việc ông nghĩ nơi này thú vị hơn.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Maybe it was a little boring. Today... it's ${hl("impossible to be bored")} with all the things going on.`
+                }
+            ]
+            },
+            {
+            id: 3,
+            title: "PART 3: Questions 21-35",
+            instructions: "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/dt61133oyfvgulqtikbid/Part-3.mp3?rlkey=jphidvsieexbt92qdtbnfnlkq&st=fclgbng4&raw=1",
+            audioTimestamps: [
+                { label: "Bài giảng 1", time: 53 },
+                { label: "Bài giảng 2", time: 260 },
+                { label: "Bài giảng 3", time: 476 }
+            ],
+            transcriptTranslations: [
+                { label: "Bài giảng 1", text: "Cùng tham gia với chúng ta hôm nay để kể về chuyến đi xuyên Châu Phi của ông ấy là nhà sinh vật học Paul Hart. Chúng tôi bắt đầu ở Bờ Đông và đi bộ băng qua Châu Phi đến Gabon ở miền Tây, thu thập các loài thực vật và hoa dọc đường đi. Chuyến đi không hề dễ dàng, nhưng tuyến đường của tôi đi qua một khu vực rất phong phú về thực vật, và tôi đã chọn nó vì khu vực đó sẽ không giữ được tình trạng nguyên sơ lâu nữa khi có thêm nhiều con đường được xây dựng. Đó là cơ hội duy nhất của tôi để thu thập những thông tin quan trọng về đời sống tự nhiên của khu vực. Tôi có một nhóm gồm 11 nhà khoa học. Chúng tôi đi bộ từ 6 giờ sáng, nhưng khu rừng quá rậm rạp đến nỗi mất hàng giờ để mở đường đi xuyên qua nó, và có những ngày chúng tôi chỉ đi được 1 kilomet trước khi trời tối. May mắn thay, chúng tôi mang theo thiết bị chuyên dụng rất nhẹ, và mang càng ít thức ăn càng tốt. Nhưng chúng tôi luôn mệt mỏi khi dựng lều vào ban đêm. Đôi khi chúng tôi nhìn thấy voi hoặc sư tử. Xem chúng thật tuyệt vời và chúng không bao giờ tấn công chúng tôi. Mỗi ngày tôi đều thu thập cây cỏ và ghi chép thêm. Có quá nhiều thông tin mới để viết ra.\n\nTất nhiên, cũng có một số thời điểm tồi tệ, đặc biệt là khi tôi lo lắng cho cả đội. Trách nhiệm của tôi là đảm bảo mọi người về nhà an toàn. Gần cuối chuyến đi, một ngày nọ tôi đột nhiên phát hiện ra rằng thực phẩm gần như đã cạn sạch. Thật kỳ lạ vì chúng tôi đã mang đủ thức ăn khô cho chuyến đi, loại thức ăn không bao giờ bị hỏng, và chúng tôi cũng đã dừng lại ở các ngôi làng để lấy thêm thực phẩm tươi. Nhưng rồi tôi phát hiện ra rằng một vài người trong nhóm đã ăn nhiều hơn mức họ được phép. Tôi rất tức giận với họ vì đó là một hành động ngớ ngẩn. Sau đó chúng tôi tiếp tục đi bộ. Không có bản đồ cho khu vực đó, nhưng chúng tôi có một người dẫn đường địa phương. Rồi một người trong nhóm bị bệnh và chúng tôi không thể đi xa hơn nữa. Chúng tôi để anh ấy nghỉ ngơi, nhưng anh ấy ngày càng yếu đi. Rất may, mạng sống của anh ấy đã được cứu bởi một ngư dân đi dọc sông bằng thuyền và đưa anh ấy đến gặp bác sĩ ở ngôi làng gần nhất.\n\nCuối cùng, tôi cũng đã trở về nhà, và tôi lại được ở bên gia đình, bạn bè. Tôi thực sự nhớ họ trong thời gian đi vắng. Nhưng tôi đã học được rất nhiều điều từ chuyến đi, và tôi thực sự rất vui vì mình đã đi. Tôi được mời tham gia một chuyến đi khác, lần này là đến Úc, nhưng tôi nói rằng tôi không thể vì tôi đang bận rộn ở London. Và tôi nghĩ rằng mình đã đi lại đủ rồi." },
+                { label: "Bài giảng 2", text: "Xin chào, tôi là Sarah Brown, và tôi ở đây để kể cho các bạn nghe về công việc của tôi với tư cách là một người dự báo thời tiết. Tôi đã làm dự báo thời tiết cho một công ty truyền hình được 7 năm, và 2 năm trước, tôi trở thành trưởng phòng thời tiết. Bây giờ tôi chia đều thời gian của mình giữa việc trình bày dự báo thời tiết trên truyền hình và quản lý bộ phận thời tiết, gồm 11 nhân viên. Ở tuổi 30, tôi là trưởng phòng thời tiết trẻ nhất từ trước đến nay, và là người phụ nữ đầu tiên đảm nhận công việc này. Vì dịch vụ thời tiết và tin tức của chúng tôi được phát sóng trên toàn thế giới, chúng tôi đều luân phiên làm việc vào ban đêm. Tôi thích làm đêm hơn là phải làm chương trình khi tôi phải dậy lúc 4 giờ sáng. Tôi thường làm việc 8 giờ một ngày, và trong thời gian đó, tôi thực hiện 10 hoặc 12 bản tin dự báo. Trước khi làm dự báo, tôi nghiên cứu dữ liệu trên máy tính. Đây là những thông tin tôi dùng trong bản tin của mình. Không có nhiều thời gian để học thuộc những gì tôi phải nói, nhưng may mắn thay, tôi chưa bao giờ quên lời, vì vậy tôi không bị căng thẳng.\n\nChồng tôi và tôi cố gắng có cùng những ngày nghỉ, nhưng không ai trong chúng tôi có một lịch trình làm việc cố định. Anh ấy là phi công lái các chuyến bay đường dài, vì vậy mặc dù anh ấy làm việc vất vả, anh ấy lại có nhiều thời gian ở nhà hơn tôi. Chúng tôi chuyển đến ngôi nhà hiện tại khoảng một năm trước, và anh ấy đang rất thích việc sơn sửa lại nó. Tôi đã bắt đầu chơi môn dù lượn (bay) như một sở thích từ 5 năm trước. Tôi hy vọng sẽ lấy được bằng phi công trong năm nay, nhưng vì công việc, tôi đã không đến trường dạy bay từ rất lâu rồi. Để tập thể dục, tôi bơi lội và trượt tuyết, và tôi thích chạy bộ. Tôi thực sự tự hào về bản thân vì đã tham gia chạy tại London Marathon. Đó là một cuộc đua dài 40 km, và tôi chưa từng nghĩ mình có thể hoàn thành nó. Chồng tôi chơi quần vợt, và chúng tôi thỉnh thoảng chơi cùng nhau, nhưng anh ấy giỏi hơn tôi, nên tôi không bao giờ thắng được.\n\nVì tôi làm việc trên Bản tin Thế giới, thỉnh thoảng mọi người nhận ra tôi ở những nơi rất xa xôi. Có lần, ở một ngôi làng Ấn Độ, một ông lão đã kéo tôi đi chụp ảnh cùng với cả gia đình ông. Tôi nhận được những bức thư rất dễ thương. Một người viết thư kể rằng nụ cười của tôi khiến cô ấy cảm thấy vui vẻ cả ngày. Thỉnh thoảng, mọi người thậm chí còn viết thư và ngỏ lời cầu hôn tôi nữa." },
+                { label: "Bài giảng 3", text: "Cảm ơn tất cả các bạn đã đến buổi nói chuyện của tôi tối nay. Thật tuyệt khi thấy nhiều người dưới khán đài như vậy. Dành cho những ai chưa biết nhiều về PS Camping, hãy để tôi bắt đầu bằng cách cung cấp một số thông tin nền tảng về công ty. Công ty được thành lập cách đây 25 năm. Ban đầu nó thực chất là một chuỗi cửa hàng bán lẻ dụng cụ cắm trại, và sau đó 20 năm trước, nó đã mua lại một số lượng nhỏ các khu cắm trại ở Anh và bắt đầu cung cấp dịch vụ kỳ nghỉ cắm trại. Công ty phát triển nhanh chóng và đã cung cấp các kỳ nghỉ ở lục địa Châu Âu trong 15 năm qua. Nếu bạn đặt một kỳ nghỉ cắm trại với chúng tôi, bạn sẽ có hơn 300 địa điểm để lựa chọn. Ở Ý, chúng tôi hiện có khoảng 64 khu cắm trại mà chúng tôi sở hữu hoặc có quyền sử dụng độc quyền. Pháp là nơi chúng tôi có phần lớn các địa điểm cắm trại, và chúng tôi hiện đang có dự án mở rộng sang Thụy Sĩ. Chúng tôi cũng có một số địa điểm ở miền Bắc Tây Ban Nha, đặc biệt là khu vực đồi núi Picos de Europa. Chúng tôi đã nâng cấp tất cả các khu cắm trại ở Tây Ban Nha này và cải thiện chúng đáng kể so với xếp hạng ba sao ban đầu của chúng.\n\nChúng tôi tin rằng các kỳ nghỉ của chúng tôi cung cấp những tiện ích tuyệt vời cho cả gia đình. Các bậc phụ huynh muốn con cái mình bận rộn cả ngày hoặc một phần trong ngày có thể tận dụng các hoạt động dành cho trẻ em của chúng tôi. Những hoạt động này được tổ chức bởi đội ngũ nhân viên nhiệt tình và có chuyên môn cao của chúng tôi. Mỗi ngày khởi động bằng một trận đấu thể thao, có thể là bóng đá hoặc bóng chuyền, tiếp theo là một giờ diễn kịch cho tất cả mọi người. Hoạt động này có thể bao gồm ca hát hoặc khiêu vũ, diễn kịch câm, hoặc các hoạt động khác. Vào buổi chiều, mỗi ngày trong tuần sẽ có một hoạt động nghệ thuật khác nhau, bao gồm cuộc thi làm áp phích hoặc lắp ráp mô hình. Hơn thế nữa, các khu cắm trại của chúng tôi thực sự thân thiện với trẻ em, và vì vậy, chúng tôi áp dụng quy định không làm ồn vào buổi tối. Các hoạt động buổi tối của trẻ em thường kết thúc lúc 9:30 hoặc đôi khi là 10:00, và từ 10:30 trở đi, người đi nghỉ được yêu cầu phải giữ yên lặng ở những khu vực có dựng lều.\n\nChúng tôi không muốn có bất cứ sự cố nào xảy ra trong kỳ nghỉ của PS Camping, nhưng nếu có, chúng tôi cũng muốn tất cả khách hàng của mình được bảo hiểm. Nếu bạn chưa có sẵn gói bảo hiểm hàng năm của riêng mình, bạn sẽ cần mua gói bảo hiểm chi phí thấp mà chúng tôi cung cấp, và chúng tôi yêu cầu bạn phải sắp xếp việc này vào lúc đặt trước kỳ nghỉ. Có rất nhiều lợi ích khi chọn PS Camping và giới thiệu cho người khác. Là một khách hàng thường xuyên, bạn sẽ được thông báo về các ưu đãi đặc biệt, và bạn bè của bạn có thể được giảm giá 10% cho kỳ nghỉ của họ, hoặc được đặt lều sang trọng với mức giá của lều tiêu chuẩn. Đổi lại, chúng tôi sẽ gửi cho bạn một món quà cảm ơn, món quà mà bạn có thể chọn từ danh sách các mặt hàng chất lượng cao." }
+            ],
+            transcript: `Questions 21 to 25: Paul Hart's Trip Across Africa
+Now turn to part 3. Questions 21 to 25. First, you have some time to look at questions 21 to 25.
+
+With us today to tell us about his trip across Africa is the biologist Paul Hart. We started on the East Coast and travelled on foot across Africa to Gabon in the West, collecting plants and flowers along the way. It wasn't easy, but my route crossed a region rich in plants, and I chose it because it won't stay that way for long when more roads are built. It was my only chance to get important information about the natural life of the area. I had a team of 11 scientists. We walked from 6:00 in the morning, but the forest was so thick it took hours to cut our way through it, and some days we only walked 1 kilometre before dark. Fortunately, we carried special equipment that was very light, and we took as little food as possible. But we were always tired when we put the tents up at night. Sometimes we saw elephants or lions. They were amazing to watch, and never attacked us. Every day I collected plants and added to my notes. There was so much new information to write down.
+
+There were, of course, some low points, especially when I got anxious about the team. It was my job to make sure everyone got home safely. Towards the end of the trip, I suddenly discovered one day that the food had nearly all gone. It was strange because we'd brought enough dried food with us to last the trip, food that wouldn't ever go bad, and we'd stopped at villages for fresh food too. But then I found that some of the team had eaten much more than they were supposed to. I was angry with them because it was a silly thing to do. Then we started walking again. There were no maps for the area, but we had a local guide. Then one of the team got sick and we couldn't go any further. We let him rest, but he got much worse. Thankfully, his life was saved by a fisherman who came along the river in a boat and took him to a doctor in the nearest village.
+
+Finally, I returned home, and I'm back with my family and friends. I really missed them while I was away. But I learnt so much on the trip, and I'm really glad I went. I was asked to go on another trip, this time to Australia, but I said that I couldn't because I'm busy here in London. And I think I've done enough travelling.
+
+Questions 26 to 30: Sarah Brown, Weather Forecaster
+Questions 26 to 30. First, you have some time to look at questions 26 to 30.
+
+Hello, I'm Sarah Brown, and I'm here to tell you about my job as a weather forecaster. I've been a weather forecaster for a television company for 7 years, and 2 years ago, I became the head of the weather department. Now I divide my time equally between presenting weather forecasting on television and managing the weather department, which has a staff of 11. At 30 years old, I'm the youngest ever head of weather, and the first woman to do the job. Since our news and weather service goes out all round the world, we all take turns to work at night. I prefer that to doing the show when I have to get up at 4:00 in the morning. I normally work an 8-hour day, and in that time, I do 10 or 12 forecasts. Before doing a weather forecast, I study data on the computer. This is the information I use in my forecasts. There isn't much time to learn what I have to say, but fortunately, I've never forgotten my words, so I don't get nervous.
+
+My husband and I try to have the same free days, but neither of us has a regular pattern of work. He's a pilot on long-distance flights, so although he works hard, he has a lot more time at home than I do. We moved to our present house about a year ago, and he's enjoying painting it. I took up flying as a hobby 5 years ago. I hope to get my pilot's license this year, but because of the job, I haven't been to the flying school for ages. For exercise, I swim and ski, and I like running. I'm really proud of myself for running in the London Marathon. It's a 40-kilometre race, and I never thought I could manage it. My husband plays tennis, and we sometimes play together, but he's better than me, so I never win.
+
+Because I'm on World News, people sometimes recognise me in really distant places. Once, in an Indian village, an old man took me to have my photo taken with all his family. I get some lovely letters. One person wrote to say that my smile made her feel happy all day. People occasionally even write and ask me to marry them.
+
+Questions 31 to 35: PS Camping
+Questions 31 to 35. First, you have some time to look at questions 31 to 35.
+
+Thank you all for coming to my talk this evening. It's nice to see so many people in the audience. For those of you who don't know very much about PS Camping, let me start by giving you some background information about the company. The company started 25 years ago. It actually opened as a retail chain selling camping equipment, and then 20 years ago, it bought a small number of campsites in the UK and began offering camping holidays. The company grew rapidly and has been providing holidays in Continental Europe for the last 15 years. If you book a camping holiday with us, you'll have a choice of over 300 sites. In Italy, we now have some 64 sites that we either own or have exclusive use of. France is where we have the majority of sites, and we currently have a project to expand into Switzerland. We also have a number of sites in Northern Spain, particularly in the mountainous region of Picos de Europa. We've upgraded all these Spanish sites and improved them considerably from their original three-star rating.
+
+We believe our holidays offer superb facilities for the whole family. Parents who want their children to be fully occupied for all or part of the day can take advantage of our children's activities. These are organized by our well-qualified and enthusiastic staff. Each day kicks off with a sports match, perhaps football or volleyball, followed by an hour of drama for everyone. This may include singing or dancing, mime, or other activities. In the afternoon, there's a different art activity for each day of the week, including a poster competition or model making. What's more, our sites are truly child-friendly, and with this in mind, we operate a no-noise rule in the evenings. Children's evening activities usually finish at 9:30 or occasionally 10:00, and from 10:30, holidaymakers are expected to be quiet in the areas where there are tents.
+
+We want nothing to go wrong on a PS Camping holiday, but if it does, we also want all our customers to be insured. If you haven't organized an annual insurance policy of your own, you'll need to take out the low-cost cover we offer, and we require that you arrange this when you make your holiday reservation. There are many advantages to choosing PS Camping and to recommending it to others. As a regular customer, you'll be kept informed of special offers, and your friends can benefit from 10% off their holiday, or book a luxury tent for the price of a standard one. In return, we'll send you a thank you present, which you can choose from a list of high-quality items.`,
+            questions: [
+                {
+                id: 21, text: "Why did Paul choose the part of Africa he visited?", options: { A: "It is good for walking.", B: "It will soon change.", C: "He had been there before.", D: "It was the easiest route to go" }, correct: "B", timestamp: 53,
+                translation: { question: "Tại sao Paul lại chọn khu vực Châu Phi mà anh ấy đã đến thăm?", options: { A: "Nó rất tốt cho việc đi bộ.", B: "Nó sẽ sớm thay đổi.", C: "Anh ấy đã từng đến đó.", D: "Đó là tuyến đường dễ đi nhất" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Anh ấy chọn nó vì nó sẽ không giữ nguyên tình trạng hoang sơ lâu nữa khi đường xá được xây dựng (won't stay that way for long).", 
+                    C: "Sai.", 
+                    D: "Sai. Việc đi bộ khá vất vả." 
+                },
+                transcriptSnippet: `...and I chose it because it ${hl("won't stay that way for long")} when more roads are built.`
+                },
+                {
+                id: 22, text: "What made the team's journey slow?", options: { A: "clearing paths through the forest", B: "finding somewhere safe to camp", C: "carrying heavy equipment", D: "finding something to eat." }, correct: "A", timestamp: 53,
+                translation: { question: "Điều gì đã khiến hành trình của nhóm bị chậm lại?", options: { A: "dọn đường đi xuyên qua rừng", B: "tìm nơi an toàn để cắm trại", C: "mang theo thiết bị nặng", D: "tìm thức ăn." } },
+                explanations: { 
+                    A: "Đúng. Rừng quá rậm rạp nên mất hàng giờ để mở đường đi qua (cut our way through it).", 
+                    B: "Sai.", 
+                    C: "Sai. Thiết bị của họ rất nhẹ (very light).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...but the forest was so thick it took hours to ${hl("cut our way through it")}, and some days we only walked 1 kilometre before dark.`
+                },
+                {
+                id: 23, text: "What did Paul worry about during the trip?", options: { A: "the number of dangerous animals", B: "getting the information he needed", C: "being responsible for a team of people", D: "asking the team to help him." }, correct: "C", timestamp: 53,
+                translation: { question: "Paul lo lắng điều gì trong suốt chuyến đi?", options: { A: "số lượng động vật nguy hiểm", B: "lấy được thông tin anh ấy cần", C: "chịu trách nhiệm về một nhóm người", D: "yêu cầu nhóm giúp đỡ anh ấy." } },
+                explanations: { 
+                    A: "Sai. Các con thú chưa bao giờ tấn công họ.", 
+                    B: "Sai.", 
+                    C: "Đúng. Anh lo lắng cho nhóm vì trách nhiệm của anh là đảm bảo mọi người về nhà an toàn (make sure everyone got home safely).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...especially when I got anxious about the team. It was my job to ${hl("make sure everyone got home safely.")}`
+                },
+                {
+                id: 24, text: "Paul says that the team didn't have enough food because", options: { A: "some people ate more than they should.", B: "the walk took longer than expected.", C: "some of the food went bad too quickly.", D: "They underestimated the amount of food to bring" }, correct: "A", timestamp: 53,
+                translation: { question: "Paul nói rằng nhóm không có đủ thức ăn vì", options: { A: "một số người đã ăn nhiều hơn mức họ được phép.", B: "chuyến đi bộ mất nhiều thời gian hơn dự kiến.", C: "một số thức ăn bị hỏng quá nhanh.", D: "Họ đã đánh giá thấp lượng thức ăn mang theo" } },
+                explanations: { 
+                    A: "Đúng. Vài người trong nhóm đã ăn nhiều hơn khẩu phần họ được phép (eaten much more than they were supposed to).", 
+                    B: "Sai.", 
+                    C: "Sai. Thực phẩm khô của họ không bao giờ bị hỏng.", 
+                    D: "Sai. Họ đã mang đủ thức ăn." 
+                },
+                transcriptSnippet: `But then I found that some of the team had ${hl("eaten much more than they were supposed to.")}`
+                },
+                {
+                id: 25, text: "How does Paul feel now he is back home?", options: { A: "He is planning to do another trip.", B: "He misses the people in the team", C: "He thinks the trip was a valuable experience.", D: "He wouldn't mind travelling to Australia." }, correct: "C", timestamp: 53,
+                translation: { question: "Cảm giác của Paul bây giờ khi đã về nhà như thế nào?", options: { A: "Anh ấy đang lên kế hoạch cho một chuyến đi khác.", B: "Anh ấy nhớ những người trong đội", C: "Anh ấy nghĩ rằng chuyến đi là một trải nghiệm quý giá.", D: "Anh ấy sẽ không phiền khi đi du lịch Úc." } },
+                explanations: { 
+                    A: "Sai. Anh ấy đã từ chối chuyến đi tới Úc.", 
+                    B: "Sai. Anh ấy nhớ gia đình và bạn bè.", 
+                    C: "Đúng. Anh ấy đã học được rất nhiều và thực sự mừng vì mình đã đi (learnt so much... glad I went).", 
+                    D: "Sai. Anh ấy từ chối đi Úc vì quá bận." 
+                },
+                transcriptSnippet: `But I ${hl("learnt so much")} on the trip, and I'm ${hl("really glad I went.")}`
+                },
+                {
+                id: 26, text: "How long has Sarah worked as a weather forecaster?", options: { A: "two years", B: "seven years", C: "eleven years.", D: "thirty years" }, correct: "B", timestamp: 260,
+                translation: { question: "Sarah đã làm việc với tư cách là người dự báo thời tiết được bao lâu?", options: { A: "2 năm", B: "7 năm", C: "11 năm.", D: "30 năm" } },
+                explanations: { 
+                    A: "Sai. 2 năm là thời gian từ khi cô lên làm trưởng phòng.", 
+                    B: "Đúng. Cô đã làm dự báo thời tiết được 7 năm (for 7 years).", 
+                    C: "Sai. 11 là số nhân viên của bộ phận.", 
+                    D: "Sai. 30 là tuổi của cô." 
+                },
+                transcriptSnippet: `I've been a weather forecaster for a television company ${hl("for 7 years")}...`
+                },
+                {
+                id: 27, text: "What does Sarah say about her job?", options: { A: "She sometimes has to work at night.", B: "She enjoys getting up early.", C: "She works ten or twelve hours a day.", D: "She sometimes forgets her words." }, correct: "A", timestamp: 260,
+                translation: { question: "Sarah nói gì về công việc của cô ấy?", options: { A: "Cô ấy thỉnh thoảng phải làm việc vào ban đêm.", B: "Cô ấy thích dậy sớm.", C: "Cô ấy làm việc 10 hoặc 12 giờ một ngày.", D: "Cô ấy thỉnh thoảng quên lời thoại." } },
+                explanations: { 
+                    A: "Đúng. Cô nói rằng mọi người đều thay phiên nhau làm việc vào ban đêm (take turns to work at night).", 
+                    B: "Sai. Cô ấy không thích dậy lúc 4 giờ sáng.", 
+                    C: "Sai. Cô làm việc 8 tiếng một ngày và thực hiện 10-12 bản tin.", 
+                    D: "Sai. Cô ấy chưa bao giờ quên lời." 
+                },
+                transcriptSnippet: `Since our news and weather service goes out all round the world, we all ${hl("take turns to work at night.")}`
+                },
+                {
+                id: 28, text: "What does Sarah say about her doing weather forecast?", options: { A: "she prepares it in advance.", B: "she sometimes forgets her words.", C: "she worries about making a mistake.", D: "She sometimes get nervous on television." }, correct: "A", timestamp: 260,
+                translation: { question: "Sarah nói gì về việc thực hiện dự báo thời tiết của mình?", options: { A: "cô ấy chuẩn bị trước.", B: "cô ấy thỉnh thoảng quên lời.", C: "cô ấy lo lắng về việc mắc lỗi.", D: "Cô ấy thỉnh thoảng cảm thấy lo lắng trên truyền hình." } },
+                explanations: { 
+                    A: "Đúng. Trước khi dự báo, cô đã nghiên cứu trước dữ liệu trên máy tính để có thông tin sử dụng.", 
+                    B: "Sai. Cô chưa bao giờ quên lời.", 
+                    C: "Sai. Cô không bị lo lắng/căng thẳng (don't get nervous).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `${hl("Before doing a weather forecast")}, I study data on the computer. This is the information I use in my forecasts.`
+                },
+                {
+                id: 29, text: "What is true about Sarah's husband?", options: { A: "He works on the same days each week.", B: "He wants to move nearer his work.", C: "He spends a lot of time travelling.", D: "He has little time to relax." }, correct: "C", timestamp: 260,
+                translation: { question: "Điều gì đúng về chồng của Sarah?", options: { A: "Anh ấy làm việc vào những ngày cố định mỗi tuần.", B: "Anh ấy muốn chuyển đến gần nơi làm việc hơn.", C: "Anh ấy dành rất nhiều thời gian để di chuyển.", D: "Anh ấy có ít thời gian để thư giãn." } },
+                explanations: { 
+                    A: "Sai. Anh ấy không có lịch trình làm việc cố định (regular pattern).", 
+                    B: "Sai.", 
+                    C: "Đúng. Anh ấy là một phi công lái các chuyến bay đường dài (long-distance flights) nên hiển nhiên anh ấy tốn nhiều thời gian bay (travelling).", 
+                    D: "Sai. Thực tế anh ấy có nhiều thời gian ở nhà hơn Sarah." 
+                },
+                transcriptSnippet: `He's a ${hl("pilot on long-distance flights")}...`
+                },
+                {
+                id: 30, text: "What did Sarah say about her hobby?", options: { A: "She has got her pilot's license.", B: "She taught her husband to play tennis.", C: "She took part in a long race.", D: "Flying is difficult so she gave it up." }, correct: "C", timestamp: 260,
+                translation: { question: "Sarah đã nói gì về sở thích của mình?", options: { A: "Cô ấy đã lấy được bằng phi công.", B: "Cô ấy dạy chồng chơi quần vợt.", C: "Cô ấy đã tham gia vào một cuộc đua dài.", D: "Việc bay quá khó nên cô ấy đã bỏ cuộc." } },
+                explanations: { 
+                    A: "Sai. Cô hy vọng sẽ lấy được nó trong năm nay.", 
+                    B: "Sai. Chồng cô chơi tennis giỏi hơn cô.", 
+                    C: "Đúng. Cô rất tự hào vì đã tham gia chạy tại London Marathon (một cuộc đua dài 40 km).", 
+                    D: "Sai. Cô chỉ quá bận để đến trường học bay chứ không hề bỏ cuộc vì nó khó." 
+                },
+                transcriptSnippet: `I'm really proud of myself for running in the London Marathon. It's a ${hl("40-kilometre race")}...`
+                },
+                {
+                id: 31, text: "How long has PS Camping been organising holidays?", options: { A: "15 years.", B: "20 years.", C: "25 years.", D: "30 years." }, correct: "B", timestamp: 476,
+                translation: { question: "PS Camping đã tổ chức các kỳ nghỉ được bao lâu rồi?", options: { A: "15 năm.", B: "20 năm.", C: "25 năm.", D: "30 năm." } },
+                explanations: { 
+                    A: "Sai. 15 năm là thời gian mở rộng sang Châu Âu.", 
+                    B: "Đúng. Công ty được lập ra 25 năm trước dưới dạng chuỗi cửa hàng bán lẻ dụng cụ cắm trại, sau đó 20 năm trước mới bắt đầu mua bãi cắm và cung cấp kỳ nghỉ cắm trại (began offering camping holidays).", 
+                    C: "Sai. 25 năm là tuổi đời của công ty, không phải thời gian cung cấp dịch vụ kỳ nghỉ.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...and then ${hl("20 years ago")}, it bought a small number of campsites in the UK and ${hl("began offering camping holidays.")}`
+                },
+                {
+                id: 32, text: "Where does the company has most camping sites?", options: { A: "France.", B: "Italy.", C: "Switzerland.", D: "Spain" }, correct: "A", timestamp: 476,
+                translation: { question: "Công ty có nhiều địa điểm cắm trại nhất ở đâu?", options: { A: "Pháp.", B: "Ý.", C: "Thụy Sĩ.", D: "Tây Ban Nha" } },
+                explanations: { 
+                    A: "Đúng. 'France is where we have the majority of sites' (Pháp là nơi chúng tôi có phần lớn/đa số các địa điểm).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `${hl("France")} is where we have the ${hl("majority of sites")}...`
+                },
+                {
+                id: 33, text: "Which organised activity can children do every day of the week?", options: { A: "football", B: "drama", C: "model making", D: "volleyball" }, correct: "B", timestamp: 476,
+                translation: { question: "Hoạt động được tổ chức nào trẻ em có thể làm mỗi ngày trong tuần?", options: { A: "Bóng đá", B: "kịch", C: "làm mô hình", D: "bóng chuyền" } },
+                explanations: { 
+                    A: "Sai. Bóng đá hoặc bóng chuyền là tự chọn (perhaps football or volleyball).", 
+                    B: "Đúng. Mỗi ngày được khởi động bằng một môn thể thao, 'tiếp theo là một giờ diễn kịch cho tất cả mọi người' (followed by an hour of drama for everyone). Nghĩa là drama diễn ra mỗi ngày.", 
+                    C: "Sai. Làm mô hình là hoạt động nghệ thuật thay đổi theo từng ngày trong tuần.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Each day kicks off with a sports match... followed by an hour of ${hl("drama for everyone.")}`
+                },
+                {
+                id: 34, text: "What is true about the holiday insurance offered by PS Camping?", options: { A: "It can be charged on an annual basis.", B: "It is included in the price of the holiday.", C: "It must be taken out at the time of booking.", D: "It can be optional." }, correct: "C", timestamp: 476,
+                translation: { question: "Điều gì đúng về bảo hiểm kỳ nghỉ do PS Camping cung cấp?", options: { A: "Nó có thể được tính phí hàng năm.", B: "Nó được bao gồm trong giá của kỳ nghỉ.", C: "Nó phải được mua ngay tại thời điểm đặt phòng.", D: "Nó có thể là tùy chọn." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Công ty yêu cầu bạn phải sắp xếp việc mua bảo hiểm lúc thực hiện đặt kỳ nghỉ trước (arrange this when you make your holiday reservation).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...and we require that you arrange this ${hl("when you make your holiday reservation.")}`
+                },
+                {
+                id: 35, text: "What can customers recommending PS Camping to friends receive?", options: { A: "a free gift.", B: "an upgrade to a luxury tent.", C: "a discount.", D: "a thank-you letter." }, correct: "A", timestamp: 476,
+                translation: { question: "Khách hàng giới thiệu PS Camping cho bạn bè có thể nhận được gì?", options: { A: "Một món quà miễn phí.", B: "Nâng cấp lên lều sang trọng.", C: "Được giảm giá.", D: "Một lá thư cảm ơn." } },
+                explanations: { 
+                    A: "Đúng. Những người bạn bè được giới thiệu thì có thể được nhận ưu đãi giảm giá (discount) hoặc nâng hạng lều (luxury tent). Nhưng về phần bạn (người giới thiệu), công ty sẽ gửi bạn một món quà cảm ơn (thank you present/gift).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `In return, we'll send you a ${hl("thank you present")}, which you can choose from a list of high-quality items.`
+                }
+            ]
+            }
+        ]
+        };
+
+        // --- HÀM TRỘN MẢNG ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // --- AUDIO COMPONENT ---
+        const AudioPlayer = ({ src, audioId, isReviewMode = false, timestamps = [] }) => {
+            const audioRef = useRef(null);
+            const progressBarRef = useRef(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [hasEnded, setHasEnded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            
+            // Lắng nghe sự kiện để tắt các audio khác khi có 1 audio bắt đầu phát
+            useEffect(() => {
+                const handleStopOtherAudios = (e) => {
+                    if (e.detail !== audioId && audioRef.current) {
+                        audioRef.current.pause();
+                        setIsPlaying(false);
+                    }
+                };
+                window.addEventListener('stopAllAudios', handleStopOtherAudios);
+                return () => window.removeEventListener('stopAllAudios', handleStopOtherAudios);
+            }, [audioId]);
+
+            const playAudio = () => {
+                // Bắn tín hiệu yêu cầu các AudioPlayer khác dừng lại
+                window.dispatchEvent(new CustomEvent('stopAllAudios', { detail: audioId }));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        setIsPlaying(true);
+                        setHasEnded(false);
+                        setHasError(false);
+                    }).catch(error => {
+                        console.error("Lỗi phát âm thanh:", error);
+                        setHasError(true);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const togglePlay = () => {
+                if (hasEnded && !isReviewMode) return;
+                
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (isReviewMode && hasEnded) {
+                        audioRef.current.currentTime = 0;
+                    }
+                    playAudio();
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                const current = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
+                setCurrentTime(current);
+                if (duration) {
+                    setProgress((current / duration) * 100);
+                }
+            };
+
+            const handleEnded = () => {
+                setIsPlaying(false);
+                setHasEnded(true);
+            };
+
+            const handleError = (e) => {
+                console.error("Không thể tải nguồn âm thanh.", e);
+                setHasError(true);
+            };
+
+            // Tính năng tua trên thanh Progress
+            const handleProgressClick = (e) => {
+                if (!isReviewMode) return; // Chỉ cho tua khi ở chế độ Review
+                if (hasError || !audioRef.current?.duration) return;
+                
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newPercentage = clickX / width;
+                const newTime = newPercentage * audioRef.current.duration;
+                
+                audioRef.current.currentTime = newTime;
+                setProgress(newPercentage * 100);
+                
+                // Tự động phát tiếp nếu đang pause và tua xong
+                if (!isPlaying) playAudio();
+            };
+
+            // Tính toán Timestamp nào đang active (Đang nghe tới đâu sáng tới đó)
+            let activeTimestampIndex = -1;
+            if (timestamps && timestamps.length > 0) {
+                for (let i = timestamps.length - 1; i >= 0; i--) {
+                    if (currentTime >= timestamps[i].time - 0.5) {
+                        activeTimestampIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col shadow-sm w-full">
+                    <div className="flex items-center w-full">
+                        <audio ref={audioRef} src={src} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} onError={handleError} className="hidden" />
+                        <button onClick={togglePlay} disabled={hasEnded && !isReviewMode} className={`mr-4 focus:outline-none transition-colors ${(hasEnded && !isReviewMode) ? 'text-gray-400 cursor-not-allowed' : hasError ? 'text-red-500' : 'text-blue-600 hover:text-blue-800'}`}>
+                            {isPlaying ? <PauseCircle size={40} /> : hasError ? <AlertCircle size={40} /> : <PlayCircle size={40} />}
+                        </button>
+                        <div className="flex-1">
+                            <div 
+                                ref={progressBarRef}
+                                onClick={handleProgressClick}
+                                className={`h-3 bg-gray-200 rounded-full overflow-hidden ${isReviewMode ? 'cursor-pointer hover:h-4 transition-all' : ''}`}
+                                title={isReviewMode ? "Bấm vào thanh này để tua nhanh/chậm" : ""}
+                            >
+                                <div className={`h-full transition-all duration-100 ${(hasEnded && !isReviewMode) ? 'bg-gray-400' : hasError ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                                <span className={hasError ? "text-red-500 font-bold" : ""}>
+                                    {hasError ? "Lỗi Audio." : (hasEnded && !isReviewMode) ? "Đã khóa (Chỉ nghe 1 lần)" : (hasEnded && isReviewMode) ? "Bấm Play để nghe lại" : isReviewMode ? "Bấm thanh màu xám để tua" : "Bấm Play để nghe"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {/* KHU VỰC TIMESTAMPS GỌN GÀNG NHƯ YOUTUBE CHAPTERS */}
+                    {isReviewMode && timestamps && timestamps.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs font-bold text-blue-800 mb-2">TIMESTAMPS CHỮA BÀI (Bấm để tua đến vị trí bài nghe):</p>
+                            <div className="flex flex-wrap gap-2">
+                                {timestamps.map((ts, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => {
+                                            if (hasError || !audioRef.current) return;
+                                            audioRef.current.currentTime = ts.time;
+                                            if (!isPlaying) playAudio();
+                                        }}
+                                        className={`px-2 py-1 text-xs font-bold rounded shadow-sm transition-colors ${activeTimestampIndex === idx ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'}`}
+                                    >
+                                        {ts.label} ({formatTimeStr(ts.time)})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- STAGE 1: LÀM BÀI TEST ---
+        function Stage1Test({ answers, setAnswers, onSubmit }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const handleOptionChange = (questionId, option) => {
+                setAnswers(prev => ({ ...prev, [questionId]: option }));
+            };
+
+            const answeredCount = Object.keys(answers).length;
+
+            return (
+                <div className="h-full flex flex-col relative bg-gray-100 pb-12">
+                    <div className="max-w-5xl mx-auto mt-6 px-4 w-full">
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b sticky top-16 z-30">
+                        {TEST_DATA.parts.map(part => (
+                            <button
+                            key={part.id}
+                            className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab(part.id)}
+                            >
+                            Part {part.id}
+                            </button>
+                        ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl p-4 md:p-8">
+                        {TEST_DATA.parts.map(part => (
+                            <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                            <div className="mb-6">
+                                <h2 className="text-xl font-bold mb-2">{part.title}</h2>
+                                <p className="text-gray-600 italic text-sm mb-4">{part.instructions}</p>
+                                <AudioPlayer src={part.audioSrc} audioId={part.id} />
+                            </div>
+                            
+                            <div className="space-y-8">
+                                {part.questions.map(q => {
+                                const checkedVal = answers[q.id];
+                                return (
+                                    <div key={q.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div className="flex items-start mb-4">
+                                        <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded mr-3 mt-0.5 shrink-0 text-sm">Câu {q.id}</span>
+                                        <p className="font-semibold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(q.options).map(([key, value]) => {
+                                        const checked = checkedVal === key;
+                                        return (
+                                            <label key={key} className={`flex items-start p-3 rounded-md cursor-pointer border transition-colors ${checked ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                            <input type="radio" name={`q-${q.id}`} value={key} checked={checked} onChange={() => handleOptionChange(q.id, key)} className="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                            <span className="font-bold mr-2">{key}.</span><span>{value}</span>
+                                            </label>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+
+                        <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm gap-4 border border-gray-200">
+                            <div className="text-gray-600 font-medium flex items-center">
+                                <CheckCircle size={18} className="mr-2 text-green-500" />
+                                <span>Đã chọn: <span className="font-bold">{answeredCount}/35</span> câu</span>
+                            </div>
+                            <button onClick={() => setShowConfirm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform hover:scale-105 w-full md:w-auto">
+                                Nộp Bài Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    {showConfirm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl animate-fade-in text-center">
+                            <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+                            <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn nộp bài? Hành động này không thể hoàn tác và bạn sẽ không thể thay đổi đáp án.</p>
+                            <div className="flex justify-center space-x-3">
+                            <button onClick={() => setShowConfirm(false)} className="px-5 py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Hủy</button>
+                            <button onClick={() => { setShowConfirm(false); onSubmit(); }} className="px-5 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition">Đồng ý nộp</button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- STAGE 2: KẾT QUẢ ---
+        function Stage2Result({ answers, onGoToGame }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showTranscript, setShowTranscript] = useState({});
+            const [activeTranslation, setActiveTranslation] = useState({});
+
+            const calculateScore = () => {
+                let correct = 0;
+                TEST_DATA.parts.forEach(part => {
+                part.questions.forEach(q => {
+                    if (answers[q.id] === q.correct) correct++;
+                });
+                });
+                return correct;
+            };
+
+            const correctCount = calculateScore();
+            const vstepScore = convertVstepScore(correctCount);
+
+            const toggleTranscript = (partId) => {
+                setShowTranscript(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            const toggleTranslation = (partId, label) => {
+                setActiveTranslation(prev => {
+                    const currentActive = prev[partId];
+                    if (currentActive === label) {
+                        return { ...prev, [partId]: null };
+                    }
+                    return { ...prev, [partId]: label };
+                });
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 pb-12 relative">
+                    <div className="max-w-5xl mx-auto mt-6 px-4">
+                        
+                        {/* Khu vực thông báo kết quả và nút chuyển qua Minigame */}
+                        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 shadow-md text-center flex flex-col items-center">
+                            <Award className="text-yellow-500 mb-2" size={40} />
+                            <h2 className="text-2xl font-bold text-green-700 mb-2">Đã Nộp Bài!</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 w-full max-w-md">
+                                <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-green-200 flex-1">
+                                    <p className="text-sm text-gray-500 uppercase font-bold mb-1">Số câu đúng</p>
+                                    <p className="text-3xl font-bold text-gray-800">{correctCount}<span className="text-lg text-gray-500 font-normal">/35</span></p>
+                                </div>
+                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border-2 border-blue-400 relative overflow-hidden flex-1">
+                                    <div className="absolute top-0 left-0 right-0 bg-blue-500 h-1"></div>
+                                    <p className="text-sm text-blue-600 uppercase font-bold mb-1">Điểm VSTEP</p>
+                                    <p className="text-4xl font-black text-blue-700">{vstepScore.toFixed(1)}<span className="text-xl text-gray-400 font-bold">/10</span></p>
+                                </div>
+                            </div>
+                            
+                            {/* Banner Mời chơi Minigame */}
+                            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow-sm mt-4 w-full max-w-2xl">
+                                <h3 className="text-lg font-bold text-purple-700 flex items-center justify-center mb-2">
+                                    <Gamepad2 size={24} className="mr-2"/> Bạn muốn nhớ từ vựng lâu hơn?
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">Hệ thống đã chắt lọc ra 10 từ vựng quan trọng nhất xuất hiện trong đề thi này. Chơi Minigame để khắc phục những từ bạn sai nhé!</p>
+                                <button onClick={onGoToGame} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:scale-105">
+                                    Học & Chơi Minigame Từ Vựng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b">
+                            {TEST_DATA.parts.map(part => (
+                                <button key={part.id} className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} onClick={() => setActiveTab(part.id)}>
+                                Part {part.id}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl pb-8 relative">
+                            {TEST_DATA.parts.map(part => (
+                                <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                                    
+                                    {/* THẺ AUDIO CỐ ĐỊNH PHÍA TRÊN */}
+                                    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-200 p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center"><Headphones size={18} className="mr-2"/> {part.title} Audio - Cho phép tua</h3>
+                                        <AudioPlayer 
+                                            src={part.audioSrc} 
+                                            audioId={`review-${part.id}`} 
+                                            isReviewMode={true} 
+                                            timestamps={part.audioTimestamps}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-8 p-4 md:p-8 mt-4">
+                                        {part.questions.map(q => {
+                                        const userAns = answers[q.id];
+                                        const isCorrect = userAns === q.correct;
+                                        const isUnanswered = !userAns;
+                                        
+                                        return (
+                                            <div key={q.id} className={`p-4 md:p-5 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50/30' : isUnanswered ? 'border-yellow-500 bg-yellow-50/30' : 'border-red-500 bg-red-50/30'}`}>
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="flex items-start">
+                                                        <span className={`px-2 py-1 rounded text-white font-bold text-xs md:text-sm mr-3 shrink-0 ${isCorrect ? 'bg-green-500' : isUnanswered ? 'bg-yellow-500' : 'bg-red-500'}`}>Câu {q.id}</span>
+                                                        <p className="font-bold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                                    </div>
+                                                    {isCorrect ? <CheckCircle className="text-green-500 shrink-0 ml-2" size={24}/> : <XCircle className="text-red-500 shrink-0 ml-2" size={24}/>}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 md:ml-12">
+                                                    {Object.entries(q.options).map(([key, value]) => {
+                                                    const isSelected = userAns === key;
+                                                    const isActualCorrect = key === q.correct;
+                                                    
+                                                    let btnClass = "text-left px-3 py-2 rounded-md border flex items-center ";
+                                                    if (isActualCorrect) btnClass += "border-green-500 bg-green-100 text-green-800 font-bold shadow-sm";
+                                                    else if (isSelected && !isActualCorrect) btnClass += "border-red-500 bg-red-100 text-red-800";
+                                                    else btnClass += "border-gray-200 bg-white opacity-60";
+
+                                                    return (
+                                                        <div key={key} className={btnClass}>
+                                                            <span className="font-bold mr-2">{key}.</span> <span>{value}</span>
+                                                            {isActualCorrect && <CheckCircle size={18} className="ml-auto text-green-600" />}
+                                                            {isSelected && !isActualCorrect && <XCircle size={18} className="ml-auto text-red-600" />}
+                                                        </div>
+                                                    );
+                                                    })}
+                                                </div>
+
+                                                <div className="md:ml-12 bg-white p-4 rounded-lg border shadow-sm mt-4">
+                                                    <h4 className="font-bold mb-2 text-blue-800 border-b pb-2 flex items-center"><BookOpen size={18} className="mr-2"/> Giải thích chi tiết</h4>
+                                                    
+                                                    <div className="mb-4 text-sm text-gray-700">
+                                                        <p className="mb-1 font-semibold italic text-gray-800">Dịch câu hỏi: {q.translation.question}</p>
+                                                        <ul className="mb-3 pl-4 list-disc text-gray-700 mt-2">
+                                                            {Object.entries(q.translation.options).map(([k, v]) => (<li key={k}><strong>{k}.</strong> {v}</li>))}
+                                                        </ul>
+                                                    </div>
+
+                                                    {/* Phần giải thích logic sai/đúng */}
+                                                    <div className="space-y-3 text-sm">
+                                                        {isUnanswered && (
+                                                            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+                                                                <strong>Bạn đã bỏ trống câu này!</strong> Hãy luôn thử dự đoán đáp án dù không nghe rõ nhé.
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {userAns && !isCorrect && (
+                                                            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                                                                <span className="font-bold uppercase mb-1 block">Tại sao bạn sai?</span>
+                                                                <strong>Bạn chọn {userAns}:</strong> {q.explanations[userAns]}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="p-3 bg-green-50 border border-green-200 rounded text-green-800">
+                                                            <span className="font-bold uppercase mb-1 block">Phân tích đáp án đúng</span>
+                                                            <strong>Đáp án {q.correct}:</strong> {q.explanations[q.correct]}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Trích đoạn Transcript Bôi đỏ */}
+                                                    <div className="mt-4 pt-4 border-t border-dashed">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center"><FileText size={14} className="mr-1"/> Đoạn Audio xuất hiện đáp án:</h5>
+                                                        </div>
+                                                        <p className="bg-gray-50 p-3 rounded text-gray-800 italic leading-relaxed" dangerouslySetInnerHTML={{ __html: q.transcriptSnippet }}></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+
+                                    {/* NÚT ẨN/HIỆN TRANSCRIPT ĐẦY ĐỦ */}
+                                    <div className="mt-8 border-t-2 border-dashed pt-6 mb-4 px-4 md:px-8">
+                                        <button onClick={() => toggleTranscript(part.id)} className="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg transition-colors">
+                                            <FileText className="mr-2" size={20} />
+                                            {showTranscript[part.id] ? "Ẩn Transcript (Nội dung bài nghe đầy đủ)" : "Hiện Transcript (Nội dung bài nghe đầy đủ)"}
+                                        </button>
+
+                                        {/* PHẦN DỊCH TIẾNG VIỆT */}
+                                        {showTranscript[part.id] && part.transcriptTranslations && (
+                                            <div className="mt-4 p-4 bg-white border border-blue-200 rounded-lg shadow-sm">
+                                                <p className="text-sm font-bold text-blue-800 mb-3 uppercase flex items-center">
+                                                    <BookOpen size={16} className="mr-2" />
+                                                    Xem bản dịch tiếng Việt
+                                                </p>
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    {part.transcriptTranslations.map((trans, idx) => (
+                                                        <button 
+                                                            key={idx}
+                                                            onClick={() => toggleTranslation(part.id, trans.label)}
+                                                            className={`px-3 py-1.5 text-sm font-bold rounded shadow-sm transition-colors ${activeTranslation[part.id] === trans.label ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'}`}
+                                                        >
+                                                            Dịch {trans.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                
+                                                {/* Khu vực hiển thị nội dung dịch */}
+                                                {activeTranslation[part.id] && (
+                                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line animate-fade-in border-l-4 border-l-blue-500">
+                                                        <h5 className="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-2">
+                                                            {activeTranslation[part.id]} (Tiếng Việt):
+                                                        </h5>
+                                                        {part.transcriptTranslations.find(t => t.label === activeTranslation[part.id])?.text}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {showTranscript[part.id] && (
+                                            <div className="mt-4 p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {part.transcript}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- STAGE 3: MINIGAME TỪ VỰNG ---
+        function Stage3VocabGame({ onBackToResult }) {
+            const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
+            const [playList, setPlayList] = useState(VOCAB_DATA); // List từ đang chơi
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [options, setOptions] = useState([]);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [score, setScore] = useState(0);
+            const [playingWord, setPlayingWord] = useState(null);
+            
+            // Array lưu các từ làm sai
+            const [wrongVocabs, setWrongVocabs] = useState([]);
+
+            const loadQuestion = () => {
+                if (currentIndex >= playList.length) {
+                    setGamePhase('finish');
+                    return;
+                }
+                const currentVocab = playList[currentIndex];
+                
+                // Lấy 3 nghĩa sai ngẫu nhiên từ TỔNG DATA gốc để lúc nào cũng có đủ 3 options gây nhiễu
+                const incorrectOptions = VOCAB_DATA
+                    .filter(v => v.word !== currentVocab.word)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(v => v.meaning);
+                
+                const allOptions = shuffleArray([currentVocab.meaning, ...incorrectOptions]);
+                setOptions(allOptions);
+                setSelectedOption(null);
+                
+                // Trì hoãn một chút để UI render xong rồi mới phát âm thanh
+                setTimeout(() => playWordAudio(currentVocab.word), 500);
+            };
+
+            useEffect(() => {
+                if (gamePhase === 'play') {
+                    loadQuestion();
+                }
+            }, [currentIndex, gamePhase, playList]);
+
+            const playWordAudio = (word) => {
+                setPlayingWord(word);
+                const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(err => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(word);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        utterance.onend = () => setPlayingWord(null);
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        setPlayingWord(null);
+                    }
+                });
+                audio.onended = () => setPlayingWord(null);
+            };
+
+            const handleSelect = (opt) => {
+                if (selectedOption !== null) return; 
+                setSelectedOption(opt);
+                
+                const currentVocab = playList[currentIndex];
+                if (opt === currentVocab.meaning) {
+                    setScore(prev => prev + 1);
+                } else {
+                    // Nếu chọn sai, thêm từ đó vào danh sách wrongVocabs (không add trùng)
+                    if (!wrongVocabs.find(w => w.word === currentVocab.word)) {
+                        setWrongVocabs(prev => [...prev, currentVocab]);
+                    }
+                }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 >= playList.length) {
+                    setGamePhase('finish');
+                } else {
+                    setCurrentIndex(prev => prev + 1);
+                }
+            };
+
+            // Chơi lại toàn bộ 10 từ
+            const handleRestartAll = () => {
+                setPlayList(VOCAB_DATA);
+                setWrongVocabs([]); // reset sai
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play'); 
+            };
+
+            // Chỉ chơi lại những câu đã sai
+            const handleReplayWrong = () => {
+                setPlayList(wrongVocabs);
+                setWrongVocabs([]); // reset để bắt lỗi lại cho lượt đánh này
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play');
+            };
+
+            if (gamePhase === 'learn') {
+                return (
+                    <div className="max-w-4xl mx-auto mt-8 px-4 pb-12">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                            <div className="bg-blue-600 p-6 text-white text-center">
+                                <h2 className="text-2xl font-bold flex items-center justify-center">
+                                    <BookOpen className="mr-2" />
+                                    DANH SÁCH TỪ VỰNG QUAN TRỌNG
+                                </h2>
+                                <p className="mt-2 opacity-90">Hãy nghe và ghi nhớ các từ vựng này trước khi bước vào thử thách nhé!</p>
+                            </div>
+                            <div className="p-6 md:p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {VOCAB_DATA.map((item, idx) => (
+                                        <div key={idx} className={`flex items-center p-4 rounded-xl border transition-colors ${playingWord === item.word ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-blue-50'}`}>
+                                            <button 
+                                                onClick={() => playWordAudio(item.word)}
+                                                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 transition-all ${playingWord === item.word ? 'bg-blue-500 text-white shadow-md scale-110' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                            >
+                                                <Volume2 size={24} />
+                                            </button>
+                                            <div>
+                                                <p className="font-bold text-lg text-gray-800">{item.word}</p>
+                                                <p className="text-gray-600 text-sm">{item.meaning}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-10 text-center">
+                                    <button 
+                                        onClick={() => {
+                                            setPlayList(VOCAB_DATA);
+                                            setCurrentIndex(0);
+                                            setScore(0);
+                                            setWrongVocabs([]);
+                                            setGamePhase('play');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:scale-105 inline-flex items-center text-lg"
+                                    >
+                                        <Gamepad2 className="mr-2" size={28} /> Đã Nhớ! Bắt Đầu Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gamePhase === 'finish') {
+                return (
+                    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-8 border-purple-500">
+                            <Award size={64} className="text-yellow-400 mx-auto mb-4" />
+                            <h2 className="text-3xl font-black text-gray-800 mb-2">Hoàn Thành!</h2>
+                            <p className="text-gray-600 mb-6">Bạn đã đối mặt với {playList.length} thử thách từ vựng.</p>
+                            
+                            <div className="text-5xl font-black text-purple-600 mb-8">
+                                {score} <span className="text-2xl text-gray-400">/ {playList.length}</span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {wrongVocabs.length > 0 && (
+                                    <button 
+                                        onClick={handleReplayWrong}
+                                        className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition flex items-center justify-center animate-pulse shadow-md"
+                                    >
+                                        <RefreshCw size={20} className="mr-2" /> Chơi Lại {wrongVocabs.length} Câu Sai
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleRestartAll}
+                                    className="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <RefreshCw size={20} className="mr-2" /> Chơi Lại Toàn Bộ Từ Đầu
+                                </button>
+                                <button 
+                                    onClick={() => setGamePhase('learn')}
+                                    className="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <BookOpen size={20} className="mr-2" /> Xem Lại Từ Vựng
+                                </button>
+                                <button 
+                                    onClick={onBackToResult}
+                                    className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <FileText size={20} className="mr-2" /> Trở Về Bài Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentVocab = playList[currentIndex];
+            if (!currentVocab) return null; // Safety check
+
+            return (
+                <div className="max-w-3xl mx-auto mt-8 px-4 pb-12">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                        {/* Header của Minigame */}
+                        <div className="bg-purple-600 p-4 text-white flex justify-between items-center">
+                            <div className="font-bold flex items-center">
+                                <Gamepad2 className="mr-2" />
+                                {playList.length < 10 ? 'LUYỆN TẬP CÂU SAI' : 'THỬ THÁCH NGHE TỪ VỰNG'}
+                            </div>
+                            <div className="bg-purple-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+                                Câu {currentIndex + 1} / {playList.length}
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-10 text-center">
+                            <p className="text-gray-600 mb-6 font-medium">Lắng nghe kỹ và chọn nghĩa tiếng Việt chính xác nhất cho cụm từ bạn vừa nghe thấy:</p>
+                            
+                            {/* Nút phát loa */}
+                            <button 
+                                onClick={() => playWordAudio(currentVocab.word)}
+                                className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-lg mb-8 ${playingWord === currentVocab.word ? 'bg-purple-200 text-purple-600 scale-95 ring-4 ring-purple-300' : 'bg-purple-100 text-purple-500 hover:bg-purple-200 hover:scale-105'}`}
+                            >
+                                <Volume2 size={48} />
+                            </button>
+
+                            {/* Khu vực hiển thị từ tiếng Anh (chỉ hiện sau khi đã chọn đáp án) */}
+                            <div className="h-12 mb-6">
+                                {selectedOption !== null && (
+                                    <div className="animate-fade-in inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 px-6 py-2 rounded-xl text-xl font-bold tracking-wide shadow-sm">
+                                        {currentVocab.word}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Các lựa chọn đáp án */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {options.map((opt, idx) => {
+                                    let btnClass = "p-4 rounded-xl border-2 font-bold text-left transition-all ";
+                                    
+                                    if (selectedOption === null) {
+                                        btnClass += "border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50";
+                                    } else {
+                                        if (opt === currentVocab.meaning) {
+                                            btnClass += "border-green-500 bg-green-100 text-green-800"; // Đáp án đúng luôn hiện xanh
+                                        } else if (opt === selectedOption && selectedOption !== currentVocab.meaning) {
+                                            btnClass += "border-red-500 bg-red-100 text-red-800"; // Bấm sai thì hiện đỏ
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50"; // Các ô khác mờ đi
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => handleSelect(opt)}
+                                            className={btnClass}
+                                            disabled={selectedOption !== null}
+                                        >
+                                            {opt}
+                                            {selectedOption !== null && opt === currentVocab.meaning && <CheckCircle className="inline float-right text-green-600" size={20} />}
+                                            {selectedOption !== null && opt === selectedOption && selectedOption !== currentVocab.meaning && <XCircle className="inline float-right text-red-600" size={20} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Nút Next */}
+                            <div className="mt-8 h-12">
+                                {selectedOption !== null && (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-full shadow-md transition-transform hover:scale-105 animate-fade-in"
+                                    >
+                                        Câu Tiếp Theo &rarr;
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            const [stage, setStage] = useState(1); // 1: Test, 2: Result, 3: Vocab Game
+            const [answers, setAnswers] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(TEST_DATA.duration);
+
+            useEffect(() => {
+                if (isSubmitted) return;
+                if (timeLeft <= 0) {
+                    setIsSubmitted(true);
+                    setStage(2);
+                    return;
+                }
+                const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, isSubmitted]);
+
+            const handleSubmit = () => {
+                setIsSubmitted(true);
+                setStage(2);
+                window.scrollTo(0, 0);
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+                    {/* Header cố định */}
+                    <header className="bg-white shadow-md sticky top-0 z-50 overflow-x-auto">
+                        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-row justify-between items-center gap-4 min-w-[700px]">
+                            {/* Tiêu đề bên trái */}
+                            <div className="font-black text-xl md:text-2xl text-blue-800 uppercase tracking-wide whitespace-nowrap flex-1 text-left">
+                                VSTEP LISTENING TEST 05
+                            </div>
+                            
+                            {/* Đồng hồ ở giữa */}
+                            <div className="flex-1 flex justify-center">
+                                <div className={`flex items-center space-x-2 font-mono text-xl px-4 py-1.5 rounded-md font-bold whitespace-nowrap ${timeLeft < 300 && !isSubmitted ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
+                                    <Clock size={20} />
+                                    <span>{formatTime(timeLeft)}</span>
+                                </div>
+                            </div>
+
+                            {/* Navigation Tabs ở rìa phải */}
+                            <div className="flex-1 flex justify-end">
+                                <div className="flex bg-gray-100 p-1 rounded-lg whitespace-nowrap">
+                                    <button 
+                                        onClick={() => setStage(1)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 1 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'}`}
+                                    >
+                                        Làm Bài
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(2)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 2 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        Kết Quả
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(3)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors flex items-center ${stage === 3 ? 'bg-purple-500 text-white shadow-sm' : 'text-purple-600 hover:bg-purple-100'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        <Gamepad2 size={16} className="mr-1" /> Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="h-auto min-h-[calc(100vh-64px)] pb-10">
+                        {stage === 1 && <Stage1Test answers={answers} setAnswers={setAnswers} onSubmit={handleSubmit} />}
+                        {stage === 2 && <Stage2Result answers={answers} onGoToGame={() => setStage(3)} />}
+                        {stage === 3 && <Stage3VocabGame onBackToResult={() => setStage(2)} />}
+                    </main>
+
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .animate-fade-in {
+                            animation: fadeIn 0.3s ease-out forwards;
+                        }
+                    `}} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

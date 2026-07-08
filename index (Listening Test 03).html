@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSTEP Listening Mock Test 03</title>
+    
+    <!-- Tải React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Tải Babel để chạy code JSX ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+    <!-- Tải Tailwind CSS để dựng giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Clock = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>);
+        const CheckCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+        const XCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>);
+        const PlayCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>);
+        const PauseCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>);
+        const FileText = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+        const AlertCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+        const Headphones = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>);
+        const Award = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>);
+        const BookOpen = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>);
+        const Volume2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>);
+        const RefreshCw = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>);
+        const Gamepad2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>);
+
+        // --- HÀM ĐỊNH DẠNG THỜI GIAN ---
+        const formatTimeStr = (seconds) => {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        };
+
+        // --- HÀM QUY ĐỔI ĐIỂM VSTEP LISTENING (Thang 10) ---
+        const convertVstepScore = (correctCount) => {
+            if (correctCount <= 1) return 0.0;
+            if (correctCount === 2) return 0.5;
+            if (correctCount === 3) return 1.0;
+            if (correctCount === 4) return 1.5;
+            if (correctCount <= 6) return 2.0;
+            if (correctCount === 7) return 2.5;
+            if (correctCount <= 9) return 3.0;
+            if (correctCount <= 11) return 3.5;
+            if (correctCount <= 13) return 4.0;
+            if (correctCount <= 15) return 4.5;
+            if (correctCount <= 17) return 5.0;
+            if (correctCount <= 19) return 5.5;
+            if (correctCount <= 21) return 6.0;
+            if (correctCount === 22) return 6.5;
+            if (correctCount <= 24) return 7.0;
+            if (correctCount === 25) return 7.5;
+            if (correctCount <= 27) return 8.0;
+            if (correctCount <= 29) return 8.5;
+            if (correctCount <= 31) return 9.0;
+            if (correctCount <= 33) return 9.5;
+            if (correctCount <= 35) return 10.0;
+            return 0.0;
+        };
+
+        // --- DATA TỪ VỰNG QUAN TRỌNG TỪ TEST 03 ---
+        const VOCAB_DATA = [
+            { word: "inclement", meaning: "khắc nghiệt, xấu (thời tiết)" },
+            { word: "refurbish", meaning: "tân trang lại, làm mới lại" },
+            { word: "accommodate", meaning: "cung cấp chỗ, đáp ứng, điều tiết" },
+            { word: "streamline", meaning: "tinh giản, hợp lý hóa" },
+            { word: "specialist", meaning: "chuyên gia" },
+            { word: "rationale", meaning: "lý do căn bản, cơ sở logic" },
+            { word: "collate", meaning: "đối chiếu, thu thập số liệu" },
+            { word: "contemporary", meaning: "đương đại, hiện đại" },
+            { word: "dispiriting", meaning: "làm nản lòng, chán nản" },
+            { word: "opulent", meaning: "sang trọng, xa hoa" }
+        ];
+
+        // --- DATA CỦA BÀI THI 03 KÈM GIẢI THÍCH CHI TIẾT VÀ TIMESTAMPS ---
+        const hl = (text) => `<span class="text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1">${text}</span>`;
+        
+        const TEST_DATA = {
+        duration: 47 * 60,
+        parts: [
+            {
+            id: 1,
+            title: "PART 1: Questions 1-8",
+            instructions: "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
+            audioSrc: "https://www.dropbox.com/scl/fi/p27pdpxel9x35h147tzxu/Part-1.mp3?rlkey=0wh6cmqh9zeff0j8yt1woejug&st=myaxp4zc&raw=1",
+            audioTimestamps: [
+                { label: "Bài 1", time: 121 },
+                { label: "Bài 2", time: 166 },
+                { label: "Bài 3", time: 214 },
+                { label: "Bài 4", time: 249 },
+                { label: "Bài 5", time: 300 },
+                { label: "Bài 6", time: 347 },
+                { label: "Bài 7", time: 384 },
+                { label: "Bài 8", time: 427 }
+            ],
+            transcriptTranslations: [
+                { label: "Bài 1", text: "Đây là Bill Myers với bản tin thời tiết của bạn. Chào mọi người, chúng ta đang mong đợi một kỳ nghỉ cuối tuần tuyệt đẹp. Hệ thống áp thấp từ tuần trước đã di chuyển về phía nam cùng với mưa và mây, và chúng ta sẽ thấy bầu trời trong xanh với nhiệt độ cao nhất khoảng 78 và thấp nhất khoảng 71. Chúng ta đang theo dõi một hệ thống bão khác di chuyển vào đây từ phía đông bắc trong vài ngày tới, vì vậy hãy chuẩn bị cho thời tiết khắc nghiệt bắt đầu vào khoảng thứ Ba. Bạn có thể xem toàn bộ chi tiết và bản đồ radar trên trang web của chúng tôi. Trong thời gian chờ đợi, hãy ra ngoài, tận hưởng kỳ nghỉ cuối tuần dài và cổ vũ cho đội chủ nhà Raiders của chúng ta trong trận đấu với đội Astronauts. Bây giờ, xin nhường lời cho Alyssa Wilcox với bản tin giao thông của bạn." },
+                { label: "Bài 2", text: "Quý khách hàng chú ý. Trong một thời gian giới hạn, Cửa hàng Bách hóa Morton đang cung cấp các chương trình thanh toán trả góp không lãi suất cho tất cả các thiết bị gia dụng mua từ 150 đô la trở lên, kèm theo giao hàng miễn phí. Hãy tận dụng ưu đãi đặc biệt này cho một trong những chiếc máy giặt Excelcia hoàn toàn mới của chúng tôi, vừa mới về hôm nay. Ngoài ra, tất cả các mẫu của năm ngoái hiện đang được giảm giá 10%. Với nhiều mẫu mã và mức giá đa dạng, đây là thời điểm hoàn hảo để mua máy rửa bát, tủ lạnh hoặc tủ đông mới. Chúng tôi cũng có một số lượng nhỏ các thiết bị được tân trang lại, chất lượng như mới, mà không phải với mức giá cao. Chỉ cần gặp bất kỳ nhân viên cửa hàng nào để biết thêm chi tiết và mang về nhà một thiết bị tuyệt vời ngay hôm nay." },
+                { label: "Bài 3", text: "Bạn đã gọi đến phòng khám nha khoa của Bác sĩ Parker và Morris. Hiện tại chúng tôi không nhận thêm bệnh nhân mới. Nếu bạn muốn được xếp vào danh sách chờ, vui lòng gọi lại trong giờ làm việc thông thường để nói chuyện với nhân viên lễ tân. Chúng tôi mở cửa từ thứ Hai đến thứ Sáu, 9:00 sáng đến 4:00 chiều, đóng cửa nghỉ trưa từ 12 giờ trưa đến 1:00 chiều. Nếu bạn là bệnh nhân hiện tại gọi đến để đặt lịch hoặc thay đổi cuộc hẹn, vui lòng nhấn phím 1 và để lại tin nhắn." },
+                { label: "Bài 4", text: "Thật vinh hạnh cho tôi khi được giới thiệu diễn giả khách mời hôm nay, Giáo sư Lyndon Farrell. Giáo sư Farrell giảng dạy tại Khoa Tâm lý học Tổ chức tại Đại học Geneva và là cố vấn cho các công ty hàng đầu trên toàn thế giới với trọng tâm là cải thiện hành vi của ban điều hành. Ông ấy sẽ phát biểu hôm nay về các chiến lược quản lý các nhóm quy mô vừa, giới thiệu nghiên cứu mới nhất về mức độ hài lòng và năng suất của nhân viên. Bạn sẽ không tìm thấy một chuyên gia nào am hiểu hơn về những chủ đề này. Bài giảng của ông dựa trên nghiên cứu mà ông đã thực hiện cho cuốn sách sắp xuất bản của mình, 'Cải thiện cách chúng ta làm việc', sẽ được Nhà xuất bản Navid phát hành vào mùa thu này. Sau đó, ông ấy sẽ dành nửa giờ để trả lời các câu hỏi. Xin hãy dành cho Giáo sư Farrell một tràng pháo tay nồng nhiệt." },
+                { label: "Bài 5", text: "Chào buổi chiều, những người mua sắm tại Lockhart. Đã đến mùa đông, và Lockhart có rất nhiều lựa chọn thiết bị thể thao mùa đông tuyệt vời, chẳng hạn như giày trượt băng, gậy khúc côn cầu, v.v. Trong năm phút nữa, chúng tôi sẽ hướng dẫn những khách hàng thân thiết của mình mọi điều về giày trượt tuyết. Hãy ngồi xuống với một trong những chuyên gia của chúng tôi và nhận được đánh giá, đề xuất và đi thử cho vừa vặn. Hãy ghé qua khu vực trượt tuyết ở gần cuối cửa hàng. Và đừng quên, chúng tôi cũng đang cung cấp ưu đãi đặc biệt về việc cá nhân hóa bất kỳ phụ kiện nhỏ nào mà bạn mua trong cửa hàng, chẳng hạn như mũ hoặc găng tay. Cho dù đó là tên viết tắt của bạn hay tên đội, bạn đều có thể thêm chữ cái mà không mất thêm chi phí. Vì vậy, hãy tận dụng dịch vụ này ngay hôm nay." },
+                { label: "Bài 6", text: "Xin chào, tôi là Tim Anderson. Tôi đã đến cửa hàng của bạn vào thứ Ba tuần trước để mua giày chạy bộ, và mặc dù các bạn không có sẵn kích cỡ của tôi tại cửa hàng, nhân viên bán hàng của bạn đã giúp tôi đặt mua một vài đôi. Nhân viên bán hàng, tôi nghĩ cô ấy tên là Marcy, nói rằng cô ấy sẽ gọi khi hàng về. Vấn đề là đáng lẽ ra chúng phải đến vào lúc này rồi, nhưng tôi chưa nhận được tin tức gì từ cô ấy, và tôi có một cuộc đua vào thứ Bảy tới. Tôi thực sự đánh giá cao nếu Marcy hoặc ai đó gọi lại cho tôi càng sớm càng tốt để giải quyết vấn đề này. Ồ, và số đơn hàng của tôi là 8152, hy vọng nó sẽ giúp ích. Cảm ơn bạn." },
+                { label: "Bài 7", text: "Chào buổi sáng mọi người. Chúng ta sẽ đóng cửa sớm một giờ vào thứ Sáu, ngày 30 tháng 3, để nâng cấp hệ thống máy tính tính tiền. Sẽ có ba buổi đào tạo vào ngày 15 tháng 3 để phù hợp với lịch trình của mọi người: 6:00 sáng đến 7:00 sáng, buổi trưa đến 1:00 chiều và 10:00 tối đến 11:00 tối. Nếu bạn hoàn toàn không thể tham gia một trong những buổi này, vui lòng nói chuyện với tôi sau cuộc họp này và chúng ta sẽ cố gắng sắp xếp một thời gian thay thế. Hệ thống mới tương tự như hệ thống cũ, nhưng bạn sẽ nhận thấy rằng giao diện đã được tinh giản để dễ sử dụng hơn. Chúng tôi kỳ vọng mọi người sẽ vận hành hệ thống mới một cách hiệu quả vào đầu tháng Tư." },
+                { label: "Bài 8", text: "Hành khách chú ý. Đây là thông báo thay đổi cổng. Chuyến bay 3759, tiếp tục hành trình đến Chicago, sẽ cập bến tại Cổng A21, không phải C13. Xin nhắc lại, cổng mới sẽ là A21. Để đến Nhà ga A, bạn sẽ phải đi xe buýt đưa đón từ lối ra trung tâm, ngay qua các trạm dừng taxi. Nếu bạn là hành khách trên Chuyến bay 3759 đi Chicago, vui lòng lên xe buýt nhanh chóng và chuẩn bị sẵn vé để xuất trình tại cổng. Chuyến bay bị trễ 20 phút, vì vậy bạn sẽ có đủ thời gian để đến Cổng A21. Vui lòng gặp tôi hoặc một nhân viên khác nếu bạn có bất kỳ câu hỏi nào hoặc cần hỗ trợ đặc biệt." }
+            ],
+            transcript: `We are ready to start. First, you have some time to look at questions 1 to 8. (Pause)
+
+Now, listen carefully and answer questions 1 to 8.
+
+Number 1:
+This is Bill Myers with your weather on the ones. Well folks, we're looking forward to a beautiful holiday weekend. The low-pressure system from last week has moved south along with the rain and clouds, and we should see blue skies with highs around 78 and lows around 71. We're looking at another storm system moving in here from the northeast in a few days, so expect inclement weather to start around Tuesday. You can view full details and see a radar map on our website. In the meantime, get outside, enjoy that long weekend, and cheer on our hometown Raiders in their game against the Astronauts. Now, here's Alyssa Wilcox with your roads report.
+
+Number 2:
+Attention customers. For a limited time, Morton's Department Store is offering no-interest payment plans on all appliance purchases of $150 or more, with free delivery. Take advantage of this special deal on one of our brand new Excelcia washing machines, just arrived today. In addition, all of last year's models are now 10% off. With a wide range of models and price points available, it's the perfect time to buy a new dishwasher, refrigerator, or freezer. We also have a small selection of refurbished units, as good as new, without the high price. Just see any store associate for details, and take home a great appliance today.
+
+Number 3:
+You have reached the dental offices of Doctors Parker and Morris. We are not currently accepting new patients. If you would like to be placed on a waiting list, please call back during regular business hours to speak with a receptionist. We are open Monday through Friday, 9:00 AM to 4:00 PM, closing for lunch between noon and 1:00 PM. If you are a current patient calling to schedule or change an appointment, please press 1 and leave a message.
+
+Number 4:
+It's my pleasure to introduce today's guest speaker, Professor Lyndon Farrell. Professor Farrell teaches in the Department of Organizational Psychology at the University of Geneva and consults for top companies worldwide with a focus on improving executive behavior. He'll be speaking today about strategies for managing mid-size teams, introducing the latest research on employee satisfaction and productivity. You won't find a more knowledgeable authority on these topics. His lecture is based on research he conducted for his upcoming book, Improving the Way We Work, which will be released by Navid Publishing this fall. Afterwards, he will take questions for half an hour. Please give Professor Farrell a warm welcome.
+
+Number 5:
+Good afternoon, Lockhart shoppers. It's winter season, and Lockhart has a great selection of winter athletic gear, such as ice skates, hockey sticks, and more. In five minutes, we'll be teaching our valued customers all about snowboarding boots. Sit down with one of our professionals and get an assessment, recommendation, and fitting. Stop by the snowboarding section near the back of the store. And don't forget, we're also offering a special deal on personalizing any small accessory that you purchase in the store, such as a hat or gloves. Whether it's your initials or a team name, you can add letters at no extra cost. So take advantage of this service today.
+
+Number 6:
+Hi, this is Tim Anderson. I came to your store last Tuesday to get some running shoes, and though you didn't have my size in stock, your salesperson helped me order some. The salesperson, I think her name was Marcy, said she would call when they came in. The problem is that they were supposed to have arrived by now, but I haven't heard from her, and there's a race on Saturday. I would really appreciate it if Marcy or someone else would call me back as soon as possible to resolve this. Oh, and my order number was 8152, if that helps. Thank you.
+
+Number 7:
+Good morning everyone. We'll be closing one hour early on Friday, March 30th, to upgrade the point-of-sale system. There will be three training sessions on March 15th to accommodate everyone's schedules: 6:00 AM to 7:00 AM, noon to 1:00 PM, and 10:00 PM to 11:00 PM. If you absolutely cannot make one of these sessions, please speak with me after this meeting and we'll try to work out an alternate time. The new system is similar to the old one, but you'll notice that the interface has been streamlined for ease of use. We expect everyone to be running the new system efficiently by the beginning of April.
+
+Number 8:
+Attention passengers. This is a gate change announcement. Flight 3759, continuing on to Chicago, will be arriving at Gate A21, not C13. Again, the new gate will be A21. In order to reach Terminal A, you will have to take a shuttle bus from the central exit, just past the taxi stands. If you are a passenger flying on Flight 3759 to Chicago, please board the bus promptly and keep your ticket ready to show at the gate. The flight is delayed by 20 minutes, so you should have enough time to reach Gate A21. Please see me or another agent if you have any questions or need special assistance.`,
+            questions: [
+                {
+                id: 1, text: "What will the weather be like this weekend?", options: { A: "Hot and dry.", B: "Inclement.", C: "Stormy.", D: "Pleasant." }, correct: "D", timestamp: 121,
+                translation: { question: "Thời tiết cuối tuần này sẽ như thế nào?", options: { A: "Nóng và khô.", B: "Khắc nghiệt.", C: "Bão.", D: "Dễ chịu." } },
+                explanations: { 
+                    A: "Sai. Nhiệt độ chỉ khoảng 78 độ F (khoảng 25 độ C) chứ không quá nóng và khô.", 
+                    B: "Sai. Thời tiết khắc nghiệt (inclement weather) được dự báo sẽ bắt đầu vào khoảng thứ Ba tuần sau, chứ không phải cuối tuần này.", 
+                    C: "Sai. Bão đã đi qua từ tuần trước.", 
+                    D: "Đúng. Phát thanh viên nói rằng chúng ta đang mong đợi một 'beautiful holiday weekend' (cuối tuần tuyệt đẹp) và 'blue skies' (trời xanh). Điều này đồng nghĩa với 'Pleasant' (dễ chịu)." 
+                },
+                transcriptSnippet: `Well folks, we're looking forward to a ${hl("beautiful holiday weekend")}. The low-pressure system from last week has moved south along with the rain and clouds, and we should see ${hl("blue skies")}...`
+                },
+                {
+                id: 2, text: "What item is new at Morton's Department Store?", options: { A: "A blender.", B: "A toaster oven.", C: "A washing machine.", D: "A vacuum cleaner." }, correct: "C", timestamp: 166,
+                translation: { question: "Mặt hàng nào mới có tại Cửa hàng bách hóa Morton?", options: { A: "Máy xay sinh tố.", B: "Lò nướng bánh mì.", C: "Máy giặt.", D: "Máy hút bụi." } },
+                explanations: { 
+                    A: "Sai. Không được nhắc đến.", 
+                    B: "Sai. Không được nhắc đến.", 
+                    C: "Đúng. Cửa hàng đang có chương trình cho dòng 'washing machines' (máy giặt) hoàn toàn mới vừa mới cập bến.", 
+                    D: "Sai. Không được nhắc đến." 
+                },
+                transcriptSnippet: `Take advantage of this special deal on one of our ${hl("brand new Excelcia washing machines")}, just arrived today.`
+                },
+                {
+                id: 3, text: "What kind of doctors are Doctor Parker and Morris?", options: { A: "Dentists.", B: "Eye doctors.", C: "Veterinarians.", D: "Pediatricians." }, correct: "A", timestamp: 214,
+                translation: { question: "Bác sĩ Parker và Morris là bác sĩ loại gì?", options: { A: "Nha sĩ.", B: "Bác sĩ mắt.", C: "Bác sĩ thú y.", D: "Bác sĩ nhi khoa." } },
+                explanations: { 
+                    A: "Đúng. Ngay từ câu chào đầu tiên đã khẳng định đây là phòng khám nha khoa (dental offices).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `You have reached the ${hl("dental offices")} of Doctors Parker and Morris.`
+                },
+                {
+                id: 4, text: "What field does Dr. Farrell most likely work in?", options: { A: "Client retention.", B: "Employee recruitment.", C: "Product development.", D: "Organizational psychology." }, correct: "D", timestamp: 249,
+                translation: { question: "Tiến sĩ Farrell có khả năng làm việc trong lĩnh vực nào nhất?", options: { A: "Giữ chân khách hàng.", B: "Tuyển dụng nhân viên.", C: "Phát triển sản phẩm.", D: "Tâm lý học tổ chức." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Ông ấy được giới thiệu là giảng dạy tại Khoa Tâm lý học Tổ chức (Department of Organizational Psychology)." 
+                },
+                transcriptSnippet: `Professor Farrell teaches in the ${hl("Department of Organizational Psychology")} at the University of Geneva...`
+                },
+                {
+                id: 5, text: "Where is the announcement being made?", options: { A: "At a shoe company.", B: "At a clothing shop.", C: "At a sporting goods store.", D: "At a stadium." }, correct: "C", timestamp: 300,
+                translation: { question: "Thông báo đang được đưa ra ở đâu?", options: { A: "Tại một công ty giày.", B: "Tại một cửa hàng quần áo.", C: "Tại một cửa hàng đồ thể thao.", D: "Tại một sân vận động." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Thông báo nhắc đến các dụng cụ thể thao mùa đông (winter athletic gear) như giày trượt băng (ice skates), gậy khúc côn cầu (hockey sticks), ván trượt tuyết (snowboarding boots). Nên đây chắc chắn là một cửa hàng đồ thể thao.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Good afternoon, Lockhart shoppers. It's winter season, and Lockhart has a great selection of ${hl("winter athletic gear, such as ice skates, hockey sticks, and more")}.`
+                },
+                {
+                id: 6, text: "How did the speaker place his order?", options: { A: "In person.", B: "By phone.", C: "Online.", D: "By mail." }, correct: "A", timestamp: 347,
+                translation: { question: "Người nói đã đặt hàng bằng cách nào?", options: { A: "Đích thân đến (trực tiếp).", B: "Qua điện thoại.", C: "Trực tuyến.", D: "Qua thư." } },
+                explanations: { 
+                    A: "Đúng. Khách hàng gọi điện phàn nàn và nói rằng tuần trước anh ấy 'đã đến cửa hàng' (came to your store) và nhân viên bán hàng đã giúp anh đặt mua trực tiếp ở đó.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `${hl("I came to your store last Tuesday")} to get some running shoes, and though you didn't have my size in stock, your salesperson helped me order some.`
+                },
+                {
+                id: 7, text: "When will the training sessions be held?", options: { A: "On March 15.", B: "On March 30.", C: "On April 15.", D: "On April 30." }, correct: "A", timestamp: 384,
+                translation: { question: "Các buổi đào tạo sẽ được tổ chức khi nào?", options: { A: "Vào ngày 15 tháng 3.", B: "Vào ngày 30 tháng 3.", C: "Vào ngày 15 tháng 4.", D: "Vào ngày 30 tháng 4." } },
+                explanations: { 
+                    A: "Đúng. Thông báo nêu rõ có 3 buổi đào tạo (training sessions) sẽ diễn ra vào ngày 15 tháng 3.", 
+                    B: "Sai. 30/3 là ngày cửa hàng đóng cửa sớm 1 tiếng để nâng cấp hệ thống.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `There will be three ${hl("training sessions on March 15th")} to accommodate everyone's schedules...`
+                },
+                {
+                id: 8, text: "Where is the announcement taking place?", options: { A: "In a subway station.", B: "In an airport.", C: "At a bus station.", D: "On a train platform." }, correct: "B", timestamp: 427,
+                translation: { question: "Thông báo diễn ra ở đâu?", options: { A: "Tại nhà ga tàu điện ngầm.", B: "Tại một sân bay.", C: "Tại bến xe buýt.", D: "Trên sân ga tàu hỏa." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Thông báo nhắc đến 'gate change' (đổi cổng ra máy bay), 'flight' (chuyến bay), 'Terminal A' (Nhà ga A) và 'board the bus... show at the gate'. Đây là các thuật ngữ đặc trưng ở sân bay.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Attention passengers. This is a ${hl("gate change announcement. Flight 3759")}, continuing on to Chicago, will be arriving at Gate A21...`
+                }
+            ]
+            },
+            {
+            id: 2,
+            title: "PART 2: Questions 9-20",
+            instructions: "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/rclhib06uqu6nlgu6p3qh/Part-2.mp3?rlkey=i4dqwn53n8n0dbnt9rm9avl5j&st=ap9mw2hk&raw=1",
+            audioTimestamps: [
+                { label: "Hội thoại 1", time: 76 },
+                { label: "Hội thoại 2", time: 223 },
+                { label: "Hội thoại 3", time: 366 }
+            ],
+            transcriptTranslations: [
+                { label: "Hội thoại 1", text: "Người 1: Chào buổi sáng, tôi có thể giúp gì cho bạn?\nNgười 2: Vâng, tôi là Mark Winston và tôi...\nNgười 1: Ồ, xin lỗi ông Winston. Học viện Ngôn ngữ Thế giới, đây là Kathy Green, tôi có thể giúp gì? Không, đây là một trường ngôn ngữ tư thục, không phải đại lý du lịch. Không có gì. Tạm biệt. Tôi xin lỗi, anh Winston. Bây giờ, tôi có thể giúp gì cho anh?\nNgười 2: Vâng, tôi hy vọng cô có thể. Tôi muốn đăng ký ngay một lớp học tiếng Nhật vào tuần tới.\nNgười 1: Các lớp học sẽ bắt đầu vào tuần tới và chúng tôi có rất nhiều lớp tiếng Nhật để lựa chọn. Anh đã từng học tiếng Nhật chưa?\nNgười 2: Chưa. Tôi là người mới bắt đầu. Tôi dự định đến thăm Nhật Bản vào mùa hè tới, vì vậy tôi muốn học một chút ngôn ngữ này.\nNgười 1: Tuyệt quá. Nhật Bản là một nơi tuyệt vời để đến thăm. Thực ra năm ngoái tôi đã ở Tokyo một tháng và thậm chí tôi còn leo lên đỉnh núi Phú Sĩ.\nNgười 2: Thật sao? Thế là quá nhiều hoạt động đối với tôi rồi. Tôi chỉ định đi thăm Tokyo thôi. Tôi nghĩ tôi sẽ tìm thấy nhiều việc để làm ở đó.\nNgười 1: Chắc chắn rồi. Vậy thì, để tôi giới thiệu cho anh một chút về các lớp học của chúng tôi. Tất cả đều được giảng dạy bởi người bản ngữ, và họ đều là những chuyên gia trong lĩnh vực của mình. Anh có thể chọn lớp Tiếng Nhật cho Khách du lịch, Tiếng Nhật cho Doanh nhân, hoặc Tiếng Nhật cho Sinh viên Đại học. Anh không học đại học đúng không?\nNgười 2: Không, tôi đã tốt nghiệp vài năm trước.\nNgười 1: Vậy thì lớp dành cho Khách du lịch có lẽ là tốt nhất cho anh.\nNgười 2: Vâng, tôi nghĩ cô đúng. Tôi chỉ muốn học đủ để gọi món trong nhà hàng, đi mua sắm và những việc tương tự. Khi nào lớp Tiếng Nhật cho Khách du lịch bắt đầu?\nNgười 1: Để xem nào... Chúng tôi có một lớp cho người mới bắt đầu sẽ khai giảng vào tuần tới. Tôi nghĩ vẫn còn lại vài chỗ trống. Anh may mắn đấy. Chúng tôi đã có 15 học viên đăng ký, và vẫn còn chỗ cho ba người nữa." },
+                { label: "Hội thoại 2", text: "Người 1: Xin chào, bạn đến để đăng ký khóa học hay đóng học phí?\nNgười 2: À, thực ra là cả hai.\nNgười 1: Được rồi, tốt thôi. Bạn có thể đăng ký tại đây với tôi và sau đó sang bàn bên cạnh để nộp học phí. Đầu tiên, cho tôi biết tên của bạn?\nNgười 2: Vâng, là Peter Taylor. Taylor viết với chữ Y.\nNgười 1: Vậy là T-A-Y-L-O-R.\nNgười 2: Đúng vậy. Cô có cần tên đệm của tôi không?\nNgười 1: Không, chỉ cần tên và họ, cảm ơn. Và bạn đang học khóa nào?\nNgười 2: Tôi đang học Cử nhân Khoa học ngành Kinh tế.\nNgười 1: Được rồi, ngành đó thuộc Khoa Toán học.\nNgười 2: Ồ, tôi tưởng nó thuộc Khoa Quản trị và Kinh doanh chứ.\nNgười 1: Năm ngoái thì đúng là vậy, nhưng khóa học đã được chuyển sang Khoa Toán vào năm nay rồi.\nNgười 2: Ồ, cảm ơn cô đã cho tôi biết.\nNgười 1: Không có gì. Bây giờ, bạn dự định sẽ sống ở đâu? Trong khuôn viên trường hay ở chỗ trọ bên ngoài?\nNgười 2: Ký túc xá của trường đại học. Tôi ở phòng 112, Khu nội trú Ashley.\nNgười 1: Bạn vừa nói là Khu nội trú Ashley phải không? Cái ở phố Duke ấy? Chỉ là vì có một khu nội trú khác tên là Ashkey, nên thỉnh thoảng dễ bị nhầm lẫn. Tôi không muốn mắc lỗi trên hồ sơ máy tính, nếu không bạn sẽ không nhận được thư của trường đâu.\nNgười 2: Chắc chắn là Ashley. A-S-H-L-E-Y.\nNgười 1: Tuyệt. Còn địa chỉ nhà của bạn thì sao? Trên hồ sơ của chúng tôi ghi là số 56 Phố Grove, Manchester, M1 9JA. Có đúng không?\nNgười 2: Thực ra có một lỗi nhỏ. Là M4, không phải M1. Phần còn lại thì đúng, 9JA.\nNgười 1: Được rồi, tôi nghĩ thế là xong. Bạn đã được đăng ký vào khóa học của mình, bây giờ bạn có thể đi đóng học phí.\nNgười 2: Cảm ơn, chào cô." },
+                { label: "Hội thoại 3", text: "Người 1: Chào buổi chiều, Du lịch Dream Time, tôi có thể giúp gì cho bạn?\nNgười 2: Ồ, xin chào. Tôi quan tâm đến những kỳ nghỉ mà bên bạn cung cấp dọc theo bờ biển gần đây.\nNgười 1: Vâng, chúng tôi điều hành một vài chuyến tham quan dọc theo bờ biển. Bạn đặc biệt muốn đi đâu?\nNgười 2: Chà, tôi thích nghe về kỳ nghỉ có nhắc đến cá voi. Có phải là... đi ngắm cá voi không?\nNgười 1: À, đó là Trải nghiệm Ngắm Cá voi của chúng tôi. Nó rất nổi tiếng, và được tổ chức ở một thị trấn nhỏ xinh xắn với những bãi biển đẹp.\nNgười 2: Ồ, ra vậy. Nó kéo dài bao lâu?\nNgười 1: Chuyến đi kéo dài hai ngày. Trong đó đã bao gồm bốn giờ di chuyển cho mỗi chiều đi và về từ đây.\nNgười 2: Tốt, tôi không muốn đi lâu hơn khoảng thời gian đó. Vậy, di chuyển bằng xe khách lớn à?\nNgười 1: Thực ra là bằng xe buýt nhỏ (minibus). Chúng tôi muốn giữ cho các chuyến tham quan nhỏ gọn và riêng tư, vì vậy chúng tôi không chở cả một xe đầy ắp người. Thực tế, chúng tôi chỉ nhận tối đa 15 người trong tour này, mặc dù chúng tôi vẫn chạy tour với chỉ 12 hoặc 13 người.\nNgười 2: Ồ, tôi hiểu. Vậy các bạn có tổ chức những tour này thường xuyên không?\nNgười 1: Chà, nó tùy thuộc vào thời điểm trong năm. Tất nhiên, vào những lúc cao điểm như kỳ nghỉ hè, chúng tôi tổ chức vào mỗi cuối tuần, nhưng hiện tại thì thường nhiều nhất là mỗi tháng một lần.\nNgười 2: Và khi nào thì có chuyến tiếp theo?\nNgười 1: Ừm, để tôi xem nào... Có một chuyến đi vào ba tuần nữa, tức là ngày 18 tháng 4, và sau đó chúng tôi sẽ không có chuyến nào khác cho đến... ngày 2 tháng 6.\nNgười 2: Được rồi. Ừm... và tháng 4 có phải là thời điểm tốt để đi không?\nNgười 1: Khá tốt, mặc dù thời điểm thực sự tốt là vào cuối năm. Tuy nhiên, tôi phải nói rằng, việc ngắm nhìn cá voi chỉ là một trong nhiều điều được cung cấp trong tour.\nNgười 2: Thật sao?\nNgười 1: Vâng, chính khách sạn nơi bạn ở có cơ sở vật chất rất tuyệt vời. Nó tên là The Palisades.\nNgười 2: The Paris gì cơ?\nNgười 1: Không, thực ra là The Palisades. P-A-hai chữ L-I-S-A-D-E-S. Nó nằm ngay trên bãi biển chính ở đó.\nNgười 2: Ồ, tôi hiểu rồi.\nNgười 1: Tất cả các phòng đều có tầm nhìn đẹp, và thức ăn ở đó cũng rất ngon.\nNgười 2: Được rồi." }
+            ],
+            transcript: `Conversation 1 (Questions 9-12)
+Speaker 1: Good morning, may I help you?
+Speaker 2: Yes, I'm Mark Winston and I...
+Speaker 1: Oh, excuse me, Mr. Winston. World Language Academy, this is Kathy Green, may I help you? No, this is a private language school, not a travel agency. No problem at all. Goodbye. I'm sorry, Mr. Winston. Now, may I help you?
+Speaker 2: Yes, I hope you can. I'd like to sign up now for a Japanese class next week.
+Speaker 1: Classes start next week and we have lots of Japanese classes to choose from. Have you studied Japanese before?
+Speaker 2: No, I haven't. I'm a beginner. I'm planning to visit Japan next summer, so I want to learn a bit of the language.
+Speaker 1: That's great. Japan is a wonderful place to visit. I spent a month in Tokyo last year actually, and I even climbed Mount Fujiyama.
+Speaker 2: Really? That's too much activity for me. I'm just planning to visit Tokyo. I think I'll find plenty to do there.
+Speaker 1: You certainly will. All right then, let me tell you a bit about our classes. They're all taught by native speakers, and they're all specialists in their field. You can choose a Japanese for Tourists class, Japanese for Business Travelers, or Japanese for University Students. You're not studying at a university, are you?
+Speaker 2: No, I graduated a few years ago.
+Speaker 1: Well then the Tourist class is probably best for you.
+Speaker 2: Yes, I think you're right. I just want to learn enough to order food in restaurants and go shopping and things like that. When does the Japanese for Tourists class begin?
+Speaker 1: Let's see... We have a class for beginners that starts next week. I think there are still a few spaces left. You're in luck. We have 15 students enrolled, and there's room for three more.
+
+Conversation 2 (Questions 13-16)
+Speaker 1: Hello, have you come to enroll for your course or pay your fees?
+Speaker 2: Um, both actually.
+Speaker 1: Okay, that's fine. You can enroll here with me and then go to the next desk for fee payment. So, first of all, can I have your name?
+Speaker 2: Yes, it's Peter Taylor. That's Taylor with a Y.
+Speaker 1: So, it's T-A-Y-L-O-R.
+Speaker 2: That's right. Do you need my middle name?
+Speaker 1: No, just your first and last names, thanks. And what course are you doing?
+Speaker 2: I'm taking a BSC in Economics.
+Speaker 1: Okay, that's in the Faculty of Mathematics.
+Speaker 2: Oh, I thought it was in the Faculty of Business and Management.
+Speaker 1: It was last year, but the course has moved to the Mathematics Faculty this year.
+Speaker 2: Oh, thanks for letting me know.
+Speaker 1: No problem. Now, where are you going to be living? On campus or in private accommodation?
+Speaker 2: University accommodation. I'm in room 112, Ashley Residence.
+Speaker 1: Did you say Ashley Residence? The one in Duke Street? It's just that there's another residence called Ashkey Residence, so it's confusing sometimes. I don't want to make a mistake on the computer records, otherwise you won't receive any university mail.
+Speaker 2: It's definitely Ashley. A-S-H-L-E-Y.
+Speaker 1: Great. And what about your home address? On our records, it says 56 Grove Street, Manchester, M1 9JA. Is that correct?
+Speaker 2: Actually, there's a small mistake. It's M4, not M1. The rest is correct, 9JA.
+Speaker 1: Okay, I think that's all. You're enrolled on your course, so you can go and pay your fees now.
+Speaker 2: Thanks, bye.
+
+Conversation 3 (Questions 17-20)
+Speaker 1: Good afternoon, Dream Time Travel, how can I help you?
+Speaker 2: Oh, hello. I'm interested in the holidays you offer along the coast near here.
+Speaker 1: Yes, we operate several tours up the coast. Where in particular did you want to go?
+Speaker 2: Well, I like the sound of the holiday that mentioned whales. Was it um... whale watching?
+Speaker 1: Ah, that's our Whale Watch Experience. It's very popular, and it's based in a lovely little town with nice beaches.
+Speaker 2: Oh right. And how long does it last?
+Speaker 1: It's two days. That includes four hours travel time each way from here.
+Speaker 2: Good, I don't want to be away any longer than that. So, is that by coach?
+Speaker 1: Actually, it's by minibus. We like to keep those tours small and personal, so we don't take a whole coach-load of people. In fact, we only take up to 15 people on this tour, although we do run it with just 12 or 13.
+Speaker 2: Oh right. So, do you run these tours often?
+Speaker 1: Well, it depends on the time of year. Of course, in peak times like the summer holidays, we do them every weekend, but at the moment it's usually once a month at most.
+Speaker 2: And when is the next one going?
+Speaker 1: Mmm, let me see... There's one in three weeks' time, which is April the 18th, and then we don't have another one until... June the 2nd.
+Speaker 2: All right. Um... and is April a good time to go?
+Speaker 1: Pretty good, though the really good time is later in the year. I have to say though, that the whale sighting is only one of the many things offered.
+Speaker 2: Really?
+Speaker 1: Yes, the hotel itself where you stay has great facilities. It's called The Palisades.
+Speaker 2: The Paris what?
+Speaker 1: No, it's actually The Palisades. P-A-double L-I-S-A-D-E-S. It's right on the main beach there.
+Speaker 2: Oh, I see.
+Speaker 1: All of the rooms have nice views, and the food is really good there too.
+Speaker 2: All right.`,
+            questions: [
+                {
+                id: 9, text: "When does the man want to start his Japanese class?", options: { A: "Tomorrow.", B: "Next week.", C: "Next two weeks.", D: "Next month." }, correct: "B", timestamp: 76,
+                translation: { question: "Người đàn ông muốn bắt đầu lớp học tiếng Nhật của mình khi nào?", options: { A: "Ngày mai.", B: "Tuần tới.", C: "2 tuần nữa.", D: "Tháng tới." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Người đàn ông nói rõ anh ấy muốn đăng ký ngay bây giờ cho lớp học tiếng Nhật vào tuần tới (next week).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 2: Yes, I hope you can. I'd like to sign up now for a Japanese class ${hl("next week.")}`
+                },
+                {
+                id: 10, text: "At what level of Japanese does he say he is?", options: { A: "Starter.", B: "Elementary.", C: "Pre-intermediate.", D: "Intermediate." }, correct: "A", timestamp: 76,
+                translation: { question: "Anh ấy nói anh ấy đang ở trình độ tiếng Nhật nào?", options: { A: "Người mới bắt đầu.", B: "Sơ cấp.", C: "Tiền trung cấp.", D: "Trung cấp." } },
+                explanations: { 
+                    A: "Đúng. Khi được hỏi đã từng học tiếng Nhật chưa, anh ấy đáp 'No, I haven't. I'm a beginner'. Beginner đồng nghĩa với Starter (Người mới bắt đầu).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 1: Have you studied Japanese before?<br/>Speaker 2: No, I haven't. ${hl("I'm a beginner.")}`
+                },
+                {
+                id: 11, text: "What type of Japanese is the man registering for?", options: { A: "Japanese for tourists.", B: "Japanese for business people.", C: "Japanese for college students.", D: "Japanese for advanced learners." }, correct: "A", timestamp: 76,
+                translation: { question: "Người đàn ông đăng ký khóa học tiếng Nhật loại nào?", options: { A: "Tiếng Nhật cho khách du lịch.", B: "Tiếng Nhật cho doanh nhân.", C: "Tiếng Nhật cho sinh viên đại học.", D: "Tiếng Nhật cho người học nâng cao." } },
+                explanations: { 
+                    A: "Đúng. Sau khi biết anh ta đã tốt nghiệp và chỉ muốn học để du lịch, nhân viên tư vấn lớp 'Tourist class' và anh ta đồng ý.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 1: Well then ${hl("the Tourist class is probably best for you.")}<br/>Speaker 2: Yes, I think you're right.`
+                },
+                {
+                id: 12, text: "According to the woman, how many seats are left for the class registration?", options: { A: "Two.", B: "Three.", C: "Four.", D: "Five." }, correct: "B", timestamp: 76,
+                translation: { question: "Theo người phụ nữ, còn lại bao nhiêu chỗ trống để đăng ký lớp học?", options: { A: "Hai.", B: "Ba.", C: "Bốn.", D: "Năm." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Cô nhân viên nói đã có 15 học sinh đăng ký và 'còn chỗ cho 3 người nữa' (room for three more).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 1: You're in luck. We have 15 students enrolled, and ${hl("there's room for three more.")}`
+                },
+                {
+                id: 13, text: "What's the student's surname?", options: { A: "TAYLOR.", B: "TAILOR.", C: "TAYLORE.", D: "TAILORE." }, correct: "A", timestamp: 223,
+                translation: { question: "Họ của sinh viên là gì?", options: { A: "TAYLOR.", B: "TAILOR.", C: "TAYLORE.", D: "TAILORE." } },
+                explanations: { 
+                    A: "Đúng. Cậu sinh viên phát vần rõ ràng họ của mình là T-A-Y-L-O-R.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 2: Yes, it's Peter Taylor. That's Taylor with a Y.<br/>Speaker 1: So, it's ${hl("T-A-Y-L-O-R.")}<br/>Speaker 2: That's right.`
+                },
+                {
+                id: 14, text: "Which faculty does the student need to contact?", options: { A: "Faculty of Arts.", B: "Faculty of Economics.", C: "Faculty of Mathematics.", D: "Faculty of Business & Management." }, correct: "C", timestamp: 223,
+                translation: { question: "Sinh viên cần liên hệ với khoa nào?", options: { A: "Khoa Nghệ thuật.", B: "Khoa Kinh tế.", C: "Khoa Toán học.", D: "Khoa Kinh doanh & Quản lý." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Cậu sinh viên học ngành Kinh tế nhưng không trực thuộc khoa Kinh tế.", 
+                    C: "Đúng. Ngành học đã được chuyển sang trực thuộc Khoa Toán (Mathematics Faculty) trong năm nay.", 
+                    D: "Sai. Năm ngoái ngành này thuộc khoa Quản lý Kinh doanh, nhưng năm nay đã đổi." 
+                },
+                transcriptSnippet: `Speaker 2: I'm taking a BSC in Economics.<br/>Speaker 1: Okay, that's in the ${hl("Faculty of Mathematics.")}`
+                },
+                {
+                id: 15, text: "Where is the student going to live?", options: { A: "At a rent house.", B: "At a studio flat.", C: "At a homestay.", D: "At a university residence." }, correct: "D", timestamp: 223,
+                translation: { question: "Sinh viên sẽ sống ở đâu?", options: { A: "Tại một căn nhà thuê.", B: "Tại một căn hộ studio.", C: "Tại một homestay.", D: "Tại khu nội trú của trường đại học." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Cậu sinh viên chọn 'University accommodation' (chỗ ở của trường đại học), cụ thể là tại Ashley Residence." 
+                },
+                transcriptSnippet: `Speaker 1: Now, where are you going to be living? On campus or in private accommodation?<br/>Speaker 2: ${hl("University accommodation.")} I'm in room 112, Ashley Residence.`
+                },
+                {
+                id: 16, text: "What's the student's home address?", options: { A: "65 Grove Street, Manchester, M1 9JA.", B: "56 Grove Street, Manchester, M1 9J8.", C: "56 Grove Street, Manchester, M4 9J8.", D: "65 Grove Street, Manchester, M4 9J8." }, correct: "C", timestamp: 223,
+                translation: { question: "Địa chỉ nhà của sinh viên là gì?", options: { A: "65 Grove Street, Manchester, M1 9JA.", B: "56 Grove Street, Manchester, M1 9J8.", C: "56 Grove Street, Manchester, M4 9J8.", D: "65 Grove Street, Manchester, M4 9J8." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Đoạn M1 đã được đính chính lại là sai.", 
+                    C: "Đúng. Địa chỉ gốc là 56 Grove, nhưng cậu sinh viên đính chính lại mã bưu điện là 'M4, not M1'. Do đó kết hợp lại thành M4. Mặc dù Audio đọc là 9JA, nhưng trong đề in sai thành 9J8, ta vẫn phải chọn đáp án có M4 và 56 Grove.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 1: On our records, it says 56 Grove Street, Manchester, M1 9JA. Is that correct?<br/>Speaker 2: Actually, there's a small mistake. ${hl("It's M4, not M1.")} The rest is correct...`
+                },
+                {
+                id: 17, text: "What type of holiday is the customer interested in?", options: { A: "Whale Watch Experience.", B: "Whale Hunting Experience.", C: "Coastline Tours.", D: "Dreamtime Beachday." }, correct: "A", timestamp: 366,
+                translation: { question: "Khách hàng quan tâm đến loại hình kỳ nghỉ nào?", options: { A: "Trải nghiệm Ngắm Cá voi.", B: "Trải nghiệm Săn Cá voi.", C: "Tour Du lịch Bờ biển.", D: "Ngày hội Biển Dreamtime." } },
+                explanations: { 
+                    A: "Đúng. Khách hàng hỏi về kỳ nghỉ có cá voi (whale watching) và nhân viên xác nhận đó là tour 'Whale Watch Experience'.", 
+                    B: "Sai. Săn cá voi là bất hợp pháp và không phải mục đích du lịch.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 2: Well, I like the sound of the holiday that mentioned whales. Was it um... whale watching?<br/>Speaker 1: Ah, that's our ${hl("Whale Watch Experience.")}`
+                },
+                {
+                id: 18, text: "The receptionist says that the maximum number of people on this tour is", options: { A: "10.", B: "12.", C: "13.", D: "15." }, correct: "D", timestamp: 366,
+                translation: { question: "Nhân viên lễ tân nói rằng số lượng người tối đa trong chuyến tham quan này là", options: { A: "10.", B: "12.", C: "13.", D: "15." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. 12, 13 người là quy mô thường chạy tour.", 
+                    C: "Sai.", 
+                    D: "Đúng. Nhân viên nhấn mạnh họ chỉ nhận TỐI ĐA (up to) 15 người để giữ tính chất nhỏ gọn và thân mật." 
+                },
+                transcriptSnippet: `Speaker 1: We like to keep those tours small and personal... we only take ${hl("up to 15 people on this tour")}...`
+                },
+                {
+                id: 19, text: "According to the receptionist, how often are these tours run at present?", options: { A: "Every summer.", B: "Every weekend.", C: "Once a month.", D: "Every two months." }, correct: "C", timestamp: 366,
+                translation: { question: "Theo nhân viên lễ tân, hiện tại các chuyến tham quan này được tổ chức với tần suất như thế nào?", options: { A: "Mỗi mùa hè.", B: "Mỗi cuối tuần.", C: "Mỗi tháng một lần.", D: "Mỗi hai tháng một lần." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Tour chạy mỗi cuối tuần chỉ áp dụng cho 'mùa cao điểm' (peak times/summer).", 
+                    C: "Đúng. 'Hiện tại' (at the moment), công ty thường chỉ chạy tour nhiều nhất là một tháng một lần (once a month at most).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 1: Of course, in peak times like the summer holidays, we do them every weekend, but ${hl("at the moment it's usually once a month at most.")}`
+                },
+                {
+                id: 20, text: "What is NOT mentioned as a good feature of the hotel?", options: { A: "Great facilities.", B: "Rooms with great views.", C: "Friendly staff.", D: "Nice food." }, correct: "C", timestamp: 366,
+                translation: { question: "Điều nào KHÔNG được đề cập như một đặc điểm tốt của khách sạn?", options: { A: "Cơ sở vật chất tuyệt vời.", B: "Phòng có tầm nhìn đẹp.", C: "Nhân viên thân thiện.", D: "Đồ ăn ngon." } },
+                explanations: { 
+                    A: "Sai. Khách sạn có 'great facilities'.", 
+                    B: "Sai. Các phòng đều có 'nice views'.", 
+                    C: "Đúng. Trong đoạn hội thoại cuối, người nhân viên khen ngợi cơ sở vật chất, view phòng và đồ ăn của khách sạn nhưng hoàn toàn không đề cập đến 'nhân viên thân thiện' (friendly staff).", 
+                    D: "Sai. Đồ ăn rất tốt (food is really good)." 
+                },
+                transcriptSnippet: `Speaker 1: Yes, the hotel itself where you stay has ${hl("great facilities")}... All of the rooms have ${hl("nice views")}, and the ${hl("food is really good")} there too.`
+                }
+            ]
+            },
+            {
+            id: 3,
+            title: "PART 3: Questions 21-35",
+            instructions: "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/7htqu7slnd09fl9orvu5t/Part-3.mp3?rlkey=zqssbsn3wmaivs74kwv98xw3i&st=8y81g1yd&raw=1",
+            audioTimestamps: [
+                { label: "Bài giảng 1", time: 52 },
+                { label: "Bài giảng 2", time: 305 },
+                { label: "Bài giảng 3", time: 493 }
+            ],
+            transcriptTranslations: [
+                { label: "Bài giảng 1", text: "Tôi đã thực hiện một số nghiên cứu về việc người dân Anh nghĩ gì về các bác sĩ, những người làm việc trong phòng khám đa khoa, nơi đầu tiên mà mọi người tìm đến để chăm sóc y tế. Và so sánh điều này với tình hình ở một vài quốc gia khác. Tôi muốn nói về lý do căn bản đằng sau những gì tôi đã quyết định làm.\nTôi đã phải thiết lập chương trình nghiên cứu của mình ở ba quốc gia khác nhau, vì vậy tôi đã tiếp cận các sinh viên sau đại học cùng ngành tại các khoa ở nước ngoài, liên hệ với họ qua email để tổ chức công việc giúp tôi ở bên đó. Tôi đã nghĩ rằng mình sẽ gặp khó khăn trong việc tuyển người giúp đỡ. Nhưng thực tế, mọi người đều rất sẵn lòng, và đôi khi các giáo viên hướng dẫn của họ cũng tham gia. Tôi phải đưa ra các hướng dẫn rõ ràng cho những người trợ giúp về loại quần thể mẫu mà tôi muốn họ sử dụng. Tôi quyết định rằng những người dưới 18 tuổi nên được loại trừ vì hầu hết họ đều là học sinh hoặc đang tìm công việc đầu tiên. Và tôi cũng quyết định ở giai đoạn này chỉ tập trung vào những người đàn ông đang có việc làm, và sẽ thực hiện một nghiên cứu khác cho những người không có việc làm và phụ nữ đi làm vào một thời điểm khác, như một cuộc điều tra riêng biệt. Tôi đặc biệt muốn thực hiện một bảng câu hỏi và các cuộc phỏng vấn với một nhóm tập trung.\nVới bảng câu hỏi, thay vì giới hạn nó ở một điểm cụ thể, tôi muốn đưa vào sự đa dạng nhất có thể. Tôi biết bảng câu hỏi là một cách thực hiện rất gò bó và có kiểm soát, nhưng tôi nghĩ mình có thể thực hiện các cuộc phỏng vấn được ghi âm sau đó để chống lại những ảnh hưởng của việc này. Và nhóm tập trung cũng có thể hữu ích trong tương lai, bằng cách nhắm mục tiêu vào các đối tượng mà tôi có thể dễ dàng gặp lại, vì những người tham gia có xu hướng tham gia tích cực hơn. Vậy nên hiện tại tôi đang tiến hành đối chiếu các kết quả. Vào lúc này, có vẻ như ở Anh, mặc dù các tờ báo liên tục đưa tin rằng mọi người không hài lòng với dịch vụ chăm sóc y tế, thực tế thì họ chủ yếu lo lắng về cấp độ chăm sóc thứ ba, diễn ra tại các bệnh viện.\nCác cải cách của chính phủ đã được đề xuất ở mọi cấp độ, và mặc dù sự thành công của chúng không được đảm bảo, việc chăm sóc tại bệnh viện dài hạn trên thực tế có lẽ không phải là vấn đề quá lớn như những gì giới truyền thông muốn chúng ta tin tưởng. Tuy nhiên, tôi vẫn còn khá nhiều dữ liệu cần xem xét. Chắc chắn tôi sẽ cần phải thực hiện những nghiên cứu sâu rộng hơn so với dự kiến ban đầu, nhằm thiết lập xem người dân có muốn đầu tư thêm nhân viên y tế vào cộng đồng hay không, hay họ muốn dịch vụ chăm sóc được thu gọn lại thành các đơn vị y tế trọng điểm ít hơn nhưng lớn hơn. Giải pháp hoàn toàn có thể là điều gì đó có thể dễ dàng được thực hiện bởi những người có trách nhiệm trong chính quyền địa phương, dĩ nhiên là với sự hỗ trợ của chính quyền trung ương.\nDù sao thì giai đoạn đầu này đã được chứng minh là rất có giá trị. Tôi ngạc nhiên vì hầu hết các đối tượng đều rất sẵn sàng tham gia vào dự án. Tôi từng dự đoán mọi người sẽ có chút miễn cưỡng trong việc trả lời các câu hỏi một cách trung thực. Nhưng tôi đã vô cùng sửng sốt và khá lo ngại rằng một thứ mà tôi nghĩ mình đã thiết lập rất tốt lại không hẳn được những người khác trong chính khoa của tôi đồng tình như vậy." },
+                { label: "Bài giảng 2", text: "Chào buổi chiều mọi người. Đây là buổi hội thảo đầu tiên chuẩn bị cho chuyến đi thực địa khảo cổ học của chúng ta ở Namibia. Chúng ta vô cùng may mắn khi nhận được một phần tài trợ nghiên cứu cho chuyến đi này từ viện của chúng ta, vì vậy tôi mong đợi sự tập trung và tham gia 200% từ tất cả các bạn.\nPhần đầu tiên trong hội thảo này, tôi sẽ đưa ra một lời giới thiệu ngắn gọn về các nghiên cứu đương đại đối với nghệ thuật trên đá. Và trong phần thứ hai, tôi sẽ cung cấp cho các bạn một số điều nên và không nên làm trong chuyến đi thực địa vào tháng 4 của chúng ta, vì vậy hãy lắng nghe thật cẩn thận.\nTrước tiên, tôi sẽ tập trung vào việc diễn giải nghệ thuật trên đá ở Namibia. Chúng ta rất may mắn khi được đến một khu vực nơi bạn có thể tìm thấy một số địa điểm quan trọng nhất trên toàn thế giới. Và tôi hy vọng có thể cho các bạn thấy mọi người dễ dàng mắc sai lầm như thế nào khi xem xét các nền văn hóa khác với nền văn hóa của chính mình, đây là bài học đầu tiên và quan trọng nhất mà chúng ta phải học.\nỞ Namibia, có cả tranh vẽ và các hình khắc. Hình khắc là nơi bề mặt của tảng đá bị đục lõm vào. Rất nhiều hình khắc miêu tả các dấu chân của động vật, và hầu hết các học giả trước đây từng nghĩ rằng mục đích của những hình này rất đơn giản và rõ ràng. Nghệ thuật trên đá này giống như một cuốn sách giáo khoa với các bức tranh để dạy trẻ em về các dấu vết, dấu chân nào thuộc về con vật nào, hươu cao cổ, sư tử, v.v. Nhưng có một số bí ẩn. Thứ nhất, khi bạn nhìn vào một bức tranh hoặc hình khắc điển hình của Namibia, bạn thấy các dấu chân bị lặp lại. Có hàng tá dấu chân của cùng một con vật. Chà, bạn sẽ chỉ mong đợi một hình ảnh minh họa rõ ràng duy nhất nếu lý do, ừm, mục đích là để dạy cách theo dõi dấu vết. Bây giờ, có thêm hai vấn đề nữa. Tại sao một số hình khắc động vật rất chính xác, đúng như bạn mong đợi, tất cả đều dễ dàng nhận dạng, trong khi một số khác lại khá phi thực tế?\nVà một bí ẩn nữa. Một số loài động vật không có thực này, trong các hình khắc, dường như mang một nửa hình dáng con người. Chẳng hạn, một số con lại có khuôn mặt người. Hiện tại, nhiều nhà nghiên cứu tin rằng đây là những bức tranh mà những người khôn ngoan (pháp sư) đã khắc về chính họ. Họ tin rằng họ có thể sử dụng phép thuật để điều khiển những con vật mà họ đã vẽ, từ đó các thợ săn có thể dễ dàng bắt chúng làm thức ăn." },
+                { label: "Bài giảng 3", text: "Chào buổi sáng mọi người. Bài giảng hôm nay là một phần của mô-đun về dịch vụ nhà hàng - khách sạn và du lịch. Tuần trước tôi đã xem xét phân khúc bình dân của ngành kinh doanh khách sạn. Tuần này tôi sẽ thảo luận về phân khúc cao cấp của thị trường.\nHãy xem xét tình huống sau. Bạn thức dậy vào giữa đêm trong một khách sạn xa lạ, cách nhà hàng dặm, rất có thể bị mất phương hướng do lệch múi giờ (jet lag), nơi ngay cả những không gian xung quanh đắt tiền nhất cũng có thể trở nên trống rỗng và đáng buồn. Bạn đã trả một khoản tiền lớn để ở trong khách sạn hạng nhất này với công nghệ hiện đại, nhưng theo nghiên cứu gần đây được thực hiện bởi một công ty du lịch và quan hệ công chúng quốc tế, mọi thứ không hề ổn chút nào.\nNghiên cứu chỉ ra rằng ngay cả những khách sạn xa hoa, lộng lẫy nhất dường như đã đánh giá thấp nhu cầu cơ bản nhất của khách hàng, dù họ đi du lịch vì công việc hay giải trí. Đó là nhu cầu cảm thấy như ở nhà trong một môi trường quen thuộc và mời gọi. Tuy nhiên, những phát hiện này có áp dụng duy nhất đối với các khách sạn nằm ở những khu vực nhất định không? Có khả năng nào môi trường bên ngoài lại có thể ảnh hưởng đến sự thoải mái của khách? Nghiên cứu của công ty bao quát toàn bộ các loại hình khách sạn khác nhau, bao gồm cả khách sạn độc lập và những khách sạn là một phần của chuỗi lớn. Họ đã khảo sát những khách sạn được gọi là 'boutique' sang trọng ở trung tâm khu thương mại, những dinh thự tráng lệ nằm sâu trong vùng nông thôn xinh đẹp, và cả những khách sạn cao cấp được xây dựng ở ven rìa các bãi biển nhiệt đới, được bao quanh bởi những cây cọ và đại dương xanh biếc thơ mộng.\nVà nghiên cứu đã kết luận rằng những gì bên ngoài tòa nhà khách sạn đơn giản là không quan trọng. Đây là một tiết lộ hấp dẫn, và những ai trong các bạn có hy vọng chuyển sang làm việc trong ngành du lịch và giải trí thì tốt nhất nên xem xét các kết quả nghiên cứu này một cách chi tiết hơn.\nNhưng quay trở lại với điểm chính của bài giảng này, nhu cầu được cảm thấy như ở nhà. Ngành công nghiệp khách sạn có thể làm gì với điều này? Và phải chăng chính ý tưởng đó lại quá chủ quan đến mức không thể thực hiện bất cứ điều gì trên phạm vi toàn cầu?" }
+            ],
+            transcript: `Part 3
+
+Now turn to part 3. Questions 21 to 25. First, you have some time to look at questions 21 to 25. (Pause)
+
+Speaker: I've been doing some research into what people in Britain think of doctors, the ones who work in general practice, the first call for medical care. And comparing this with the situation in a couple of other countries. I want to talk about the rationale behind what I decided to do. 
+
+Now I had to set up my program of research in three different countries, so I approached postgraduates in my field in overseas departments, contacting them by email to organize things for me at their end. I thought I would have trouble recruiting help. But in fact, everyone was very willing, and sometimes their tutors got involved too. I had to give my helpers clear instructions about what kind of sample population I wanted them to use. I decided that people under 18 should be excluded because most of them are students or looking for their first job. And also I decided at this stage just to focus on men who were in employment, and set up something for people who didn't have jobs, and for employed women, later on, as a separate investigation. I specifically wanted to do a questionnaire and interviews with a focus group. 
+
+With the questionnaire, rather than limiting it to one specific point, I wanted to include as much variety as possible. I know questionnaires are a very controlled way to do things, but I thought I could do taped interviews later on, to counteract the effects of this. And the focus group may also prove useful in future, by targeting subjects I can easily return to, as the participants tend to be more involved. So I'm just collating the results now. At the moment it looks as if, in the UK, despite the fact that newspapers continually report that people are unhappy with medical care, in fact it is mainly the third level of care, which takes place in hospitals, that they are worried about. 
+
+Government reforms have been proposed at all levels, and although their success is not guaranteed, long term hospital care is in fact probably less of an issue than the media would have us believe. However, I've still got quite a bit of data to look at. Certainly I will need to do more far reaching research than I had anticipated, in order to establish if people want extra medical staff invested in the community, or if they want care to revert to fewer but larger key medical units. The solution may well be something that can be easily implemented by those responsible in local government, with central government support of course. 
+
+This first stage has proved very valuable though. I was surprised by how willing most of the subjects were to get involved in the project. I had expected some unwillingness to answer questions honestly. But I was taken aback and rather concerned that something I thought I'd set up very well didn't necessarily seem that way to everyone in my own department.
+
+
+Questions 26 to 30. First, you have some time to look at questions 26 to 30. (Pause)
+
+Speaker: Good afternoon everyone. This is the first seminar in preparation for our archaeological field work in Namibia. We are fantastically lucky to have received partial research funding for this trip from our institute, so I shall expect 200% attention and participation from you all. 
+
+First in this seminar, I'm going to give a brief introduction to contemporary research on rock art. And in the second part, I'm going to give you some dos and don'ts for our field work trip in April, so please listen very carefully. 
+
+I'm first going to focus on the interpretation of rock art in Namibia. We are very fortunate to be going to an area where you can find some of the most important sites in the entire world. And I hope to show you how easy it is for everyone to make mistakes in looking at cultures which are different from our own, the first and most important lesson we have to learn. 
+
+In Namibia, there are both paintings and engravings. That's where the surface of the rock is cut out. Many of the engravings show footprints of animals, and most scholars used to think that the purpose of these was simple and obvious. This rock art was like a school book with pictures to teach children about tracks, which track belonged to which animal, giraffe, lion, and so on. But there were some mysteries. First, when you look at a typical Namibian painting or engraving, you see the tracks are repeated. There are dozens of tracks for the same animal. Well, you'd expect just one clear illustration of the reason, um, the aim was to teach tracking. Now, there were two more problems. Why are some of the engravings of animals very accurate, as you'd expect, all clearly identifiable, and others quite unrealistic? 
+
+And another mystery. Some of these unrealistic animals, that's in the engravings, seem to be half human. Some, for example, have got human faces. Many researchers now think that these were pictures the wise men engraved of themselves. They believed they could use magic to control the animals they had drawn, so the hunters could then catch them for food.
+
+
+Questions 31 to 35. First, you have some time to look at questions 31 to 35. (Pause)
+
+Speaker: Good morning everyone. Today's lecture forms part of the hospitality and tourism module. Last week I looked at the economy end of the hotel business. This week I'm going to discuss the luxury end of the market. 
+
+Let's consider the following scenario. You wake up in the middle of the night in a strange hotel, miles away from home, disorientated most probably from jet lag, when even the most expensive surroundings can seem empty and dispiriting. You have paid a great deal of money to stay in this first class hotel with its contemporary technology, but according to recent research carried out by an international travel and public relations company, all is not well. 
+
+The research suggests that even the most opulent, luxurious hotels seem to have underestimated the most basic needs of their customers, be they traveling for work or pleasure. The need to feel at home in surroundings which are both familiar and inviting. Do these findings however apply only to hotels situated in particular areas? Is it possible that the external environment can affect a guest's wellbeing? The company's research covered a whole range of different hotel types, both independent hotels and those which are part of large chains. They investigated chic, so-called boutique hotels in the heart of downtown business districts, stately mansions located in the depths of beautiful countryside, and plush hotels built at the edge of tropical beaches, surrounded by palm trees and idyllic blue ocean. 
+
+And the research concluded that what was outside the hotel building simply didn't matter. This is a fascinating revelation, and those of you hoping to move into careers in the travel and leisure industry would be well advised to look at the findings in more detail. 
+
+But back to the main point of this lecture, the need to feel at home. What can the hotel industry do about it? And is the very idea so subjective that it's impossible to do anything about it on a global basis?`,
+            questions: [
+                {
+                id: 21, text: "In order to set up her research program, Shona got", options: { A: "advice from personal friends in other countries.", B: "information from her professors.", C: "information from her tutor's contacts in other countries.", D: "help from students in other countries." }, correct: "D", timestamp: 52,
+                translation: { question: "Để thiết lập chương trình nghiên cứu của mình, Shona đã nhận được:", options: { A: "lời khuyên từ bạn bè cá nhân ở các quốc gia khác.", B: "thông tin từ các giáo sư của cô ấy.", C: "thông tin từ các liên hệ của giáo viên hướng dẫn ở các nước khác.", D: "sự giúp đỡ từ sinh viên ở các quốc gia khác." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Shona kể rằng cô ấy đã tiếp cận các sinh viên sau đại học (postgraduates) cùng ngành ở các trường đại học nước ngoài để tổ chức công việc giúp mình. 'Postgraduates' tương đương với 'students'." 
+                },
+                transcriptSnippet: `Now I had to set up my program of research in three different countries, so I approached ${hl("postgraduates in my field in overseas departments")}... to organize things for me at their end.`
+                },
+                {
+                id: 22, text: "What types of people were included in the research?", options: { A: "Young people in their first jobs.", B: "Men who were working.", C: "Women who were unemployed.", D: "Men who were unemployed." }, correct: "B", timestamp: 52,
+                translation: { question: "Những loại người nào được bao gồm trong nghiên cứu?", options: { A: "Người trẻ tuổi trong công việc đầu tiên của họ.", B: "Những người đàn ông đang làm việc.", C: "Những phụ nữ thất nghiệp.", D: "Những người đàn ông thất nghiệp." } },
+                explanations: { 
+                    A: "Sai. Người dưới 18 tuổi (đang tìm việc đầu tiên) đã bị loại trừ khỏi nghiên cứu.", 
+                    B: "Đúng. Ở giai đoạn này, tác giả quyết định CHỈ tập trung vào đàn ông đang có việc làm (men who were in employment).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `And also I decided at this stage just to focus on ${hl("men who were in employment")}...`
+                },
+                {
+                id: 23, text: "What do Shona's initial results show about medical services in Britain?", options: { A: "Current concerns are misrepresented by the press.", B: "Financial issues are critical to the government.", C: "Reforms within hospitals have been unsuccessful.", D: "The media is not happy with hospitals." }, correct: "A", timestamp: 52,
+                translation: { question: "Kết quả ban đầu của Shona cho thấy điều gì về dịch vụ y tế ở Anh?", options: { A: "Những lo ngại hiện tại bị báo chí phản ánh sai lệch.", B: "Các vấn đề tài chính rất quan trọng đối với chính phủ.", C: "Cải cách trong các bệnh viện đã không thành công.", D: "Truyền thông không hài lòng với các bệnh viện." } },
+                explanations: { 
+                    A: "Đúng. Mặc dù báo chí/truyền thông (newspapers/media) liên tục đưa tin rằng người dân không hài lòng với chăm sóc y tế, nhưng dữ liệu lại chỉ ra rằng việc chăm sóc tại bệnh viện dài hạn ít bị phàn nàn hơn báo chí thêu dệt. Suy ra báo chí đã phản ánh sai lệch.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...despite the fact that newspapers continually report that people are unhappy... long term hospital care is in fact probably ${hl("less of an issue than the media would have us believe.")}`
+                },
+                {
+                id: 24, text: "Shona needs to do further research to", options: { A: "present the government with her findings.", B: "decide the level of extra funding needed.", C: "identify the preferences of the public.", D: "implement changes." }, correct: "C", timestamp: 52,
+                translation: { question: "Shona cần thực hiện nghiên cứu sâu hơn để", options: { A: "trình bày những phát hiện của mình với chính phủ.", B: "quyết định mức độ tài trợ bổ sung cần thiết.", C: "xác định sở thích/nguyện vọng của công chúng.", D: "thực hiện những thay đổi." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Shona cần làm thêm nghiên cứu sâu rộng để xác định xem người dân MUỐN GÌ (want extra medical staff... or want care to revert to...). Đây chính là đi tìm nguyện vọng của công chúng (preferences of the public).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Certainly I will need to do more far reaching research... in order to establish ${hl("if people want extra medical staff... or if they want care to revert to...")}`
+                },
+                {
+                id: 25, text: "Shona has learned from the research project that", options: { A: "it is important to plan the projects carefully.", B: "people do not like answering questions.", C: "colleagues do not always agree.", D: "the participants tend to provide false data." }, correct: "C", timestamp: 52,
+                translation: { question: "Shona đã rút ra bài học từ dự án nghiên cứu rằng", options: { A: "việc lập kế hoạch dự án cẩn thận là rất quan trọng.", B: "mọi người không thích trả lời câu hỏi.", C: "đồng nghiệp không phải lúc nào cũng đồng tình.", D: "những người tham gia có xu hướng cung cấp dữ liệu sai." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Thực tế là cô ấy bất ngờ vì mọi người rất sẵn lòng tham gia.", 
+                    C: "Đúng. Shona cảm thấy khá băn khoăn và bất ngờ vì một thứ cô ấy nghĩ mình đã thiết lập rất tốt, nhưng hóa ra những người khác trong chính khoa/phòng làm việc của cô ấy (tức là đồng nghiệp) lại không nghĩ/đồng tình như vậy.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `But I was taken aback and rather concerned that something I thought I'd set up very well ${hl("didn't necessarily seem that way to everyone in my own department.")}`
+                },
+                {
+                id: 26, text: "When is the fieldwork trip to Namibia?", options: { A: "In February.", B: "In April.", C: "In June.", D: "In August." }, correct: "B", timestamp: 305,
+                translation: { question: "Chuyến đi thực địa tới Namibia diễn ra khi nào?", options: { A: "Tháng 2.", B: "Tháng 4.", C: "Tháng 6.", D: "Tháng 8." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Bài nói nhắc đến 'chuyến đi thực địa của chúng ta vào tháng 4' (in April).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `And in the second part, I'm going to give you some dos and don'ts for our field work trip ${hl("in April")}, so please listen very carefully.`
+                },
+                {
+                id: 27, text: "According to the speaker, what has been the first and most valuable lessons to them?", options: { A: "The wrong interpretation of rock art.", B: "Previously unfortunate fieldwork trips to Namibia.", C: "The wrong understanding of different cultures.", D: "There are not only paintings in Namibia." }, correct: "C", timestamp: 305,
+                translation: { question: "Theo diễn giả, bài học đầu tiên và quý giá nhất đối với họ là gì?", options: { A: "Sự diễn giải sai về nghệ thuật trên đá.", B: "Những chuyến đi thực địa xui xẻo trước đây đến Namibia.", C: "Sự hiểu sai về các nền văn hóa khác nhau.", D: "Không chỉ có các bức tranh ở Namibia." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Diễn giả muốn cho mọi người thấy rằng chúng ta rất dễ mắc sai lầm khi nhìn vào một nền văn hóa khác với chúng ta, và đó là bài học quan trọng đầu tiên.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `And I hope to show you how easy it is for everyone to ${hl("make mistakes in looking at cultures which are different from our own")}, the first and most important lesson we have to learn.`
+                },
+                {
+                id: 28, text: "The engravings of animal footprints were used to help ___ learn about tracking.", options: { A: "animals", B: "researchers", C: "children", D: "hunters" }, correct: "C", timestamp: 305,
+                translation: { question: "Những hình khắc dấu chân động vật được sử dụng để giúp ___ học về cách theo dõi dấu vết.", options: { A: "động vật", B: "nhà nghiên cứu", C: "trẻ em", D: "thợ săn" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Theo quan niệm cũ của nhiều học giả, những hình khắc này giống như sách giáo khoa để dạy trẻ em (children) về các dấu chân động vật.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `This rock art was like a school book with pictures to ${hl("teach children")} about tracks, which track belonged to which animal...`
+                },
+                {
+                id: 29, text: "Which of the following about the problems they have faced is TRUE?", options: { A: "The tracks in paintings are not repeated.", B: "All of the the engravings of animals are inaccurate.", C: "Some animals from the engravings are half-human.", D: "Many of the tracks have been destroyed." }, correct: "C", timestamp: 305,
+                translation: { question: "Điều nào sau đây về những vấn đề họ đã đối mặt là ĐÚNG?", options: { A: "Các dấu chân trong tranh không bị lặp lại.", B: "Tất cả các bản khắc hình động vật đều không chính xác.", C: "Một số động vật từ các bản khắc mang nửa hình dáng con người.", D: "Nhiều dấu chân đã bị phá hủy." } },
+                explanations: { 
+                    A: "Sai. Dấu chân có bị lặp lại rất nhiều lần.", 
+                    B: "Sai. Có những hình rất chính xác (very accurate), nhưng cũng có hình không thực tế.", 
+                    C: "Đúng. Diễn giả nhắc đến một bí ẩn là một số động vật không có thực trong hình khắc dường như là sự kết hợp với nửa hình người (half human).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `And another mystery. Some of these unrealistic animals, that's in the engravings, seem to be ${hl("half human")}. Some, for example, have got human faces.`
+                },
+                {
+                id: 30, text: "Wise man may have been controlling wild animals by", options: { A: "Their own pictures.", B: "Various hunting techniques.", C: "Unrealistic animals.", D: "Magical power." }, correct: "D", timestamp: 305,
+                translation: { question: "Những người khôn ngoan (pháp sư) có thể đã kiểm soát các động vật hoang dã bằng cách", options: { A: "Những bức tranh của chính họ.", B: "Kỹ thuật săn bắt đa dạng.", C: "Động vật không có thực.", D: "Sức mạnh phép thuật." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Nhiều nhà nghiên cứu hiện nay tin rằng những người khôn ngoan khắc hình của chính họ và sử dụng phép thuật (magic) để điều khiển con mồi cho thợ săn.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `They believed they could use ${hl("magic")} to control the animals they had drawn...`
+                },
+                {
+                id: 31, text: "According to the speaker, how might a guest feel when staying in a luxury hotel?", options: { A: "Impressed with the facilities.", B: "Depresses by the experience.", C: "Concerned at the high costs.", D: "Excited at the surroundings views." }, correct: "B", timestamp: 493,
+                translation: { question: "Theo diễn giả, một vị khách có thể cảm thấy thế nào khi lưu trú tại một khách sạn sang trọng?", options: { A: "Ấn tượng với cơ sở vật chất.", B: "Trầm cảm/Tuyệt vọng vì trải nghiệm này.", C: "Lo ngại về chi phí cao.", D: "Hào hứng với khung cảnh xung quanh." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Diễn giả miêu tả khách có thể thức dậy giữa đêm xa nhà, mất phương hướng và thấy khung cảnh dù đắt tiền vẫn trống rỗng và 'dispiriting' (đáng buồn, chán nản). Từ này tương đương với 'depressed' (tuyệt vọng/buồn chán).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...disorientated most probably from jet lag, when even the most expensive surroundings can seem empty and ${hl("dispiriting")}.`
+                },
+                {
+                id: 32, text: "According to recent research, luxury hotels overlook the need to", options: { A: "provide for the demands of important guests.", B: "create a comfortable environment.", C: "offer an individual and personal welcome.", D: "pay attention to regular customers." }, correct: "B", timestamp: 493,
+                translation: { question: "Theo nghiên cứu gần đây, các khách sạn sang trọng đã bỏ qua nhu cầu", options: { A: "cung cấp theo yêu cầu của những vị khách quan trọng.", B: "tạo ra một môi trường thoải mái như ở nhà.", C: "đưa ra sự chào đón cá nhân và riêng tư.", D: "chú ý đến khách hàng thường xuyên." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Khách sạn sang trọng đã đánh giá thấp nhu cầu cơ bản của khách hàng: Nhu cầu cảm thấy như đang ở nhà (feel at home) trong một không gian quen thuộc và mời gọi (familiar and inviting). Điều này tương đương với 'tạo ra môi trường thoải mái'.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...underestimated the most basic needs of their customers... The need to ${hl("feel at home in surroundings which are both familiar and inviting.")}`
+                },
+                {
+                id: 33, text: "What did the company focus their research on?", options: { A: "A wide variety of hotels.", B: "Large, luxury hotel chains.", C: "Exotic holiday hotels.", D: "Tropical beach hotels." }, correct: "A", timestamp: 493,
+                translation: { question: "Công ty đã tập trung nghiên cứu vào điều gì?", options: { A: "Nhiều loại khách sạn khác nhau.", B: "Chuỗi khách sạn lớn, sang trọng.", C: "Các khách sạn nghỉ dưỡng kỳ lạ.", D: "Khách sạn bãi biển nhiệt đới." } },
+                explanations: { 
+                    A: "Đúng. Bài nghe nhắc rõ là nghiên cứu của công ty đã bao quát 'toàn bộ các loại hình khách sạn khác nhau' (a whole range of different hotel types).", 
+                    B: "Sai. Đây chỉ là một phần.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `The company's research covered ${hl("a whole range of different hotel types")}...`
+                },
+                {
+                id: 34, text: "What is the impact of the outside environment on a hotel guest?", options: { A: "It has a considerable effect.", B: "It has a very limited effect.", C: "It has no effect whatsoever.", D: "It has an unclear effect" }, correct: "C", timestamp: 493,
+                translation: { question: "Môi trường bên ngoài có tác động gì đến khách ở khách sạn?", options: { A: "Có tác động đáng kể.", B: "Có tác động rất hạn chế.", C: "Hoàn toàn không có tác dụng gì.", D: "Tác động không rõ ràng." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Nghiên cứu đã kết luận rằng những gì bên ngoài tòa nhà khách sạn 'đơn giản là không quan trọng/không thành vấn đề' (simply didn't matter).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `And the research concluded that what was outside the hotel building ${hl("simply didn't matter.")}`
+                },
+                {
+                id: 35, text: "What does the speaker advise those who wish to work in the travel and leisure industry?", options: { A: "Experience themselves living in luxury hotels.", B: "Investigate people's opinions of luxury hotels.", C: "Study the research findings about luxury hotels.", D: "Not to apply for work in luxury hotels." }, correct: "C", timestamp: 493,
+                translation: { question: "Diễn giả khuyên những người muốn làm việc trong ngành du lịch và giải trí điều gì?", options: { A: "Tự mình trải nghiệm sống ở khách sạn sang trọng.", B: "Điều tra ý kiến của mọi người về các khách sạn hạng sang.", C: "Nghiên cứu các kết quả nghiên cứu về khách sạn hạng sang.", D: "Không nộp đơn xin việc tại các khách sạn hạng sang." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Diễn giả khuyên những ai muốn vào ngành này thì tốt nhất nên nhìn vào/nghiên cứu những phát hiện của cuộc nghiên cứu này một cách chi tiết hơn (look at the findings in more detail).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...those of you hoping to move into careers in the travel and leisure industry would be well advised to ${hl("look at the findings in more detail.")}`
+                }
+            ]
+            }
+        ]
+        };
+
+        // --- HÀM TRỘN MẢNG ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // --- AUDIO COMPONENT ---
+        const AudioPlayer = ({ src, audioId, isReviewMode = false, timestamps = [] }) => {
+            const audioRef = useRef(null);
+            const progressBarRef = useRef(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [hasEnded, setHasEnded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            
+            // Lắng nghe sự kiện để tắt các audio khác khi có 1 audio bắt đầu phát
+            useEffect(() => {
+                const handleStopOtherAudios = (e) => {
+                    if (e.detail !== audioId && audioRef.current) {
+                        audioRef.current.pause();
+                        setIsPlaying(false);
+                    }
+                };
+                window.addEventListener('stopAllAudios', handleStopOtherAudios);
+                return () => window.removeEventListener('stopAllAudios', handleStopOtherAudios);
+            }, [audioId]);
+
+            const playAudio = () => {
+                // Bắn tín hiệu yêu cầu các AudioPlayer khác dừng lại
+                window.dispatchEvent(new CustomEvent('stopAllAudios', { detail: audioId }));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        setIsPlaying(true);
+                        setHasEnded(false);
+                        setHasError(false);
+                    }).catch(error => {
+                        console.error("Lỗi phát âm thanh:", error);
+                        setHasError(true);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const togglePlay = () => {
+                if (hasEnded && !isReviewMode) return;
+                
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (isReviewMode && hasEnded) {
+                        audioRef.current.currentTime = 0;
+                    }
+                    playAudio();
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                const current = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
+                setCurrentTime(current);
+                if (duration) {
+                    setProgress((current / duration) * 100);
+                }
+            };
+
+            const handleEnded = () => {
+                setIsPlaying(false);
+                setHasEnded(true);
+            };
+
+            const handleError = (e) => {
+                console.error("Không thể tải nguồn âm thanh.", e);
+                setHasError(true);
+            };
+
+            // Tính năng tua trên thanh Progress
+            const handleProgressClick = (e) => {
+                if (!isReviewMode) return; // Chỉ cho tua khi ở chế độ Review
+                if (hasError || !audioRef.current?.duration) return;
+                
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newPercentage = clickX / width;
+                const newTime = newPercentage * audioRef.current.duration;
+                
+                audioRef.current.currentTime = newTime;
+                setProgress(newPercentage * 100);
+                
+                // Tự động phát tiếp nếu đang pause và tua xong
+                if (!isPlaying) playAudio();
+            };
+
+            // Tính toán Timestamp nào đang active (Đang nghe tới đâu sáng tới đó)
+            let activeTimestampIndex = -1;
+            if (timestamps && timestamps.length > 0) {
+                for (let i = timestamps.length - 1; i >= 0; i--) {
+                    if (currentTime >= timestamps[i].time - 0.5) {
+                        activeTimestampIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col shadow-sm w-full">
+                    <div className="flex items-center w-full">
+                        <audio ref={audioRef} src={src} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} onError={handleError} className="hidden" />
+                        <button onClick={togglePlay} disabled={hasEnded && !isReviewMode} className={`mr-4 focus:outline-none transition-colors ${(hasEnded && !isReviewMode) ? 'text-gray-400 cursor-not-allowed' : hasError ? 'text-red-500' : 'text-blue-600 hover:text-blue-800'}`}>
+                            {isPlaying ? <PauseCircle size={40} /> : hasError ? <AlertCircle size={40} /> : <PlayCircle size={40} />}
+                        </button>
+                        <div className="flex-1">
+                            <div 
+                                ref={progressBarRef}
+                                onClick={handleProgressClick}
+                                className={`h-3 bg-gray-200 rounded-full overflow-hidden ${isReviewMode ? 'cursor-pointer hover:h-4 transition-all' : ''}`}
+                                title={isReviewMode ? "Bấm vào thanh này để tua nhanh/chậm" : ""}
+                            >
+                                <div className={`h-full transition-all duration-100 ${(hasEnded && !isReviewMode) ? 'bg-gray-400' : hasError ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                                <span className={hasError ? "text-red-500 font-bold" : ""}>
+                                    {hasError ? "Lỗi Audio." : (hasEnded && !isReviewMode) ? "Đã khóa (Chỉ nghe 1 lần)" : (hasEnded && isReviewMode) ? "Bấm Play để nghe lại" : isReviewMode ? "Bấm thanh màu xám để tua" : "Bấm Play để nghe"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {/* KHU VỰC TIMESTAMPS GỌN GÀNG NHƯ YOUTUBE CHAPTERS */}
+                    {isReviewMode && timestamps && timestamps.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs font-bold text-blue-800 mb-2">TIMESTAMPS CHỮA BÀI (Bấm để tua đến vị trí bài nghe):</p>
+                            <div className="flex flex-wrap gap-2">
+                                {timestamps.map((ts, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => {
+                                            if (hasError || !audioRef.current) return;
+                                            audioRef.current.currentTime = ts.time;
+                                            if (!isPlaying) playAudio();
+                                        }}
+                                        className={`px-2 py-1 text-xs font-bold rounded shadow-sm transition-colors ${activeTimestampIndex === idx ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'}`}
+                                    >
+                                        {ts.label} ({formatTimeStr(ts.time)})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- STAGE 1: LÀM BÀI TEST ---
+        function Stage1Test({ answers, setAnswers, onSubmit }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const handleOptionChange = (questionId, option) => {
+                setAnswers(prev => ({ ...prev, [questionId]: option }));
+            };
+
+            const answeredCount = Object.keys(answers).length;
+
+            return (
+                <div className="h-full flex flex-col relative bg-gray-100 pb-12">
+                    <div className="max-w-5xl mx-auto mt-6 px-4 w-full">
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b sticky top-16 z-30">
+                        {TEST_DATA.parts.map(part => (
+                            <button
+                            key={part.id}
+                            className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab(part.id)}
+                            >
+                            Part {part.id}
+                            </button>
+                        ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl p-4 md:p-8">
+                        {TEST_DATA.parts.map(part => (
+                            <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                            <div className="mb-6">
+                                <h2 className="text-xl font-bold mb-2">{part.title}</h2>
+                                <p className="text-gray-600 italic text-sm mb-4">{part.instructions}</p>
+                                <AudioPlayer src={part.audioSrc} audioId={part.id} />
+                            </div>
+                            
+                            <div className="space-y-8">
+                                {part.questions.map(q => {
+                                const checkedVal = answers[q.id];
+                                return (
+                                    <div key={q.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div className="flex items-start mb-4">
+                                        <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded mr-3 mt-0.5 shrink-0 text-sm">Câu {q.id}</span>
+                                        <p className="font-semibold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(q.options).map(([key, value]) => {
+                                        const checked = checkedVal === key;
+                                        return (
+                                            <label key={key} className={`flex items-start p-3 rounded-md cursor-pointer border transition-colors ${checked ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                            <input type="radio" name={`q-${q.id}`} value={key} checked={checked} onChange={() => handleOptionChange(q.id, key)} className="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                            <span className="font-bold mr-2">{key}.</span><span>{value}</span>
+                                            </label>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+
+                        <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm gap-4 border border-gray-200">
+                            <div className="text-gray-600 font-medium flex items-center">
+                                <CheckCircle size={18} className="mr-2 text-green-500" />
+                                <span>Đã chọn: <span className="font-bold">{answeredCount}/35</span> câu</span>
+                            </div>
+                            <button onClick={() => setShowConfirm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform hover:scale-105 w-full md:w-auto">
+                                Nộp Bài Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    {showConfirm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl animate-fade-in text-center">
+                            <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+                            <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn nộp bài? Hành động này không thể hoàn tác và bạn sẽ không thể thay đổi đáp án.</p>
+                            <div className="flex justify-center space-x-3">
+                            <button onClick={() => setShowConfirm(false)} className="px-5 py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Hủy</button>
+                            <button onClick={() => { setShowConfirm(false); onSubmit(); }} className="px-5 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition">Đồng ý nộp</button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- STAGE 2: KẾT QUẢ ---
+        function Stage2Result({ answers, onGoToGame }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showTranscript, setShowTranscript] = useState({});
+            const [activeTranslation, setActiveTranslation] = useState({});
+
+            const calculateScore = () => {
+                let correct = 0;
+                TEST_DATA.parts.forEach(part => {
+                part.questions.forEach(q => {
+                    if (answers[q.id] === q.correct) correct++;
+                });
+                });
+                return correct;
+            };
+
+            const correctCount = calculateScore();
+            const vstepScore = convertVstepScore(correctCount);
+
+            const toggleTranscript = (partId) => {
+                setShowTranscript(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            const toggleTranslation = (partId, label) => {
+                setActiveTranslation(prev => {
+                    const currentActive = prev[partId];
+                    if (currentActive === label) {
+                        return { ...prev, [partId]: null };
+                    }
+                    return { ...prev, [partId]: label };
+                });
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 pb-12 relative">
+                    <div className="max-w-5xl mx-auto mt-6 px-4">
+                        
+                        {/* Khu vực thông báo kết quả và nút chuyển qua Minigame */}
+                        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 shadow-md text-center flex flex-col items-center">
+                            <Award className="text-yellow-500 mb-2" size={40} />
+                            <h2 className="text-2xl font-bold text-green-700 mb-2">Đã Nộp Bài!</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 w-full max-w-md">
+                                <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-green-200 flex-1">
+                                    <p className="text-sm text-gray-500 uppercase font-bold mb-1">Số câu đúng</p>
+                                    <p className="text-3xl font-bold text-gray-800">{correctCount}<span className="text-lg text-gray-500 font-normal">/35</span></p>
+                                </div>
+                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border-2 border-blue-400 relative overflow-hidden flex-1">
+                                    <div className="absolute top-0 left-0 right-0 bg-blue-500 h-1"></div>
+                                    <p className="text-sm text-blue-600 uppercase font-bold mb-1">Điểm VSTEP</p>
+                                    <p className="text-4xl font-black text-blue-700">{vstepScore.toFixed(1)}<span className="text-xl text-gray-400 font-bold">/10</span></p>
+                                </div>
+                            </div>
+                            
+                            {/* Banner Mời chơi Minigame */}
+                            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow-sm mt-4 w-full max-w-2xl">
+                                <h3 className="text-lg font-bold text-purple-700 flex items-center justify-center mb-2">
+                                    <Gamepad2 size={24} className="mr-2"/> Bạn muốn nhớ từ vựng lâu hơn?
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">Hệ thống đã chắt lọc ra 10 từ vựng quan trọng nhất xuất hiện trong đề thi này. Chơi Minigame để khắc phục những từ bạn sai nhé!</p>
+                                <button onClick={onGoToGame} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:scale-105">
+                                    Học & Chơi Minigame Từ Vựng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b">
+                            {TEST_DATA.parts.map(part => (
+                                <button key={part.id} className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} onClick={() => setActiveTab(part.id)}>
+                                Part {part.id}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl pb-8 relative">
+                            {TEST_DATA.parts.map(part => (
+                                <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                                    
+                                    {/* THẺ AUDIO CỐ ĐỊNH PHÍA TRÊN */}
+                                    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-200 p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center"><Headphones size={18} className="mr-2"/> {part.title} Audio - Cho phép tua</h3>
+                                        <AudioPlayer 
+                                            src={part.audioSrc} 
+                                            audioId={`review-${part.id}`} 
+                                            isReviewMode={true} 
+                                            timestamps={part.audioTimestamps}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-8 p-4 md:p-8 mt-4">
+                                        {part.questions.map(q => {
+                                        const userAns = answers[q.id];
+                                        const isCorrect = userAns === q.correct;
+                                        const isUnanswered = !userAns;
+                                        
+                                        return (
+                                            <div key={q.id} className={`p-4 md:p-5 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50/30' : isUnanswered ? 'border-yellow-500 bg-yellow-50/30' : 'border-red-500 bg-red-50/30'}`}>
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="flex items-start">
+                                                        <span className={`px-2 py-1 rounded text-white font-bold text-xs md:text-sm mr-3 shrink-0 ${isCorrect ? 'bg-green-500' : isUnanswered ? 'bg-yellow-500' : 'bg-red-500'}`}>Câu {q.id}</span>
+                                                        <p className="font-bold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                                    </div>
+                                                    {isCorrect ? <CheckCircle className="text-green-500 shrink-0 ml-2" size={24}/> : <XCircle className="text-red-500 shrink-0 ml-2" size={24}/>}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 md:ml-12">
+                                                    {Object.entries(q.options).map(([key, value]) => {
+                                                    const isSelected = userAns === key;
+                                                    const isActualCorrect = key === q.correct;
+                                                    
+                                                    let btnClass = "text-left px-3 py-2 rounded-md border flex items-center ";
+                                                    if (isActualCorrect) btnClass += "border-green-500 bg-green-100 text-green-800 font-bold shadow-sm";
+                                                    else if (isSelected && !isActualCorrect) btnClass += "border-red-500 bg-red-100 text-red-800";
+                                                    else btnClass += "border-gray-200 bg-white opacity-60";
+
+                                                    return (
+                                                        <div key={key} className={btnClass}>
+                                                            <span className="font-bold mr-2">{key}.</span> <span>{value}</span>
+                                                            {isActualCorrect && <CheckCircle size={18} className="ml-auto text-green-600" />}
+                                                            {isSelected && !isActualCorrect && <XCircle size={18} className="ml-auto text-red-600" />}
+                                                        </div>
+                                                    );
+                                                    })}
+                                                </div>
+
+                                                <div className="md:ml-12 bg-white p-4 rounded-lg border shadow-sm mt-4">
+                                                    <h4 className="font-bold mb-2 text-blue-800 border-b pb-2 flex items-center"><BookOpen size={18} className="mr-2"/> Giải thích chi tiết</h4>
+                                                    
+                                                    <div className="mb-4 text-sm text-gray-700">
+                                                        <p className="mb-1 font-semibold italic text-gray-800">Dịch câu hỏi: {q.translation.question}</p>
+                                                        <ul className="mb-3 pl-4 list-disc text-gray-700 mt-2">
+                                                            {Object.entries(q.translation.options).map(([k, v]) => (<li key={k}><strong>{k}.</strong> {v}</li>))}
+                                                        </ul>
+                                                    </div>
+
+                                                    {/* Phần giải thích logic sai/đúng */}
+                                                    <div className="space-y-3 text-sm">
+                                                        {isUnanswered && (
+                                                            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+                                                                <strong>Bạn đã bỏ trống câu này!</strong> Hãy luôn thử dự đoán đáp án dù không nghe rõ nhé.
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {userAns && !isCorrect && (
+                                                            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                                                                <span className="font-bold uppercase mb-1 block">Tại sao bạn sai?</span>
+                                                                <strong>Bạn chọn {userAns}:</strong> {q.explanations[userAns]}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="p-3 bg-green-50 border border-green-200 rounded text-green-800">
+                                                            <span className="font-bold uppercase mb-1 block">Phân tích đáp án đúng</span>
+                                                            <strong>Đáp án {q.correct}:</strong> {q.explanations[q.correct]}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Trích đoạn Transcript Bôi đỏ */}
+                                                    <div className="mt-4 pt-4 border-t border-dashed">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center"><FileText size={14} className="mr-1"/> Đoạn Audio xuất hiện đáp án:</h5>
+                                                        </div>
+                                                        <p className="bg-gray-50 p-3 rounded text-gray-800 italic leading-relaxed" dangerouslySetInnerHTML={{ __html: q.transcriptSnippet }}></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+
+                                    {/* NÚT ẨN/HIỆN TRANSCRIPT ĐẦY ĐỦ */}
+                                    <div className="mt-8 border-t-2 border-dashed pt-6 mb-4 px-4 md:px-8">
+                                        <button onClick={() => toggleTranscript(part.id)} className="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg transition-colors">
+                                            <FileText className="mr-2" size={20} />
+                                            {showTranscript[part.id] ? "Ẩn Transcript (Nội dung bài nghe đầy đủ)" : "Hiện Transcript (Nội dung bài nghe đầy đủ)"}
+                                        </button>
+
+                                        {/* PHẦN DỊCH TIẾNG VIỆT */}
+                                        {showTranscript[part.id] && part.transcriptTranslations && (
+                                            <div className="mt-4 p-4 bg-white border border-blue-200 rounded-lg shadow-sm">
+                                                <p className="text-sm font-bold text-blue-800 mb-3 uppercase flex items-center">
+                                                    <BookOpen size={16} className="mr-2" />
+                                                    Xem bản dịch tiếng Việt
+                                                </p>
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    {part.transcriptTranslations.map((trans, idx) => (
+                                                        <button 
+                                                            key={idx}
+                                                            onClick={() => toggleTranslation(part.id, trans.label)}
+                                                            className={`px-3 py-1.5 text-sm font-bold rounded shadow-sm transition-colors ${activeTranslation[part.id] === trans.label ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'}`}
+                                                        >
+                                                            Dịch {trans.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                
+                                                {/* Khu vực hiển thị nội dung dịch */}
+                                                {activeTranslation[part.id] && (
+                                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line animate-fade-in border-l-4 border-l-blue-500">
+                                                        <h5 className="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-2">
+                                                            {activeTranslation[part.id]} (Tiếng Việt):
+                                                        </h5>
+                                                        {part.transcriptTranslations.find(t => t.label === activeTranslation[part.id])?.text}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {showTranscript[part.id] && (
+                                            <div className="mt-4 p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {part.transcript}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- STAGE 3: MINIGAME TỪ VỰNG ---
+        function Stage3VocabGame({ onBackToResult }) {
+            const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
+            const [playList, setPlayList] = useState(VOCAB_DATA); // List từ đang chơi
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [options, setOptions] = useState([]);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [score, setScore] = useState(0);
+            const [playingWord, setPlayingWord] = useState(null);
+            
+            // Array lưu các từ làm sai
+            const [wrongVocabs, setWrongVocabs] = useState([]);
+
+            const loadQuestion = () => {
+                if (currentIndex >= playList.length) {
+                    setGamePhase('finish');
+                    return;
+                }
+                const currentVocab = playList[currentIndex];
+                
+                // Lấy 3 nghĩa sai ngẫu nhiên từ TỔNG DATA gốc để lúc nào cũng có đủ 3 options gây nhiễu
+                const incorrectOptions = VOCAB_DATA
+                    .filter(v => v.word !== currentVocab.word)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(v => v.meaning);
+                
+                const allOptions = shuffleArray([currentVocab.meaning, ...incorrectOptions]);
+                setOptions(allOptions);
+                setSelectedOption(null);
+                
+                // Trì hoãn một chút để UI render xong rồi mới phát âm thanh
+                setTimeout(() => playWordAudio(currentVocab.word), 500);
+            };
+
+            useEffect(() => {
+                if (gamePhase === 'play') {
+                    loadQuestion();
+                }
+            }, [currentIndex, gamePhase, playList]);
+
+            const playWordAudio = (word) => {
+                setPlayingWord(word);
+                const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(err => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(word);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        utterance.onend = () => setPlayingWord(null);
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        setPlayingWord(null);
+                    }
+                });
+                audio.onended = () => setPlayingWord(null);
+            };
+
+            const handleSelect = (opt) => {
+                if (selectedOption !== null) return; 
+                setSelectedOption(opt);
+                
+                const currentVocab = playList[currentIndex];
+                if (opt === currentVocab.meaning) {
+                    setScore(prev => prev + 1);
+                } else {
+                    // Nếu chọn sai, thêm từ đó vào danh sách wrongVocabs (không add trùng)
+                    if (!wrongVocabs.find(w => w.word === currentVocab.word)) {
+                        setWrongVocabs(prev => [...prev, currentVocab]);
+                    }
+                }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 >= playList.length) {
+                    setGamePhase('finish');
+                } else {
+                    setCurrentIndex(prev => prev + 1);
+                }
+            };
+
+            // Chơi lại toàn bộ 10 từ
+            const handleRestartAll = () => {
+                setPlayList(VOCAB_DATA);
+                setWrongVocabs([]); // reset sai
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play'); 
+            };
+
+            // Chỉ chơi lại những câu đã sai
+            const handleReplayWrong = () => {
+                setPlayList(wrongVocabs);
+                setWrongVocabs([]); // reset để bắt lỗi lại cho lượt đánh này
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play');
+            };
+
+            if (gamePhase === 'learn') {
+                return (
+                    <div className="max-w-4xl mx-auto mt-8 px-4 pb-12">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                            <div className="bg-blue-600 p-6 text-white text-center">
+                                <h2 className="text-2xl font-bold flex items-center justify-center">
+                                    <BookOpen className="mr-2" />
+                                    DANH SÁCH TỪ VỰNG QUAN TRỌNG
+                                </h2>
+                                <p className="mt-2 opacity-90">Hãy nghe và ghi nhớ các từ vựng này trước khi bước vào thử thách nhé!</p>
+                            </div>
+                            <div className="p-6 md:p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {VOCAB_DATA.map((item, idx) => (
+                                        <div key={idx} className={`flex items-center p-4 rounded-xl border transition-colors ${playingWord === item.word ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-blue-50'}`}>
+                                            <button 
+                                                onClick={() => playWordAudio(item.word)}
+                                                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 transition-all ${playingWord === item.word ? 'bg-blue-500 text-white shadow-md scale-110' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                            >
+                                                <Volume2 size={24} />
+                                            </button>
+                                            <div>
+                                                <p className="font-bold text-lg text-gray-800">{item.word}</p>
+                                                <p className="text-gray-600 text-sm">{item.meaning}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-10 text-center">
+                                    <button 
+                                        onClick={() => {
+                                            setPlayList(VOCAB_DATA);
+                                            setCurrentIndex(0);
+                                            setScore(0);
+                                            setWrongVocabs([]);
+                                            setGamePhase('play');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:scale-105 inline-flex items-center text-lg"
+                                    >
+                                        <Gamepad2 className="mr-2" size={28} /> Đã Nhớ! Bắt Đầu Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gamePhase === 'finish') {
+                return (
+                    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-8 border-purple-500">
+                            <Award size={64} className="text-yellow-400 mx-auto mb-4" />
+                            <h2 className="text-3xl font-black text-gray-800 mb-2">Hoàn Thành!</h2>
+                            <p className="text-gray-600 mb-6">Bạn đã đối mặt với {playList.length} thử thách từ vựng.</p>
+                            
+                            <div className="text-5xl font-black text-purple-600 mb-8">
+                                {score} <span className="text-2xl text-gray-400">/ {playList.length}</span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {wrongVocabs.length > 0 && (
+                                    <button 
+                                        onClick={handleReplayWrong}
+                                        className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition flex items-center justify-center animate-pulse shadow-md"
+                                    >
+                                        <RefreshCw size={20} className="mr-2" /> Chơi Lại {wrongVocabs.length} Câu Sai
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleRestartAll}
+                                    className="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <RefreshCw size={20} className="mr-2" /> Chơi Lại Toàn Bộ Từ Đầu
+                                </button>
+                                <button 
+                                    onClick={() => setGamePhase('learn')}
+                                    className="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <BookOpen size={20} className="mr-2" /> Xem Lại Từ Vựng
+                                </button>
+                                <button 
+                                    onClick={onBackToResult}
+                                    className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <FileText size={20} className="mr-2" /> Trở Về Bài Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentVocab = playList[currentIndex];
+            if (!currentVocab) return null; // Safety check
+
+            return (
+                <div className="max-w-3xl mx-auto mt-8 px-4 pb-12">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                        {/* Header của Minigame */}
+                        <div className="bg-purple-600 p-4 text-white flex justify-between items-center">
+                            <div className="font-bold flex items-center">
+                                <Gamepad2 className="mr-2" />
+                                {playList.length < 10 ? 'LUYỆN TẬP CÂU SAI' : 'THỬ THÁCH NGHE TỪ VỰNG'}
+                            </div>
+                            <div className="bg-purple-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+                                Câu {currentIndex + 1} / {playList.length}
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-10 text-center">
+                            <p className="text-gray-600 mb-6 font-medium">Lắng nghe kỹ và chọn nghĩa tiếng Việt chính xác nhất cho cụm từ bạn vừa nghe thấy:</p>
+                            
+                            {/* Nút phát loa */}
+                            <button 
+                                onClick={() => playWordAudio(currentVocab.word)}
+                                className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-lg mb-8 ${playingWord === currentVocab.word ? 'bg-purple-200 text-purple-600 scale-95 ring-4 ring-purple-300' : 'bg-purple-100 text-purple-500 hover:bg-purple-200 hover:scale-105'}`}
+                            >
+                                <Volume2 size={48} />
+                            </button>
+
+                            {/* Khu vực hiển thị từ tiếng Anh (chỉ hiện sau khi đã chọn đáp án) */}
+                            <div className="h-12 mb-6">
+                                {selectedOption !== null && (
+                                    <div className="animate-fade-in inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 px-6 py-2 rounded-xl text-xl font-bold tracking-wide shadow-sm">
+                                        {currentVocab.word}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Các lựa chọn đáp án */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {options.map((opt, idx) => {
+                                    let btnClass = "p-4 rounded-xl border-2 font-bold text-left transition-all ";
+                                    
+                                    if (selectedOption === null) {
+                                        btnClass += "border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50";
+                                    } else {
+                                        if (opt === currentVocab.meaning) {
+                                            btnClass += "border-green-500 bg-green-100 text-green-800"; // Đáp án đúng luôn hiện xanh
+                                        } else if (opt === selectedOption && selectedOption !== currentVocab.meaning) {
+                                            btnClass += "border-red-500 bg-red-100 text-red-800"; // Bấm sai thì hiện đỏ
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50"; // Các ô khác mờ đi
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => handleSelect(opt)}
+                                            className={btnClass}
+                                            disabled={selectedOption !== null}
+                                        >
+                                            {opt}
+                                            {selectedOption !== null && opt === currentVocab.meaning && <CheckCircle className="inline float-right text-green-600" size={20} />}
+                                            {selectedOption !== null && opt === selectedOption && selectedOption !== currentVocab.meaning && <XCircle className="inline float-right text-red-600" size={20} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Nút Next */}
+                            <div className="mt-8 h-12">
+                                {selectedOption !== null && (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-full shadow-md transition-transform hover:scale-105 animate-fade-in"
+                                    >
+                                        Câu Tiếp Theo &rarr;
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            const [stage, setStage] = useState(1); // 1: Test, 2: Result, 3: Vocab Game
+            const [answers, setAnswers] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(TEST_DATA.duration);
+
+            useEffect(() => {
+                if (isSubmitted) return;
+                if (timeLeft <= 0) {
+                    setIsSubmitted(true);
+                    setStage(2);
+                    return;
+                }
+                const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, isSubmitted]);
+
+            const handleSubmit = () => {
+                setIsSubmitted(true);
+                setStage(2);
+                window.scrollTo(0, 0);
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+                    {/* Header cố định */}
+                    <header className="bg-white shadow-md sticky top-0 z-50 overflow-x-auto">
+                        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-row justify-between items-center gap-4 min-w-[700px]">
+                            {/* Tiêu đề bên trái */}
+                            <div className="font-black text-xl md:text-2xl text-blue-800 uppercase tracking-wide whitespace-nowrap flex-1 text-left">
+                                VSTEP LISTENING TEST 03
+                            </div>
+                            
+                            {/* Đồng hồ ở giữa */}
+                            <div className="flex-1 flex justify-center">
+                                <div className={`flex items-center space-x-2 font-mono text-xl px-4 py-1.5 rounded-md font-bold whitespace-nowrap ${timeLeft < 300 && !isSubmitted ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
+                                    <Clock size={20} />
+                                    <span>{formatTime(timeLeft)}</span>
+                                </div>
+                            </div>
+
+                            {/* Navigation Tabs ở rìa phải */}
+                            <div className="flex-1 flex justify-end">
+                                <div className="flex bg-gray-100 p-1 rounded-lg whitespace-nowrap">
+                                    <button 
+                                        onClick={() => setStage(1)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 1 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'}`}
+                                    >
+                                        Làm Bài
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(2)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 2 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        Kết Quả
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(3)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors flex items-center ${stage === 3 ? 'bg-purple-500 text-white shadow-sm' : 'text-purple-600 hover:bg-purple-100'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        <Gamepad2 size={16} className="mr-1" /> Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="h-auto min-h-[calc(100vh-64px)] pb-10">
+                        {stage === 1 && <Stage1Test answers={answers} setAnswers={setAnswers} onSubmit={handleSubmit} />}
+                        {stage === 2 && <Stage2Result answers={answers} onGoToGame={() => setStage(3)} />}
+                        {stage === 3 && <Stage3VocabGame onBackToResult={() => setStage(2)} />}
+                    </main>
+
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .animate-fade-in {
+                            animation: fadeIn 0.3s ease-out forwards;
+                        }
+                    `}} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

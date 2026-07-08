@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSTEP Listening Mock Test 04</title>
+    
+    <!-- Tải React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Tải Babel để chạy code JSX ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+    <!-- Tải Tailwind CSS để dựng giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Clock = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>);
+        const CheckCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+        const XCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>);
+        const PlayCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>);
+        const PauseCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>);
+        const FileText = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+        const AlertCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+        const Headphones = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>);
+        const Award = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>);
+        const BookOpen = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>);
+        const Volume2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>);
+        const RefreshCw = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>);
+        const Gamepad2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>);
+
+        // --- HÀM ĐỊNH DẠNG THỜI GIAN ---
+        const formatTimeStr = (seconds) => {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        };
+
+        // --- HÀM QUY ĐỔI ĐIỂM VSTEP LISTENING (Thang 10) ---
+        const convertVstepScore = (correctCount) => {
+            if (correctCount <= 1) return 0.0;
+            if (correctCount === 2) return 0.5;
+            if (correctCount === 3) return 1.0;
+            if (correctCount === 4) return 1.5;
+            if (correctCount <= 6) return 2.0;
+            if (correctCount === 7) return 2.5;
+            if (correctCount <= 9) return 3.0;
+            if (correctCount <= 11) return 3.5;
+            if (correctCount <= 13) return 4.0;
+            if (correctCount <= 15) return 4.5;
+            if (correctCount <= 17) return 5.0;
+            if (correctCount <= 19) return 5.5;
+            if (correctCount <= 21) return 6.0;
+            if (correctCount === 22) return 6.5;
+            if (correctCount <= 24) return 7.0;
+            if (correctCount === 25) return 7.5;
+            if (correctCount <= 27) return 8.0;
+            if (correctCount <= 29) return 8.5;
+            if (correctCount <= 31) return 9.0;
+            if (correctCount <= 33) return 9.5;
+            if (correctCount <= 35) return 10.0;
+            return 0.0;
+        };
+
+        // --- DATA TỪ VỰNG QUAN TRỌNG TỪ TEST 04 ---
+        const VOCAB_DATA = [
+            { word: "overcast", meaning: "u ám, nhiều mây" },
+            { word: "stranded", meaning: "bị mắc kẹt (không thể di chuyển)" },
+            { word: "breakdown", meaning: "sự hỏng hóc (xe cộ, máy móc)" },
+            { word: "burglary", meaning: "vụ trộm cắp (đột nhập vào nhà)" },
+            { word: "protractors", meaning: "thước đo góc" },
+            { word: "currency", meaning: "tiền tệ" },
+            { word: "exhibition", meaning: "cuộc triển lãm" },
+            { word: "watercolours", meaning: "màu nước (hội họa)" },
+            { word: "fiction", meaning: "tiểu thuyết, hư cấu" },
+            { word: "documentary", meaning: "phim tài liệu" }
+        ];
+
+        // --- DATA CỦA BÀI THI 04 KÈM GIẢI THÍCH CHI TIẾT VÀ TIMESTAMPS ---
+        const hl = (text) => `<span class="text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1">${text}</span>`;
+        
+        const TEST_DATA = {
+        duration: 47 * 60,
+        parts: [
+            {
+            id: 1,
+            title: "PART 1: Questions 1-8",
+            instructions: "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
+            audioSrc: "https://www.dropbox.com/scl/fi/u95m401tnr78fg45qbu7m/Part-1.mp3?rlkey=tuu5qf4bviu3hpflt3gkh88xw&st=2qrx6hmd&raw=1",
+            audioTimestamps: [
+                { label: "Bài 1", time: 96 },
+                { label: "Bài 2", time: 130 },
+                { label: "Bài 3", time: 170 },
+                { label: "Bài 4", time: 213 },
+                { label: "Bài 5", time: 248 },
+                { label: "Bài 6", time: 283 },
+                { label: "Bài 7", time: 311 },
+                { label: "Bài 8", time: 337 }
+            ],
+            transcriptTranslations: [
+                { label: "Bài 1", text: "Và bây giờ là thông tin thời tiết ngày mai. Buổi sáng trời nhiều mây rải rác ở London và khu vực đông nam, nhưng đến trưa sẽ trở nên u ám và có mưa vào buổi chiều. Nhiệt độ sẽ dao động từ 11 đến 19 độ C. Sẽ có mưa ở phía bắc, và nhanh chóng lan rộng ra phần còn lại của đất nước. Mưa sẽ rất to ở một số khu vực vào cuối buổi chiều, đặc biệt là ở phía tây và miền trung nước Anh, và sẽ có gió mạnh trên hầu hết đất liền nước Anh." },
+                { label: "Bài 2", text: "Xin chào, đây là văn phòng đồ thất lạc. Hiện tại không có ai để nhận cuộc gọi của bạn, nhưng nếu bạn bị mất thứ gì đó, vui lòng lắng nghe kỹ tin nhắn sau. Nếu bạn bị mất các đồ vật có giá trị như đồ trang sức, tiền mặt hoặc thẻ tín dụng, bạn cần liên hệ với đồn cảnh sát gần nhất càng sớm càng tốt để trình báo. Trong trường hợp mất thẻ tín dụng, bạn cũng nên liên hệ ngay với ngân hàng của mình. Đối với bất kỳ vật dụng nào khác, vui lòng gọi đến văn phòng của chúng tôi từ 9:00 sáng đến 5:00 chiều, từ thứ Hai đến thứ Sáu. Xin cảm ơn." },
+                { label: "Bài 3", text: "Vâng, xin chào. Vâng, là tôi đây. Nghe này, tôi biết là tôi đáng lẽ phải ở trong cuộc họp lúc này, nhưng có chuyện xảy ra rồi. Tôi cảm thấy rất tệ về điều này, nhưng ôi, hôm nay quả là một ngày tồi tệ. Đầu tiên, chuyến tàu của tôi bị hoãn nửa tiếng. Sau đó... dù sao thì, tôi vẫn có thể đến đó kịp, nhưng bạn có tin không, động cơ xe của tôi bị hỏng, và tôi đang mắc kẹt ở đây cạnh đường cao tốc cho đến khi dịch vụ sửa chữa xe cứu hộ đến. Tôi vô cùng xin lỗi." },
+                { label: "Bài 4", text: "Vào đêm muộn hôm qua, những kẻ trộm đã đột nhập vào MacCanon Hall, nơi trưng bày cho công chúng bộ sưu tập các bức tranh, bức tượng và đồ cổ của cố phu nhân Betty Baldridge. Những tên trộm, sau khi vô hiệu hóa một hệ thống an ninh điện tử tinh vi, đã bỏ qua tất cả những bức tranh và đồ vật ít giá trị hơn đang được trưng bày, chỉ lấy đi bức 'Người lãng khách cô đơn' của Carl von Terbok. Bức tượng đồng cao một mét, đứng trên bệ cẩm thạch, được coi là báu vật của bộ sưu tập Baldridge và được định giá hơn 5 triệu bảng Anh." },
+                { label: "Bài 5", text: "Việc này không quá khó khăn, nhưng nếu bạn là một trong những người thậm chí sẽ không tự thay nổi một bóng đèn, hãy gọi ngay dịch vụ sửa chữa cứu hộ. Dù sao thì, hãy đảm bảo rằng bạn đã đỗ xe an toàn ra khỏi lòng đường với biển tam giác cảnh báo nguy hiểm được đặt cách bạn ít nhất 20 mét ở phía sau. Tìm kích nâng xe, cờ lê và lốp dự phòng, chúng đều ở trong cốp xe, và kiểm tra xem lốp dự phòng có bị xẹp không. Đặt kích vào đúng vị trí dưới xe của bạn, nhưng trước khi bạn bắt đầu nâng một bên xe lên, đừng quên nới lỏng các đai ốc trên bánh xe. Sau đó nâng xe lên, tháo hẳn đai ốc và lấy bánh xe ra." },
+                { label: "Bài 6", text: "Xin chú ý. Chúng tôi muốn nhắc bạn rằng vào 9:00 sáng thứ Hai tới, chúng ta sẽ có buổi dã ngoại nhân viên hàng năm. Toàn thể nhân viên và gia đình của họ được mời đến tham dự. Rất nhiều thức ăn và đồ uống sẽ được cung cấp cho mọi người, và chúng ta sẽ có bữa tiệc nướng ngoài trời nổi tiếng của mình. Chúng ta cũng sẽ có những trò chơi và niềm vui thường niên. Các giải thưởng bao gồm một chiếc đầu đĩa DVD mới và một kỳ nghỉ." },
+                { label: "Bài 7", text: "Do sự cố về hệ thống ánh sáng, buổi hòa nhạc đó phải bị hoãn lại cho đến thứ Sáu ngày 22. Buổi hòa nhạc cũng sẽ được dời từ Hội trường A sang Hội trường C lớn hơn. Một địa điểm lớn hơn đồng nghĩa với việc sẽ có thêm 500 vé được bán ra, gấp đôi số lượng ban đầu. Do có thêm vé, nên vé hiện sẽ được định giá ở mức thấp hơn là $20." },
+                { label: "Bài 8", text: "Trong trường hợp có hỏa hoạn, vui lòng làm theo những hướng dẫn sau. Đứng dậy và đi bộ về phía lối thoát hiểm gần nhất. Đừng chạy, và đừng cố gắng thu gom đồ đạc của bạn. Khi ra bên ngoài, hãy đợi giáo viên của bạn ở sân bóng đá. Tuần tới, chúng ta sẽ có buổi đầu tiên trong hai buổi diễn tập phòng cháy chữa cháy hàng năm của chúng ta. Xin cảm ơn." }
+            ],
+            transcript: `Question 1
+
+Speaker: And now for tomorrow's weather. Partly cloudy in the morning for London and the southeast, but overcast by midday with rain in the afternoon. Temperatures will range from 11 to 19 degrees Celsius. There'll also be rain in the north, which will quickly spread to the rest of the country. Rain will be very heavy in some areas by late afternoon, especially in western and central England, and there will be strong winds over most of mainland Britain.
+
+Question 2
+
+Speaker: Hello, this is the lost property office. There's no one here to take your call at present, but if you've lost something, please listen carefully to the following message. If you've lost valuables such as jewelry, cash or credit cards, you will need to contact your nearest police station as soon as possible to make a statement. In the case of a credit card, you should also contact your bank immediately. For any other items, please call in at our office between 9:00 a.m. and 5:00 p.m., Monday to Friday. Thank you.
+
+Question 3
+
+Speaker: Yeah, hello. Yes, it's me. Look, I know I'm supposed to be in the meeting now, but something's come up. I feel dreadful about it, but oh, what a day this has been. First my train was delayed for half an hour. Then... anyway, I could still have got there, but would you believe it, my engine's packed in, and I'm stranded here next to the motorway until the breakdown service turns up. I'm so sorry.
+
+Question 4
+
+Speaker: Late last night thieves broke into MacCanon Hall, where a collection of the late Lady Betty Baldridge's paintings, statues and antiques are on display to the public. The thieves, who disabled a sophisticated electronic security system, ignored all the less valuable paintings and pieces on display, taking only the lonely wanderer by Carl von Terbok. The one-meter high bronze figure, which stands on a marble base, is regarded as the jewel of the Baldridge collection and is valued at over 5 million pounds.
+
+Question 5
+
+Speaker: This isn't terribly difficult, but if you're one of those people who won't even change a light bulb, just call a breakdown service. Anyway, make sure you're safely off the road with your hazard triangle in place at least 20 meters behind you. Find the jack, spanner and spare, they should all be in the boot, and check the spare isnt flat too. Put the jack in place under your car, but before you begin to lift the side of the car, don't forget to loosen the nuts on the wheel. Then jack the car up, undo the nuts and take off the wheel.
+
+Question 6
+
+Speaker: Attention please. We would like to remind you that next Monday at 9:00, we will be having our yearly staff picnic. All staff and their families are invited to attend. Plenty of food and drink will be provided for everyone, and we will be having our famous barbecue. We will also have our annual fun and games. Prizes include a new DVD player and a holiday.
+
+Question 7
+
+Speaker: Due to problems with the lighting, the concert that has to be postponed until Friday the 22nd. The concert will also be moved from Hall A to the larger Hall C. A bigger venue means a further 500 tickets will now be available, twice the original number. Because of the extra tickets, tickets will now be priced at the lower cost of $20.
+
+Question 8
+
+Speaker: In the event of a fire, please follow these directions. Stand up and walk towards the nearest exit. Do not run, and do not try to gather your things. When outside, wait for your teacher on the football field. Next week, we will have the first of our two annual fire drills. Thank you.`,
+            questions: [
+                {
+                id: 1, text: "Which part(s) of England will have the heaviest rainfall?", options: { A: "London and south-east", B: "Northern", C: "Western and Central", D: "mainland Britain" }, correct: "C", timestamp: 96,
+                translation: { question: "Phần nào của nước Anh sẽ có lượng mưa nặng hạt nhất?", options: { A: "London và đông nam", B: "Phía Bắc", C: "Miền Tây và Miền Trung", D: "Lục địa Anh" } },
+                explanations: { 
+                    A: "Sai. Sáng có mây rải rác, chiều có mưa.", 
+                    B: "Sai. Có mưa ở phía bắc nhưng không được đề cập là mưa to nhất.", 
+                    C: "Đúng. Bản tin thời tiết dự báo mưa sẽ rất to (very heavy) ở một số khu vực vào cuối chiều, đặc biệt là ở miền Tây và miền Trung nước Anh.", 
+                    D: "Sai. Đây là nơi có gió mạnh (strong winds)." 
+                },
+                transcriptSnippet: `Rain will be ${hl("very heavy")} in some areas by late afternoon, especially in ${hl("western and central England")}...`
+                },
+                {
+                id: 2, text: "What should you do in case of losing money?", options: { A: "call the lost property office", B: "to contact the police to make a statement", C: "to contact your bank immediately", D: "go to the lost property office" }, correct: "B", timestamp: 130,
+                translation: { question: "Bạn nên làm gì trong trường hợp bị mất tiền?", options: { A: "gọi cho văn phòng đồ thất lạc", B: "liên hệ cảnh sát để khai báo", C: "liên hệ ngay với ngân hàng", D: "đến văn phòng đồ thất lạc" } },
+                explanations: { 
+                    A: "Sai. Chỉ gọi cho văn phòng với các đồ vật 'khác' (other items).", 
+                    B: "Đúng. 'Money' tương đương với 'cash'. Nếu mất đồ giá trị như trang sức, tiền mặt (cash) thì bạn cần liên hệ đồn cảnh sát gần nhất để trình báo.", 
+                    C: "Sai. Chỉ liên hệ ngân hàng khi mất thẻ tín dụng (credit card).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `If you've lost valuables such as jewelry, ${hl("cash")} or credit cards, you will need to ${hl("contact your nearest police station")} as soon as possible to make a statement.`
+                },
+                {
+                id: 3, text: "Why can't she be at the meeting?", options: { A: "Her flight was delayed.", B: "She is feeling unwell.", C: "Her car has broken down.", D: "Her train was delayed." }, correct: "C", timestamp: 170,
+                translation: { question: "Tại sao cô ấy không thể có mặt tại cuộc họp?", options: { A: "Chuyến bay bị hoãn.", B: "Cô ấy cảm thấy không khỏe.", C: "Xe của cô ấy bị hỏng.", D: "Chuyến tàu bị hoãn." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai. Cô ấy bảo 'I feel dreadful about it' tức là cảm thấy tồi tệ/áy náy về sự cố này, chứ không phải bị ốm.", 
+                    C: "Đúng. Ban đầu cô ấy bị lỡ tàu nhưng VẪN CÓ THỂ đến kịp (could still have got there), nhưng sau đó động cơ xe bị hỏng (engine's packed in/broken down) nên cô ấy bị mắc kẹt trên đường cao tốc.", 
+                    D: "Sai. Chuyến tàu bị trễ nhưng không phải là lý do CHÍNH khiến cô ấy không đến được (cô ấy bảo vẫn đến kịp nếu xe không hỏng)." 
+                },
+                transcriptSnippet: `...anyway, I could still have got there, but would you believe it, ${hl("my engine's packed in, and I'm stranded here")} next to the motorway until the breakdown service turns up.`
+                },
+                {
+                id: 4, text: "What was stolen in the burglary?", options: { A: "a painting", B: "a statue", C: "a famous jewel", D: "antiques" }, correct: "B", timestamp: 213,
+                translation: { question: "Thứ gì đã bị đánh cắp trong vụ trộm?", options: { A: "một bức tranh", B: "một bức tượng", C: "một viên ngọc quý", D: "đồ cổ" } },
+                explanations: { 
+                    A: "Sai. Bọn trộm đã phớt lờ những bức tranh ít giá trị.", 
+                    B: "Đúng. Bọn trộm chỉ lấy đi duy nhất bức 'Người lãng khách cô đơn'. Nó được mô tả là một hình nhân/bức tượng bằng đồng (bronze figure / statue) cao 1 mét.", 
+                    C: "Sai. Nó được 'coi như' là báu vật (jewel of the collection) mang ý nghĩa ẩn dụ, không phải là viên ngọc thực sự.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...ignored all the less valuable paintings and pieces on display, taking only the lonely wanderer by Carl von Terbok. The one-meter high ${hl("bronze figure")}...`
+                },
+                {
+                id: 5, text: "What are the instructions about?", options: { A: "how to change a light bulb", B: "how to change your car's hazard lights", C: "what to do if your car breaks down", D: "how to change a flat tire" }, correct: "D", timestamp: 248,
+                translation: { question: "Các hướng dẫn nói về việc gì?", options: { A: "cách thay bóng đèn", B: "cách thay đèn báo nguy hiểm của xe", C: "phải làm gì khi xe hỏng", D: "cách thay lốp xe bị xẹp/thủng" } },
+                explanations: { 
+                    A: "Sai. Chỉ là một ví dụ so sánh (nếu bạn là người không tự thay nổi bóng đèn thì...).", 
+                    B: "Sai. Hazard triangle là biển tam giác cảnh báo, không phải đèn.", 
+                    C: "Sai. Hơi chung chung.", 
+                    D: "Đúng. Các hướng dẫn chi tiết như: lấy kích nâng xe (jack), lấy lốp dự phòng (spare), nới ốc, nâng xe lên và tháo bánh xe (take off the wheel) chính là quy trình thay lốp xe." 
+                },
+                transcriptSnippet: `Put the jack in place under your car, but before you begin to lift the side of the car, don't forget to loosen the nuts on the wheel. Then jack the car up, ${hl("undo the nuts and take off the wheel.")}`
+                },
+                {
+                id: 6, text: "Which prizes are mentioned?", options: { A: "A holiday and a CD player", B: "A DVD player and a CD player", C: "A DVD player and a holiday", D: "A holiday and a television" }, correct: "C", timestamp: 283,
+                translation: { question: "Những giải thưởng nào được đề cập?", options: { A: "Một kỳ nghỉ và một máy nghe nhạc CD", B: "Một đầu DVD và một máy nghe nhạc CD", C: "Một đầu DVD và một kỳ nghỉ", D: "Một kỳ nghỉ và một chiếc tivi" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Thông báo nêu rõ giải thưởng bao gồm một đầu đĩa DVD mới và một kỳ nghỉ.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Prizes include a new ${hl("DVD player and a holiday")}.`
+                },
+                {
+                id: 7, text: "How much would five tickets cost?", options: { A: "$100", B: "$50", C: "$20", D: "$200" }, correct: "A", timestamp: 311,
+                translation: { question: "Năm vé sẽ có giá bao nhiêu?", options: { A: "$100", B: "$50", C: "$20", D: "$200" } },
+                explanations: { 
+                    A: "Đúng. Do được đổi sang hội trường lớn hơn nên giá vé giảm xuống còn $20 một vé. Vậy mua 5 vé sẽ có giá 5 x $20 = $100.", 
+                    B: "Sai.", 
+                    C: "Sai. Đây là giá của 1 vé.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Because of the extra tickets, tickets will now be priced at the lower cost of ${hl("$20")} [each].`
+                },
+                {
+                id: 8, text: "If there is a fire, what should you do?", options: { A: "Run out of the building", B: "Stay seated", C: "Walk out of the building", D: "Jog out of the building" }, correct: "C", timestamp: 337,
+                translation: { question: "Nếu có hỏa hoạn, bạn nên làm gì?", options: { A: "Chạy ra khỏi tòa nhà", B: "Ngồi yên tại chỗ", C: "Đi bộ ra khỏi tòa nhà", D: "Chạy bộ nhẹ nhàng ra khỏi tòa nhà" } },
+                explanations: { 
+                    A: "Sai. Loa thông báo yêu cầu KHÔNG ĐƯỢC CHẠY (Do not run).", 
+                    B: "Sai.", 
+                    C: "Đúng. Loa thông báo yêu cầu bạn đứng dậy và 'đi bộ' (walk) về phía lối thoát hiểm gần nhất.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Stand up and ${hl("walk")} towards the nearest exit. ${hl("Do not run")}...`
+                }
+            ]
+            },
+            {
+            id: 2,
+            title: "PART 2: Questions 9-20",
+            instructions: "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/k71es7plle4q0ni5fplnh/Part-2.mp3?rlkey=5n1xh4q4rqvnzl6eimdvyxx5b&st=jop5gxzv&raw=1",
+            audioTimestamps: [
+                { label: "Hội thoại 1", time: 77 },
+                { label: "Hội thoại 2", time: 226 },
+                { label: "Hội thoại 3", time: 400 }
+            ],
+            transcriptTranslations: [
+                { label: "Hội thoại 1", text: "Người 1: Được rồi. Thứ bảy là ngày trọng đại. Bạn đã sẵn sàng chưa?\nNgười 2: Vâng, Susan. Các bài kiểm tra làm tôi lo lắng. Tôi có thể làm gì?\nNgười 1: Câu hỏi hay. Lo lắng một chút trước kỳ thi là chuyện bình thường. Điều quan trọng là đừng hoảng sợ. Bạn đã học chăm chỉ cho bài kiểm tra này. Bạn có thể vượt qua nó. Hãy tự tin, thư giãn. Bây giờ, bạn sẽ có nhiều khả năng được thư giãn hơn nếu bạn chuẩn bị kỹ lưỡng. Dưới đây là một số lời khuyên. Đầu tiên, trước khi ra khỏi nhà, hãy kiểm tra để đảm bảo bạn có mọi thứ mình cần. Bạn nên mang theo thẻ dự thi. Nó đã được gửi cho bạn vào tuần trước. Bạn nên mang theo hai cây bút chì số 2 và một cục tẩy tốt. Bạn nên có giấy tờ tùy thân, thẻ sinh viên, bằng lái xe hoặc hộ chiếu. Nếu bạn làm phần thi toán, bạn nên mang theo máy tính. Thứ hai, biết những gì bạn KHÔNG ĐƯỢC mang vào phòng thi. Bạn không được mang theo đồng hồ có báo thức lớn. Bạn không được mang theo bất kỳ đồ ăn hay thức uống nào. Bạn không được mang thêm giấy để nháp. Bạn không được mang theo bất kỳ cuốn sách, ghi chú hoặc từ điển nào. Bạn không được mang theo compa, thước kẻ, thước đo góc hoặc các công cụ hỗ trợ khác, ngoại trừ máy tính. Bạn không được mang theo bút màu, bút chì màu hoặc bút dạ quang. Bạn không được mang theo điện thoại di động hoặc máy nhắn tin. Bạn không được mang theo bất kỳ máy ghi âm, máy walkman hay tai nghe cầm tay nào. Có câu hỏi gì không?\nNgười 2: Ừm, nếu tôi... cần đi vệ sinh trong lúc làm bài thì sao?\nNgười 1: Không được đâu, nên hãy đi từ trước. Đừng lo, sẽ có giờ nghỉ giải lao sau mỗi phần của bài thi. Bạn sẽ có thể đi vệ sinh lúc đó." },
+                { label: "Hội thoại 2", text: "Người phụ nữ: Xin chào. Trong chương trình tuần trước, chúng ta đã phỏng vấn người đứng sau ý tưởng về các trại hè quốc tế. Vì vậy, tôi nghĩ rằng tuần này các bạn sẽ muốn nghe thêm về một trong những trại hè sẽ được tổ chức vào cuối năm nay. Xin nhường lời cho anh, Michael.\nMichael: Cảm ơn. Vâng, trại hè mở cửa cho tất cả mọi người từ 18 đến 23 tuổi. Bạn không nhất thiết phải là sinh viên. Bạn thậm chí không cần phải là người đang có việc làm. Nhưng bạn phải có khả năng nói một ngoại ngữ ngoài tiếng mẹ đẻ của mình.\nNgười phụ nữ: Ok. Còn chỗ ở thì sao?\nMichael: Vâng, các nhà tổ chức trại quốc tế cung cấp những chiếc lều có sức chứa lên đến 4 người. Nhưng bạn không có khả năng quen biết những người sẽ ở chung lều với mình đâu. Các quốc tịch được trộn lẫn, vì vậy bạn sẽ ở chung với những người có thể thậm chí không nói ngôn ngữ của bạn.\nNgười phụ nữ: Nghe có vẻ thú vị. Ai là người nấu ăn tại trại?\nMichael: Mọi người đều được mong đợi sẽ giúp đỡ việc điều hành trại hè. Điều đó có nghĩa là giúp chuẩn bị thức ăn, giữ cho khu cắm trại sạch sẽ và ngăn nắp, v.v. Các nhà tổ chức trại đang tìm kiếm những người có thể hòa đồng với những người khác dù có chuyện gì xảy ra.\nNgười phụ nữ: Và có thứ gì cần phải mang theo không?\nMichael: Vâng, như tôi đã nói, lều đã được cung cấp, nhưng bạn sẽ cần phải mang theo gối, dao, nĩa và thìa của riêng mình. Nếu bạn được chọn, bạn cũng được yêu cầu mang theo ảnh, bưu thiếp, bất cứ thứ gì thể hiện được một số truyền thống và phong tục của đất nước bạn. Mọi thứ sẽ được đưa vào một cuộc triển lãm vào thời điểm bắt đầu cắm trại, cùng với một bản đồ thế giới khổng lồ hiển thị các quốc gia khác nhau mà mọi người đến.\nNgười phụ nữ: Có hoạt động giải trí nào không?\nMichael: Có chứ. Mọi người cùng giúp sức cung cấp các trò giải trí cho trại. Bạn được kỳ vọng là sẽ hát, nhảy hoặc chơi một nhạc cụ nào đó. Bạn làm giỏi hay dở không quan trọng. Có một khoảng trống trên biểu mẫu để bạn viết ra những gì bạn có thể làm.\nNgười phụ nữ: Nghe có vẻ rất vui. Và tất cả chi phí là bao nhiêu?\nMichael: Chà, bạn phải tự tìm đường đến trại. Vì vậy, tùy thuộc vào việc bạn bay, đạp xe, đi bộ, đi nhờ xe hoặc bất cứ hình thức nào khác. Lệ phí cho một tuần cắm trại là 300 đô la, nhưng bạn sẽ phải tự đổi số tiền đó sang loại tiền tệ của nước bạn để hình dung rõ hơn về chi phí. Bạn phải thanh toán toàn bộ chi phí trước khi đến. Nhưng bạn có thể thanh toán bằng bất kỳ loại tiền tệ nào bạn muốn, hoặc bạn có thể sử dụng thẻ tín dụng nếu có. Được rồi, bây giờ là số điện thoại để gọi. Đó là 0124..." },
+                { label: "Hội thoại 3", text: "Người phụ nữ: Trong chương trình hôm nay, David Green đã đến đây để kể cho chúng ta nghe tất cả về Trung tâm Mua sắm Waterside gần Northport. Chào buổi sáng, David.\nDavid: Chào buổi sáng. Vâng, tôi đã ghé thăm Waterside vào tuần trước và tôi nghĩ ở đó có thứ dành cho tất cả mọi người, và tôi muốn giới thiệu nó cho một ngày vui chơi. Phải mất ba năm để xây dựng, và cuối cùng đã mở cửa ba tuần trước, muộn hơn hai tháng so với kế hoạch. Thứ nhất, việc di chuyển đến đó. Có các chuyến xe khách có tổ chức từ hầu hết các thị trấn trong khu vực, nhưng chúng khởi hành sớm và về nhà rất muộn. Vì vậy, tôi đã tự lái xe. Có 12.000 chỗ đậu xe miễn phí, vì vậy việc đỗ xe không thành vấn đề. Bạn cũng có thể đến đó bằng tàu hỏa, nhưng nhà ga cách Waterside 15 phút đi xe buýt, và xe buýt thì rất đông đúc, vì vậy đôi khi bạn phải chờ đợi rất lâu.\nNgười phụ nữ: Còn giờ mở cửa thì sao?\nDavid: Vâng, một điều cần nhớ là các cửa hàng không mở cửa cho đến 10:00 sáng, ngoại trừ thứ Bảy thì họ mở lúc 9:00. Vì vậy, đừng đến đó quá sớm vào ngày thường. Họ đóng cửa lúc 8:00 mỗi ngày, ngoại trừ thứ Sáu khi họ mở cửa đến 9:00 tối.\nNgười phụ nữ: Bạn có thể cho chúng tôi biết thêm về các tiện ích tại trung tâm mua sắm không?\nDavid: Có, nó được sắp xếp theo ba tầng. Bạn sẽ tìm thấy tất cả những món đồ yêu thích của mình ở đây. Trên thực tế, nếu bạn muốn mua một đôi giày, có 15 cửa hàng khác nhau để bạn lựa chọn ở tầng một và tầng hai. Khi bạn hết tiền mặt, có đến bảy ngân hàng khác nhau. Nhưng hãy rút tiền trước khi bạn lên tầng ba, vì trên đó không có bất kỳ ngân hàng nào cả. Tuy nhiên, trên tầng đó có một vài nhà hàng, cũng như một rạp chiếu phim với bảy màn hình. Và uh, đừng để bị lạc như tôi. Hãy đến quầy thông tin ở tầng một và lấy một tấm bản đồ.\nNgười phụ nữ: Bạn còn có thể làm gì khác ở Waterside?\nDavid: Trước khi bạn quay trở lại xe hơi hoặc xe buýt của mình, và thực tế, tốt hơn là nên làm điều này trước khi bạn đi mua sắm và có quá nhiều thứ phải xách theo, hãy đi ra xem hồ nước. Đi dạo hoặc thử câu cá, chèo thuyền hoặc lướt ván buồm nếu bạn có thời gian. Hoặc bạn có thể cho đôi chân mệt mỏi của mình nghỉ ngơi và ngắm nhìn những chú chim và vịt. Nhưng bạn được yêu cầu là không cho chúng ăn.\nNgười phụ nữ: Có điều gì bạn không thích về trung tâm mua sắm này không?\nDavid: Ồ. Chà, mặc dù tôi đã có một ngày tốt lành, tôi sẽ phàn nàn về một điều. Nhưng không phải những thứ thông thường đâu. Dịch vụ ở các cửa hàng thì tốt, và tôi đã có một bữa trưa xuất sắc trong một quán cà phê. Không, điều ngớ ngẩn là khắp mọi nơi đều khá sạch sẽ, nhưng mọi người lại vứt giấy kẹo và vỏ lon nước uống rỗng trên mặt đất, bởi vì không có nơi nào khác để vứt chúng (thiếu thùng rác). Ngoài điều đó ra, tôi thực sự muốn giới thiệu nơi này.\nNgười phụ nữ: Và đó là tất cả cho chương trình hôm nay." }
+            ],
+            transcript: `Conversation 1 (Questions 9-12)
+Speaker 1: All right. Saturday's the big day. Are you ready?
+
+Speaker 2: Yes, Susan. Tests make me nervous. What can I do?
+
+Speaker 1: Good question. It's natural to be a little nervous before a test. The important thing is, don't panic. You've studied hard for this test. You can pass it. Be confident, relax. Now, you're more likely to be relaxed if you are well prepared. Here are some tips. First, before you leave home, check to make sure you have everything you need. You should have your admission ticket. This was mailed to you last week. You should have two number 2 pencils and a good eraser. You should have identification, your student ID card, a driver's license or a passport. If you're taking the math portion of the test, you should have a calculator. Second, know what you can't bring to the test. You cannot bring a watch with a loud alarm. You cannot bring any food or drink. You cannot bring extra paper to write on. You cannot bring any books, notes, or dictionaries. You cannot bring compasses, rulers, protractors, or other aids, except for the calculator. You cannot bring colored pens, pencils, or highlighters. You cannot bring cell phones or pagers. You cannot bring any portable tape recorders, walkmans, or headphones. Questions?
+
+Speaker 2: Um, what if I uh... have to go to the bathroom during the test?
+
+Speaker 1: You can't, so go before. Don't worry, there will be breaks after each section of the test. You'll be able to go then.
+
+Conversation 2 (Questions 13-16)
+Woman: Hi there. On last week's program, we interviewed the man behind the idea of the international camps. So I thought that this week you'd be interested to hear more about one of the camps which will be held later this year. Over to you, Michael.
+
+Michael: Thank you. Yes, the camp is open to everyone between the ages of 18 to 23. You don't have to be a student. You don't even have to be employed. But you must be able to speak one foreign language in addition to your mother tongue.
+
+Woman: Okay. And what about accommodation?
+
+Michael: Well, the international camp organizers supply tents which sleep up to four people. But you are unlikely to know the people who you'll be sharing a tent with. The nationalities are mixed, so you'll be sharing with people who may not even speak your language.
+
+Woman: Sounds interesting. Who does the cooking at the camp?
+
+Michael: Everybody is expected to help with the running of the camp. That means helping to prepare food, keeping the campsite clean and tidy, and so on. The camp organizers are looking for people who can get along with others whatever happens.
+
+Woman: And is there anything you need to take?
+
+Michael: Well, as I've said, tents are provided, but you'll need to bring your own pillow, knife, fork and spoon. If you get chosen, you're also asked to bring along photographs, postcards, anything that shows some of the traditions and customs of your own country. Everything goes into an exhibition at the start of the camp, together with a huge map of the world showing the different countries people come from.
+
+Woman: And is there any entertainment?
+
+Michael: Yes, there is. Everyone helps to provide the camp entertainment. You are expected to sing, dance, or play something musical. It doesn't matter how good or bad you are. There is a space on the form to write down what you can do.
+
+Woman: Sounds great fun. And what does it all cost?
+
+Michael: Well, you have to find your own way to the camp. So it's up to you whether you fly, cycle, walk, hitchhike or whatever. The charge for a week's camp is $300, but you'll have to change that into your own currency to get a better idea of the cost. You have to pay the full cost before you arrive. But you can pay in any currency you want, or you can use a credit card if you have one. Right, now for the phone number to ring. It's 0124...
+
+Conversation 3 (Questions 17-20)
+Woman: In today's program, David Green has come along to tell us all about Waterside Shopping Centre near Northport. Good morning, David.
+
+David: Good morning. Well, I visited Waterside last week and I think it has something for everyone, and I would recommend it for a day out. It's taken three years to build, and finally opened three weeks ago, two months later than planned. Firstly, getting there. There are organized coach trips from most towns in the area, but they leave early and come home very late. So, I drove. There are 12,000 free parking spaces, so parking is no problem. You can also get there by train, but the station is 15 minutes from Waterside by bus, and the buses are really crowded, so you sometimes have a long wait.
+
+Woman: And what about opening times?
+
+David: Well, one thing to remember is that the shops don't open till 10:00 in the morning, except on Saturday when they open at 9:00. So, don't get there too early on a weekday. They close at 8:00 everyday, except Friday when they're open until 9:00 pm.
+
+Woman: Can you tell us some more about the facilities at the shopping centre?
+
+David: Yes, it's arranged on three levels. You'll find all your favorites here. In fact, if you want to buy a pair of shoes, there are 15 different shops to choose from on levels one and two. When you run out of money, there are seven different banks. But collect your money before you get to the third level, as there aren't any banks up there. On that level, however, there are several restaurants, as well as a cinema with seven screens. And uh, don't get lost like I did. Go to the information desk on the first level and get a map.
+
+Woman: What else can you do at Waterside?
+
+David: Before you go back to your car or the bus, and in fact, it might be better to do this before you go shopping and have too much to carry, go and see the lake. Take a walk or have a go at fishing, sailing or windsurfing if you have time. Or you can rest your tired feet and watch the birds and ducks. But you are asked not to feed them.
+
+Woman: Was there anything you didn't like about the shopping centre?
+
+David: Oh. Well, although I had a good day, I would complain about one thing. But not the usual thing. The service in the shops was good, and I had an excellent lunch in a cafe. No, the silly thing was that everywhere was quite clean, but people were dropping their sweet papers and empty drink cans on the ground, because there wasn't anywhere else to throw them. Apart from that, I would recommend it.
+
+Woman: And so that's all for today's program.`,
+            questions: [
+                {
+                id: 9, text: "Why do students need identification?", options: { A: "The professor can't remember their names.", B: "The test requires it.", C: "There are not enough calculators.", D: "Too many students want to take the test." }, correct: "B", timestamp: 77,
+                translation: { question: "Tại sao sinh viên cần có giấy tờ tùy thân?", options: { A: "Giáo sư không thể nhớ tên họ.", B: "Bài kiểm tra yêu cầu điều đó.", C: "Không có đủ máy tính.", D: "Có quá nhiều sinh viên muốn làm bài kiểm tra." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Người nói đang liệt kê những thứ 'cần phải mang vào bài kiểm tra' (you should have... identification), nên mục đích hiển nhiên là vì bài thi yêu cầu.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `First, before you leave home, check to make sure you have everything you need... You should have ${hl("identification")}, your student ID card, a driver's license or a passport.`
+                },
+                {
+                id: 10, text: "According to the professor, why is it important to be prepared for the test?", options: { A: "It will make you nervous.", B: "It will help you relax.", C: "It will guarantee that you get a high mark.", D: "It will save time on the day of the test." }, correct: "B", timestamp: 77,
+                translation: { question: "Theo vị giáo sư, tại sao việc chuẩn bị cho kỳ thi lại quan trọng?", options: { A: "Nó sẽ làm bạn lo lắng.", B: "Nó sẽ giúp bạn thư giãn.", C: "Nó sẽ đảm bảo bạn đạt điểm cao.", D: "Nó sẽ tiết kiệm thời gian vào ngày thi." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Giáo sư nói rằng bạn sẽ có nhiều khả năng 'được thư giãn/bớt lo lắng' (more likely to be relaxed) nếu bạn được chuẩn bị kỹ lưỡng.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Now, ${hl("you're more likely to be relaxed")} if you are well prepared.`
+                },
+                {
+                id: 11, text: "What is the speaker's main point?", options: { A: "What type of questions will be on the test", B: "Which subjects will be on the test", C: "How long the test will last", D: "Things you should and shouldn't bring for the test" }, correct: "D", timestamp: 77,
+                translation: { question: "Điểm chính của diễn giả là gì?", options: { A: "Loại câu hỏi nào sẽ có trong bài kiểm tra", B: "Môn học nào sẽ có trong bài thi", C: "Bài kiểm tra sẽ kéo dài bao lâu", D: "Những thứ bạn nên và không nên mang vào phòng thi" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Nội dung chính của toàn bộ đoạn hội thoại là liệt kê danh sách 'you should have' (nên mang) và 'what you can't bring' (không được mang)." 
+                },
+                transcriptSnippet: `...check to make sure you have everything ${hl("you need")}. You should have your admission ticket... Second, know ${hl("what you can't bring")} to the test.`
+                },
+                {
+                id: 12, text: "What does the professor imply?", options: { A: "There will be a test on Saturday.", B: "There will be no school on Saturday.", C: "Saturday is the longest day of the year.", D: "He doesn't like Saturdays." }, correct: "A", timestamp: 77,
+                translation: { question: "Giáo sư ngụ ý điều gì?", options: { A: "Sẽ có một bài kiểm tra vào thứ Bảy.", B: "Sẽ không có trường học vào thứ Bảy.", C: "Thứ Bảy là ngày dài nhất trong năm.", D: "Ông ấy không thích thứ Bảy." } },
+                explanations: { 
+                    A: "Đúng. Ngay câu đầu tiên, giáo sư nói 'Thứ bảy là ngày trọng đại' và ngay sau đó học sinh than vãn 'Các bài kiểm tra làm tôi lo lắng'. Suy ra bài kiểm tra sẽ diễn ra vào thứ Bảy.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Speaker 1: All right. ${hl("Saturday's the big day")}. Are you ready?<br/>Speaker 2: Yes, Susan. ${hl("Tests make me nervous.")}`
+                },
+                {
+                id: 13, text: "What must you be if you want to apply for the Camp?", options: { A: "be a student", B: "be at least twenty-four years old", C: "be employed", D: "speak more than one language" }, correct: "D", timestamp: 226,
+                translation: { question: "Bạn phải đáp ứng điều kiện gì nếu muốn đăng ký tham gia Trại hè?", options: { A: "là học sinh/sinh viên", B: "ít nhất 24 tuổi", C: "có việc làm", D: "nói được nhiều hơn một ngôn ngữ" } },
+                explanations: { 
+                    A: "Sai. Bạn không nhất thiết phải là sinh viên (don't have to be a student).", 
+                    B: "Sai. Độ tuổi từ 18-23.", 
+                    C: "Sai. Bạn không cần phải có việc làm.", 
+                    D: "Đúng. Điều kiện tiên quyết là bạn phải nói được một ngoại ngữ ngoài tiếng mẹ đẻ của mình (nghĩa là phải nói ít nhất 2 ngôn ngữ)." 
+                },
+                transcriptSnippet: `But you must be able to ${hl("speak one foreign language in addition to your mother tongue.")}`
+                },
+                {
+                id: 14, text: "What can you expect in a camp tent?", options: { A: "mix with other nationalities.", B: "share with five other people.", C: "know the other people.", D: "share with people from the same nationality." }, correct: "A", timestamp: 226,
+                translation: { question: "Bạn có thể mong đợi điều gì trong một chiếc lều cắm trại?", options: { A: "Hòa trộn với các quốc tịch khác.", B: "Chia sẻ với năm người khác.", C: "Quen biết những người khác.", D: "Chia sẻ với những người có cùng quốc tịch." } },
+                explanations: { 
+                    A: "Đúng. Các quốc tịch được sắp xếp trộn lẫn với nhau (nationalities are mixed).", 
+                    B: "Sai. Lều chỉ chứa tối đa 4 người.", 
+                    C: "Sai. Bạn có khả năng KHÔNG quen biết (unlikely to know) những người cùng lều.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Michael: ...${hl("The nationalities are mixed")}, so you'll be sharing with people who may not even speak your language.`
+                },
+                {
+                id: 15, text: "What do you NOT have to take to the Camp?", options: { A: "tent", B: "a knife", C: "pictures", D: "postcards" }, correct: "A", timestamp: 226,
+                translation: { question: "Bạn KHÔNG cần phải mang theo thứ gì đến Trại hè?", options: { A: "lều", B: "một con dao", C: "những bức tranh/ảnh", D: "bưu thiếp" } },
+                explanations: { 
+                    A: "Đúng. Lều sẽ được ban tổ chức cung cấp sẵn (tents are provided), vì vậy bạn không cần mang theo.", 
+                    B: "Sai. Bạn phải tự mang theo dao/nĩa.", 
+                    C: "Sai. Bạn phải mang ảnh/tranh.", 
+                    D: "Sai. Bạn phải mang bưu thiếp." 
+                },
+                transcriptSnippet: `Michael: Well, as I've said, ${hl("tents are provided")}, but you'll need to bring your own pillow, knife...`
+                },
+                {
+                id: 16, text: "How must the Camp fees be paid?", options: { A: "in dollars.", B: "by cheque.", C: "before the Camp starts.", D: "in your own currency" }, correct: "C", timestamp: 226,
+                translation: { question: "Lệ phí Trại hè phải được thanh toán như thế nào?", options: { A: "bằng đô la.", B: "bằng séc.", C: "trước khi Trại hè bắt đầu.", D: "bằng tiền tệ của nước bạn" } },
+                explanations: { 
+                    A: "Sai. Bạn có thể trả bằng bất kỳ loại tiền tệ nào.", 
+                    B: "Sai.", 
+                    C: "Đúng. Bạn phải thanh toán toàn bộ chi phí 'trước khi bạn đến nơi' (before you arrive), tức là trước khi trại bắt đầu.", 
+                    D: "Sai. Có thể trả bằng bất kỳ loại tiền tệ nào, không bắt buộc phải là tiền nước mình." 
+                },
+                transcriptSnippet: `You have to pay the full cost ${hl("before you arrive")}.`
+                },
+                {
+                id: 17, text: "According to the speaker, what is the best way of travelling to Waterside?", options: { A: "coach", B: "car", C: "train", D: "bus" }, correct: "B", timestamp: 400,
+                translation: { question: "Theo diễn giả, cách tốt nhất để đi du lịch đến Waterside là gì?", options: { A: "xe khách", B: "ô tô (tự lái)", C: "tàu hỏa", D: "xe buýt" } },
+                explanations: { 
+                    A: "Sai. Xe khách đi sớm về khuya.", 
+                    B: "Đúng. Người nói chọn cách tự lái xe (ô tô) vì có đến 12,000 chỗ đậu xe miễn phí, rất tiện lợi so với các phương tiện khác chịu nhiều bất tiện.", 
+                    C: "Sai. Tàu hỏa lại phải bắt thêm xe buýt.", 
+                    D: "Sai. Xe buýt rất đông đúc và hay phải đợi lâu." 
+                },
+                transcriptSnippet: `There are organized coach trips... but they leave early and come home very late. So, ${hl("I drove. There are 12,000 free parking spaces")}, so parking is no problem.`
+                },
+                {
+                id: 18, text: "On Fridays, what time are the shops open from?", options: { A: "8 o'clock", B: "9 o'clock", C: "10 o'clock", D: "11 o'clock" }, correct: "C", timestamp: 400,
+                translation: { question: "Vào các ngày thứ Sáu, các cửa hàng mở cửa TỪ mấy giờ?", options: { A: "8 giờ", B: "9 giờ", C: "10 giờ", D: "11 giờ" } },
+                explanations: { 
+                    A: "Sai. 8 giờ là giờ ĐÓNG CỬA các ngày thường.", 
+                    B: "Sai. 9 giờ sáng là giờ mở cửa của ngày Thứ Bảy.", 
+                    C: "Đúng. Cửa hàng luôn mở cửa TỪ 10 giờ sáng ở các ngày trong tuần (bao gồm cả thứ Sáu).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `David: Well, one thing to remember is that ${hl("the shops don't open till 10:00 in the morning")}, except on Saturday when they open at 9:00.`
+                },
+                {
+                id: 19, text: "What can you NOT do at Waterside?", options: { A: "feed the ducks", B: "go shopping", C: "go sailing", D: "go wind surfing" }, correct: "A", timestamp: 400,
+                translation: { question: "Bạn KHÔNG được làm gì ở Waterside?", options: { A: "Cho vịt ăn", B: "Đi mua sắm", C: "Chèo thuyền", D: "Lướt ván buồm" } },
+                explanations: { 
+                    A: "Đúng. Mặc dù bạn có thể ngắm chim và vịt, nhưng bạn được yêu cầu KHÔNG ĐƯỢC cho chúng ăn (not to feed them).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Or you can rest your tired feet and watch the birds and ducks. But you are asked ${hl("not to feed them.")}`
+                },
+                {
+                id: 20, text: "What does the speaker complain about?", options: { A: "There was nowhere to put rubbish.", B: "The food in the café was disappointing.", C: "The service in the shops was slow.", D: "There weren't any bathrooms." }, correct: "A", timestamp: 400,
+                translation: { question: "Diễn giả phàn nàn về điều gì?", options: { A: "Không có nơi nào để bỏ rác.", B: "Đồ ăn trong quán cà phê đáng thất vọng.", C: "Dịch vụ ở cửa hàng chậm chạp.", D: "Không có phòng tắm/nhà vệ sinh nào." } },
+                explanations: { 
+                    A: "Đúng. Anh ấy phàn nàn rằng mọi người vứt vỏ kẹo và lon rỗng xuống đất vì 'không có nơi nào khác để ném chúng' (thiếu thùng rác).", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...people were dropping their sweet papers and empty drink cans on the ground, because ${hl("there wasn't anywhere else to throw them.")}`
+                }
+            ]
+            },
+            {
+            id: 3,
+            title: "PART 3: Questions 21-35",
+            instructions: "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
+            audioSrc: "https://www.dropbox.com/scl/fi/438p7dxopmvwdw9ul3xdy/Part-3.mp3?rlkey=vlvlk3a2um1vo5lckrxt2jua1&st=gga7a5xo&raw=1",
+            audioTimestamps: [
+                { label: "Bài giảng 1", time: 53 },
+                { label: "Bài giảng 2", time: 284 },
+                { label: "Bài giảng 3", time: 510 }
+            ],
+            transcriptTranslations: [
+                { label: "Bài giảng 1", text: "Vâng, chào buổi tối mọi người. Tôi đến đây để nói với các bạn về sở thích vẽ tranh của mình. Đó vốn chỉ là một sở thích, nhưng giờ đây nó đã thực sự trở nên quan trọng hơn thế. Tôi thường vẽ vào các buổi tối, sau giờ làm việc, nhưng giờ tôi chỉ làm việc bốn ngày một tuần thay vì năm ngày. Điều đó có nghĩa là tôi dành trọn thứ Sáu, thứ Bảy và Chủ Nhật cho việc vẽ tranh. Tôi có tranh trưng bày tại các triển lãm địa phương ít nhất mỗi tháng một lần.\nTôi rất muốn bỏ công việc hiện tại và dành trọn thời gian cho hội họa, nhưng tôi làm việc với máy tính và kiếm được nhiều tiền hơn từ cách đó. Tôi có kiếm được một chút tiền từ việc bán tranh, đủ để trả tiền sơn, cọ, giấy vẽ và một vài lớp học nghệ thuật. Tôi rất muốn theo học cao đẳng nghệ thuật toàn thời gian trong ba năm, nhưng tôi còn phải trả tiền thuê căn hộ và tiền nuôi ô tô.\nTôi bắt đầu quan tâm đến nghệ thuật từ khi còn học tiểu học. Tôi thường ra ngoài với một ít giấy và vài cây bút chì trong giờ ra chơi và vẽ bất cứ thứ gì tôi thấy - nhà cửa, khu vườn, con người. Sau đó, ở trường trung học, chúng tôi có lớp mỹ thuật hai lần một tuần, và tôi đã học cách sử dụng phấn, rồi đến các loại sơn khác nhau - màu nước, sơn dầu, v.v. Những lớp học đó thực sự rất hữu ích với tôi, và kể từ đó tôi vẫn luôn tham gia một khóa học nào đó. Tôi đã tham dự các lớp học buổi tối và tham gia vào thứ mà họ gọi là những 'kỳ nghỉ vẽ tranh', nơi bạn đi ra vùng nông thôn và vẽ tranh vào ban ngày, sau đó ngồi thảo luận về tác phẩm của mình với giáo viên và các họa sĩ khác sau bữa tối. Những kỳ nghỉ đó thật tuyệt vời. Bạn học được rất nhiều điều khi nói chuyện với những người cùng nghiên cứu nghệ thuật với bạn.\nTôi đã tận hưởng việc vẽ tranh ở nhiều quốc gia khác nhau. Tôi đã đến Morocco và vẽ các khung cảnh sa mạc với cảnh mặt trời mọc tuyệt đẹp. Tôi đã đến Hy Lạp và Tây Ban Nha và vẽ chân dung những người dân địa phương đang làm việc trên cánh đồng gần nhà của họ. Nơi yêu thích của tôi vẫn là Scotland. Tôi thích đi dạo trên các dãy núi của Scotland, và có rất nhiều loài chim khác nhau để ngắm nhìn, đặc biệt là vào mùa xuân.\nVâng, tôi sẽ kết thúc bây giờ bằng cách cho các bạn xem một đoạn video về những nơi tôi đã đến thăm. Sau đó sẽ có cơ hội để thư giãn với một tách cà phê, và rồi sẽ có thời gian cho một vài câu hỏi. Ồ, và tôi có một số thông tin về buổi triển lãm nghệ thuật tiếp theo của tôi dành cho các bạn. Nó sẽ diễn ra tại Queen's Gallery. Bây giờ, nếu có ai đó vui lòng tắt đèn giúp, thì tôi có thể..." },
+                { label: "Bài giảng 2", text: "Chào mừng bạn đến với chương trình sách của tuần này. Chúng tôi có rất nhiều cuốn sách mới tuyệt vời để kể cho bạn nghe.\nCuốn 'My Life' (Cuộc đời tôi) của Joe Wrigley sẽ khiến tất cả những người hâm mộ truyện của Joe hài lòng trong nhiều giờ. Nó giải thích rất nhiều về nguồn gốc những ý tưởng của ông, và mang lại một bức tranh về những gì đang xảy ra trong cuộc đời ông khi ông thực hiện những cuốn sách thành công nhất của mình. Mặc dù vậy, tôi phải nói rằng, một số phần của nó sẽ rất khó hiểu nếu bạn chưa đọc những cuốn sách khác của ông ấy.\nTiếp theo, dành cho những ai thích một cuốn sách cảm động, 'Goodbye to the Fields' (Tạm biệt những cánh đồng) của Susan Marks kể câu chuyện buồn về John, một cậu bé nhỏ tuổi phải rời xa vùng nông thôn mà cậu yêu quý khi cả gia đình chuyển đến London vì công việc của cha cậu. John và mẹ cậu muốn ở lại nơi họ đang sống. Phải mất một thời gian dài để gia đình mới bắt đầu cảm thấy thoải mái khi sống ở thành phố lớn.\nCó rất nhiều cuốn sách với những lời khuyên hữu ích trong tuần này. Đầu tiên, cuốn 'A to Z of Photography' (Nhiếp ảnh từ A đến Z) sẽ là một món quà tuyệt vời cho bất kỳ ai mới bắt đầu sử dụng máy ảnh. Nó có mọi thứ bạn cần biết để chụp được những bức ảnh thực sự đẹp, và tìm hiểu về máy ảnh, phim, ánh sáng, v.v. Tuy nhiên, đây không phải là cuốn sách dành cho nhiếp ảnh gia giàu kinh nghiệm - không có nhiều thông tin nâng cao ở đây.\nChuyển sang khu vực nhà bếp, 'Cooking for One' (Nấu ăn cho một người) của Adrian White ghi trên bìa sách rằng ngay cả những người ghét nấu ăn cũng sẽ thấy nó hữu ích. Một tháng trước, tôi thậm chí còn không biết luộc trứng, nhưng giờ đây tôi đang nấu đủ loại món ăn, một số món khá khó, và, vâng, chúng có hương vị khá ngon nữa. Thực sự tôi đang rất tận hưởng việc nấu ăn lúc này. Giờ tôi sẽ thử một cuốn sách mới về nấu món ăn Ý.\nCuốn sách cuối cùng tuần này là 'Holidays in Europe' (Kỳ nghỉ ở Châu Âu) của Mary Curtis. Đây là một tác phẩm đáng đọc, nó sẽ kích thích trí tưởng tượng của bạn khi bạn lên kế hoạch cho kỳ nghỉ năm tới. Việc tác giả không nói về những địa danh nổi tiếng mà mọi người vẫn đến không quan trọng, thay vào đó bà ấy mô tả rất nhiều địa điểm nhỏ nằm cách xa các khu du lịch chính. Các bản đồ hơi quá nhỏ để có thể hữu ích, nhưng cuốn sách vẫn rất đáng đồng tiền bát gạo.\nVậy là xong cho tuần này rồi. Tuần tới, sẽ có một báo cáo đặc biệt về việc tặng sách như những món quà, vì vậy nếu bạn đã tiết kiệm được tiền và đang tự hỏi nên mua gì cho bạn bè hoặc người thân nhân ngày sinh nhật của họ, bạn có thể sẽ có được một vài ý tưởng hay. Tôi rất mong được nói chuyện với các bạn khi đó." },
+                { label: "Bài giảng 3", text: "Mọi người luôn hỏi tôi tại sao tôi chỉ đi du lịch theo cách gian khổ. Rất nhiều chương trình du lịch trên truyền hình nói về những kỳ nghỉ thư giãn trên bãi biển, nhưng tôi chỉ từng làm những bộ phim tài liệu về những chuyến đi thực sự dài. Chuyến đi cuối cùng tôi thực hiện là một hành trình dài 50.000 dặm quanh Thái Bình Dương, và nó kéo dài 12 tháng, nhưng hồi chuyến đi đầu tiên của tôi là một hành trình vòng quanh thế giới, và chuyến đi khó khăn nhất có lẽ là hành trình lái xe hơi từ Bắc Cực đến Nam Cực.\nNhư các bạn có thể tưởng tượng, tôi đã nhìn thấy rất nhiều nơi trên thế giới. Tôi may mắn có được một sức khỏe thực sự tuyệt vời, nhưng cuộc đời thì rất ngắn ngủi, và tôi đã đi du lịch quá nhiều đến mức tôi muốn có một sự thay đổi. Di chuyển đường dài khiến bạn vô cùng mệt mỏi, và mặc dù nó vẫn là một niềm vui lớn đối với tôi, tôi muốn làm điều gì đó thư giãn hơn bây giờ.\nTôi nghĩ loạt phim truyền hình tiếp theo của tôi có thể được thực hiện ở gần nước Anh hơn. Có một số công việc thực sự thú vị đang diễn ra ở xứ Wales, nơi họ vừa tìm thấy những tàn tích của một thị trấn 2.000 năm tuổi. Hoặc tôi có thể làm một chương trình gì đó về các trang trại ở Pháp, hay thậm chí là đạp xe ở Hà Lan. Luôn có thứ gì đó để quay phim nếu bạn tìm kiếm đủ kỹ.\nNhưng tôi hy vọng những chương trình tôi đã thực hiện về những chuyến đi thực sự dài sẽ khuyến khích những người khác bước lên máy bay và có vài chuyến phiêu lưu. Một số người dường như sợ hãi việc đi đến một quốc gia xa lạ, và có lẽ là sợ bị ốm ở đó, nhưng có thể bây giờ họ sẽ nhận ra rằng nếu tôi có thể thực hiện những chuyến đi này, họ cũng có thể. Tôi chỉ là một người rất bình thường. Và hiển nhiên, bạn không nhất thiết phải đi du lịch một mình như tôi vẫn thường làm.\nTôi phải nói rằng cho đến gần đây, tôi chưa bao giờ lo lắng về việc phải ở quá xa nhà, kể cả khi các con tôi còn rất nhỏ. Nhưng khi tôi đang quay phim ở Borneo năm ngoái, vợ tôi phải trải qua một cuộc phẫu thuật khẩn cấp, và điều đó thực sự làm tôi hoảng sợ, vì tôi không thể quay về Anh ngay được. Mọi chuyện cuối cùng cũng ổn, nhưng tôi sẽ không muốn ở quá xa nếu có chuyện tương tự xảy ra với gia đình tôi một lần nữa.\nCó lẽ nếu tôi dành nhiều thời gian hơn ở nhà, tôi có thể viết nhiều hơn. Cho đến nay tôi đã hoàn thành hai cuốn sách. Tôi viết về những nơi tôi đã đến thăm và cảm nhận của tôi về chúng. Tôi không nghĩ mình sẽ bao giờ viết truyện hư cấu hay làm thơ, nhưng tôi sẽ quan tâm đến việc viết các bài báo. Gia đình tôi nói rằng tôi rất khó sống cùng khi tôi ở nhà viết lách. Có lẽ đó là lý do họ không bao giờ phàn nàn về việc tôi đi du lịch chăng?" }
+            ],
+            transcript: `Part 3
+
+Questions 21 to 25
+Now turn to part 3. Questions 21 to 25. First, you have some time to look at questions 21 to 25.
+
+Well, Good evening everyone. I've um come along to talk to you about my painting. It was, just a hobby, but it's really more than that now. I used to paint in the evenings, after work, but now I work four days a week instead of five. That means I spend Friday, Saturday and Sunday on my painting. I have pictures in local exhibitions at least once a month.
+
+I'd love to give up my job and spend all my time painting, but I work with computers and I earn more that way. I do make some money from selling my pictures, enough to pay for all my paint, brushes and paper, and a few art lessons. I'd love to go to art college full-time for three years, but I've got all the rent on my flat to pay and a car to run.
+
+I first became interested in art when I was at primary school. I used to go out with some paper and a few pencils during break time and draw anything I saw - houses, gardens, people. Then at secondary school we had art classes twice a week, and I learnt how to use chalk, and then different kinds of paints - watercolours, oils and so on. Those classes were really useful for me, and ever since then I've had lessons of some kind. I've attended evening classes and been on what they call painting holidays, where you go out into the countryside and paint during the day, and then sit and discuss your work with a teacher and the other artists after dinner. Those holidays are great. You learn so much talking to other people studying with you.
+
+I've enjoyed painting in lots of different countries. I've been to Morocco and painted desert scenes with beautiful sunrises. I've been to Greece and Spain and painted pictures of the local people working in the fields near their homes. My favourite place is still Scotland. I love walking in the Scottish mountains, and there are so many different birds to see, especially in spring.
+
+Well, I'm going to finish now by showing you a video of the places I've visited. After that there'll be a chance to relax with a cup of coffee, and then there'll be time for some questions. Oh, and I've got some information about my next art exhibition for you. It's going to be at the Queen's Gallery. Now, if someone would turn off the lights, then I can get...
+
+Questions 26 to 30
+Questions 26 to 30. First, you have some time to look at questions 26 to 30.
+
+Welcome to this week's book program. We've got lots of great new books to tell you about.
+
+My Life by Joe Wrigley will keep all fans of Joe's stories happy for hours. It explains a lot about where his ideas come from, and gives a picture of what was happening in his life when he was working on his most successful books. I must say, though, that some of it is difficult to understand if you haven't read his other books.
+
+Now, for those of you who like a good cry, Goodbye to the Fields by Susan Marks tells the sad story of John, a small boy who has to leave the countryside he loves when the family move to London because of his father's job. John and his mother would prefer to stay where they are. It's a long time before the family begins to feel comfortable living in the big city.
+
+There are plenty of books with helpful advice this week. First, the A to Z of Photography would make a great present for anyone just starting out with a camera. It has everything you need to know to take really good photos, and learn about cameras, film, lighting and so on. This is not one for the experienced photographer, though - there's not much advanced information here.
+
+Turning to the kitchen, Cooking for One by Adrian White says on its cover that even people who hate cooking will find it useful. A month ago, I couldn't even boil an egg, but now I'm producing all sorts of dishes, some quite difficult, and, yes, they taste quite good, too. I'm actually enjoying cooking now. I'm now going to try a new book about cooking Italian food.
+
+The last book this week is Holidays in Europe by Mary Curtis. This is an enjoyable read, which will start your imagination working as you plan for next year's holiday. It doesn't matter that the writer doesn't talk about the famous places everyone visits, but describes lots of small places away from the main tourist areas. The maps are too small to be useful, but the book is still good value for money.
+
+That's it for this week, then. Next week, there's a special report on giving books as presents, so if you've saved up your money and you're wondering what to get for a friend or relation for their birthdays, you might get some good ideas. I'll look forward to talking to you then.
+
+Questions 31 to 35
+Questions 31 to 35. First, you have some time to look at questions 31 to 35.
+
+People always ask me why I only travel the hard way. A lot of television travel programs are about relaxing holidays on the beach, but I've only ever made documentaries about really long trips. The last trip I did was a 50,000 mile journey around the Pacific Ocean, and it took 12 months, but then my very first trip was a round the world journey, and the most difficult one was probably a car journey from the North Pole to the South Pole.
+
+As you can imagine, I've seen a lot of the world. I'm lucky to be in really excellent health, but life is very short, and I've done so much travelling that I want a change. Travelling long distances makes you extremely tired, and although it's still a great pleasure for me, I want to do something more relaxing now.
+
+I think my next television series might be made nearer England. There's some really interesting work going on in Wales, where they've just found what remains of a 2,000-year-old town. Or I might do something about farms in France, or even cycling in Holland. There's always something to film if you look hard enough.
+
+But I hope the programs I've made about the really long trips will encourage other people to get on a plane and have some adventures. Some people seem to be afraid of going to a strange country, and perhaps being ill there, but maybe they realise now that if I can do these trips, so can they. I'm only a very ordinary person. And obviously, you don't have to travel on your own, as I always have.
+
+I must say that until recently, I hadn't ever worried about being so far from home, even when the children were very small. But while I was filming in Borneo last year, my wife had to have an emergency operation, and it really frightened me, because I couldn't get back to England. Everything was fine in the end, but I wouldn't want to be so far away if anything like that happened to my family again.
+
+Perhaps if I spend more time at home, I can do more writing. I've done two books so far. I write about places I've seen and my feelings about them. I don't think I'll ever write fiction or poetry, but I'd be interested in writing newspaper articles. My family says I'm very difficult to live with when I'm writing at home. Perhaps that's why they've never complained about me travelling, eh?`,
+            questions: [
+                {
+                id: 21, text: "How often does Sarah paint now?", options: { A: "two days a week", B: "three days a week", C: "five days a week", D: "every evening" }, correct: "B", timestamp: 53,
+                translation: { question: "Bây giờ Sarah vẽ tranh với tần suất như thế nào?", options: { A: "2 ngày một tuần", B: "3 ngày một tuần", C: "5 ngày một tuần", D: "Mỗi tối" } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Cô ấy giải thích rằng bây giờ cô ấy chỉ làm việc 4 ngày/tuần nên có thể dành trọn 'thứ Sáu, thứ Bảy và Chủ Nhật' (Friday, Saturday and Sunday) cho hội họa. Đó là 3 ngày một tuần.", 
+                    C: "Sai.", 
+                    D: "Sai. Việc vẽ tranh vào 'mỗi tối' là thói quen trong quá khứ." 
+                },
+                transcriptSnippet: `I used to paint in the evenings, after work, but now I work four days a week instead of five. That means ${hl("I spend Friday, Saturday and Sunday on my painting.")}`
+                },
+                {
+                id: 22, text: "How does Sarah use money from her painting?", options: { A: "to give up her computing job.", B: "to pay for her flat and car.", C: "to pay for her artist's materials.", D: "to pay for three-year full-time fee at Art College." }, correct: "C", timestamp: 53,
+                translation: { question: "Sarah sử dụng tiền bán tranh để làm gì?", options: { A: "để nghỉ việc ở ngành máy tính.", B: "để trả tiền căn hộ và xe hơi.", C: "để mua dụng cụ/vật liệu hội họa.", D: "để trả học phí cao đẳng nghệ thuật 3 năm." } },
+                explanations: { 
+                    A: "Sai. Tiền không đủ để nghỉ việc.", 
+                    B: "Sai. Tiền lương từ công việc máy tính mới dùng để trả chi phí sinh hoạt.", 
+                    C: "Đúng. Cô ấy nói tiền bán tranh đủ để mua đồ dùng họa sĩ như sơn, cọ, giấy (artist's materials).", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `I do make some money from selling my pictures, ${hl("enough to pay for all my paint, brushes and paper")}, and a few art lessons.`
+                },
+                {
+                id: 23, text: "What did she learn when she was at primary school?", options: { A: "she painted pictures of people.", B: "she learnt to use chalk.", C: "she learnt to use different kinds of paint.", D: "she drew scenes in pencil." }, correct: "D", timestamp: 53,
+                translation: { question: "Cô ấy đã học được gì khi còn học tiểu học?", options: { A: "cô ấy vẽ chân dung mọi người.", B: "cô ấy học dùng phấn.", C: "cô ấy học dùng các loại sơn khác nhau.", D: "cô ấy vẽ phong cảnh bằng bút chì." } },
+                explanations: { 
+                    A: "Sai. Cô ấy có vẽ người, nhưng điểm chính là vẽ bằng bút chì.", 
+                    B: "Sai. Học dùng phấn là ở trường trung học.", 
+                    C: "Sai. Dùng sơn cũng là học ở trung học.", 
+                    D: "Đúng. Hồi tiểu học (primary school), cô ấy thường ra ngoài với một ít giấy và bút chì (pencils) để phác họa lại khung cảnh." 
+                },
+                transcriptSnippet: `I first became interested in art when I was at ${hl("primary school")}. I used to go out with some paper and ${hl("a few pencils")} during break time and ${hl("draw anything I saw")} - houses, gardens...`
+                },
+                {
+                id: 24, text: "What pleased Sarah most about her painting holidays?", options: { A: "meeting other artists", B: "seeing beautiful scenery", C: "receiving individual teaching", D: "painting the countryside" }, correct: "A", timestamp: 53,
+                translation: { question: "Điều gì làm Sarah hài lòng nhất về những kỳ nghỉ vẽ tranh?", options: { A: "gặp gỡ các họa sĩ khác", B: "ngắm cảnh đẹp", C: "nhận được sự chỉ dạy cá nhân", D: "vẽ phong cảnh vùng nông thôn" } },
+                explanations: { 
+                    A: "Đúng. Mặc dù cô ấy có vẽ tranh, nhưng điều khiến những kỳ nghỉ này 'thật tuyệt vời' (great) là việc cô ấy học hỏi được rất nhiều từ việc trò chuyện với những người/họa sĩ khác.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `Those holidays are great. ${hl("You learn so much talking to other people")} studying with you.`
+                },
+                {
+                id: 25, text: "What will the audience NOT do after watching Sarah's video?", options: { A: "find out some information about the next exhibition.", B: "look round an art exhibition.", C: "have a break and a drink.", D: "ask Sarah some questions." }, correct: "B", timestamp: 53,
+                translation: { question: "Khán giả sẽ KHÔNG làm gì sau khi xem video của Sarah?", options: { A: "tìm hiểu thông tin về buổi triển lãm tiếp theo.", B: "đi dạo xem một buổi triển lãm nghệ thuật.", C: "giải lao và uống nước.", D: "hỏi Sarah một vài câu hỏi." } },
+                explanations: { 
+                    A: "Sai. Khán giả SẼ nhận được thông tin về buổi triển lãm tiếp theo.", 
+                    B: "Đúng. Khán giả không được mời 'đi dạo xem triển lãm' (look round) ngay lúc đó. Buổi triển lãm tiếp theo của cô là ở một địa điểm khác (Queen's Gallery) vào lúc khác.", 
+                    C: "Sai. Khán giả SẼ được nghỉ ngơi với cà phê.", 
+                    D: "Sai. Khán giả SẼ có thời gian đặt câu hỏi." 
+                },
+                transcriptSnippet: `After that there'll be a chance to relax with a cup of coffee, and then there'll be time for some questions. Oh, and I've got some information about my next art exhibition for you. (=> ${hl("Khán giả không đi dạo xem triển lãm ngay lúc này")})`
+                },
+                {
+                id: 26, text: "What should readers do to really understand My life?", options: { A: "read it very slowly.", B: "know about the writer's life.", C: "read it with a picture.", D: "read the writer's other books." }, correct: "D", timestamp: 284,
+                translation: { question: "Độc giả nên làm gì để thực sự hiểu cuốn 'Cuộc đời tôi'?", options: { A: "đọc nó thật chậm.", B: "biết về cuộc đời tác giả.", C: "đọc kèm với một bức tranh.", D: "đọc các cuốn sách khác của tác giả." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Diễn giả cảnh báo rằng cuốn sách sẽ rất khó hiểu nếu bạn chưa đọc các tác phẩm khác của tác giả (his other books)." 
+                },
+                transcriptSnippet: `I must say, though, that some of it is difficult to understand ${hl("if you haven't read his other books.")}`
+                },
+                {
+                id: 27, text: "Why does John go to London in Goodbye to the fields?", options: { A: "his parents do not like the country", B: "his father has to be close to his work", C: "his parents both come from the city.", D: "His parents want him to have better education." }, correct: "B", timestamp: 284,
+                translation: { question: "Tại sao John đến London trong cuốn 'Tạm biệt những cánh đồng'?", options: { A: "bố mẹ cậu không thích vùng nông thôn", B: "bố của cậu phải ở gần nơi làm việc", C: "bố mẹ cậu đều đến từ thành phố.", D: "Bố mẹ cậu muốn cậu được giáo dục tốt hơn." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Lý do cả gia đình phải chuyển đến London là vì công việc của người cha (because of his father's job).", 
+                    C: "Sai.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...John, a small boy who has to leave the countryside he loves when the family ${hl("move to London because of his father's job.")}`
+                },
+                {
+                id: 28, text: "What information is NOT included in the A-Z of photography?", options: { A: "Basic equipment in photography", B: "how to take good pictures", C: "Basic information about taking pictures.", D: "advanced information about photography." }, correct: "D", timestamp: 284,
+                translation: { question: "Thông tin nào KHÔNG có trong cuốn Nhiếp ảnh từ A-Z?", options: { A: "Thiết bị cơ bản trong nhiếp ảnh", B: "cách chụp ảnh đẹp", C: "Thông tin cơ bản về việc chụp ảnh.", D: "thông tin nâng cao về nhiếp ảnh." } },
+                explanations: { 
+                    A: "Sai. Có thông tin cơ bản về máy ảnh, ánh sáng, phim.", 
+                    B: "Sai.", 
+                    C: "Sai.", 
+                    D: "Đúng. Diễn giả khẳng định cuốn sách này không dành cho người có kinh nghiệm, vì không có nhiều thông tin nâng cao (advanced information) trong đó." 
+                },
+                transcriptSnippet: `This is not one for the experienced photographer, though - ${hl("there's not much advanced information here.")}`
+                },
+                {
+                id: 29, text: "What information does readers get from Holidays in Europe?", options: { A: "a small map.", B: "famous places.", C: "the main tourist areas.", D: "less common places." }, correct: "D", timestamp: 284,
+                translation: { question: "Độc giả nhận được thông tin gì từ cuốn Kỳ nghỉ ở Châu Âu?", options: { A: "một bản đồ nhỏ.", B: "những địa điểm nổi tiếng.", C: "các khu du lịch chính.", D: "những địa điểm ít phổ biến hơn." } },
+                explanations: { 
+                    A: "Sai. Bản đồ quá nhỏ nên không hữu ích.", 
+                    B: "Sai.", 
+                    C: "Sai. Sách né tránh các khu du lịch chính.", 
+                    D: "Đúng. Thay vì kể về các địa danh nổi tiếng, tác giả mô tả rất nhiều những địa điểm nhỏ cách xa các khu du lịch chính. Đây chính là 'những nơi ít phổ biến hơn' (less common places)." 
+                },
+                transcriptSnippet: `It doesn't matter that the writer doesn't talk about the famous places everyone visits, but ${hl("describes lots of small places away from the main tourist areas.")}`
+                },
+                {
+                id: 30, text: "For whom are next week's programme useful?", options: { A: "those who enjoy reading reports.", B: "those who are trying to save money.", C: "those who are planning to buy gifts.", D: "those who enjoy making friends." }, correct: "C", timestamp: 284,
+                translation: { question: "Chương trình tuần tới hữu ích cho ai?", options: { A: "những người thích đọc báo cáo.", B: "những người đang cố gắng tiết kiệm tiền.", C: "những người đang có kế hoạch mua quà tặng.", D: "những người thích kết bạn." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Sai.", 
+                    C: "Đúng. Chương trình tuần tới nói về việc 'tặng sách như một món quà'. Nó sẽ hữu ích cho những ai đang tự hỏi nên mua quà gì (what to get) cho sinh nhật bạn bè/người thân.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `...there's a special report on giving books as presents, so if you've saved up your money and ${hl("you're wondering what to get for a friend or relation for their birthdays")}...`
+                },
+                {
+                id: 31, text: "What did John do for his most recent television programme?", options: { A: "drove from the North to the South Pole.", B: "filmed relaxing beach holidays.", C: "went to the Pacific Ocean for a year.", D: "traveled round the world." }, correct: "C", timestamp: 510,
+                translation: { question: "John đã làm gì cho chương trình truyền hình gần đây nhất của mình?", options: { A: "lái xe từ Bắc Cực đến Nam Cực.", B: "quay phim các kỳ nghỉ thư giãn trên bãi biển.", C: "đi đến Thái Bình Dương trong một năm.", D: "đi du lịch vòng quanh thế giới." } },
+                explanations: { 
+                    A: "Sai. Đây là chuyến đi khó khăn nhất của anh ấy.", 
+                    B: "Sai. Anh ấy làm phim tài liệu về chuyến đi dài, không phải bãi biển thư giãn.", 
+                    C: "Đúng. Chuyến đi 'cuối cùng/gần đây nhất' (last trip) của anh ấy là một hành trình quanh Thái Bình Dương kéo dài 12 tháng (một năm).", 
+                    D: "Sai. Đây là chuyến đi đầu tiên của anh ấy." 
+                },
+                transcriptSnippet: `The last trip I did was a 50,000 mile journey ${hl("around the Pacific Ocean, and it took 12 months")}...`
+                },
+                {
+                id: 32, text: "Why is John giving up very long trips?", options: { A: "because he's too old now.", B: "because he's been everywhere.", C: "because they're too tiring.", D: "because his family want him to spend more time with them." }, correct: "C", timestamp: 510,
+                translation: { question: "Tại sao John lại từ bỏ những chuyến đi quá dài?", options: { A: "vì bây giờ ông ấy quá già.", B: "vì ông ấy đã đi khắp mọi nơi.", C: "vì chúng quá mệt mỏi.", D: "vì gia đình muốn ông dành nhiều thời gian hơn cho họ." } },
+                explanations: { 
+                    A: "Sai. Sức khỏe của ông ấy vẫn tuyệt vời.", 
+                    B: "Sai.", 
+                    C: "Đúng. John nói rằng việc di chuyển quãng đường dài khiến bạn 'vô cùng mệt mỏi' (extremely tired), do đó ông muốn làm một việc gì đó nhẹ nhàng/thư giãn hơn.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `${hl("Travelling long distances makes you extremely tired")}, and although it's still a great pleasure for me, I want to do something more relaxing now.`
+                },
+                {
+                id: 33, text: "What is John's next television series probably about?", options: { A: "farms in Scotland.", B: "old ruins in Wales.", C: "cycling tours in France.", D: "cycling tours in England." }, correct: "B", timestamp: 510,
+                translation: { question: "Loạt phim truyền hình tiếp theo của John có thể nói về điều gì?", options: { A: "các trang trại ở Scotland.", B: "những tàn tích cổ xưa ở xứ Wales.", C: "những chuyến đạp xe ở Pháp.", D: "những chuyến đạp xe ở Anh." } },
+                explanations: { 
+                    A: "Sai.", 
+                    B: "Đúng. Ông ấy đề cập đến một địa điểm làm phim tiềm năng ở Wales, nơi họ tìm thấy tàn tích của một thị trấn 2.000 năm tuổi (old ruins).", 
+                    C: "Sai. Trang trại ở Pháp và Đạp xe ở Hà Lan.", 
+                    D: "Sai." 
+                },
+                transcriptSnippet: `There's some really interesting work going on ${hl("in Wales")}, where they've just found ${hl("what remains of a 2,000-year-old town.")}`
+                },
+                {
+                id: 34, text: "Why does John want to spend more time near home?", options: { A: "His family might need him.", B: "His wife misses him.", C: "He has very young children.", D: "His wife is ill." }, correct: "A", timestamp: 510,
+                translation: { question: "Tại sao John muốn dành nhiều thời gian hơn ở gần nhà?", options: { A: "Gia đình ông có thể cần ông.", B: "Vợ ông nhớ ông.", C: "Ông có con rất nhỏ.", D: "Vợ ông bị ốm." } },
+                explanations: { 
+                    A: "Đúng. Trải nghiệm vợ phải mổ cấp cứu khi ông đi vắng làm ông sợ. Dù hiện tại vợ ông ĐÃ KHỎE LẠI, nhưng ông không muốn ở quá xa nếu sự việc tương tự xảy ra (tức là khi gia đình cần ông).", 
+                    B: "Sai.", 
+                    C: "Sai. Ông không lo khi con còn nhỏ, nhưng lo khi vợ đi cấp cứu.", 
+                    D: "Sai. Vợ ông hiện tại không bị ốm (everything was fine in the end)." 
+                },
+                transcriptSnippet: `Everything was fine in the end, but ${hl("I wouldn't want to be so far away if anything like that happened to my family again.")}`
+                },
+                {
+                id: 35, text: "What has John written so far?", options: { A: "newspaper articles.", B: "travel books.", C: "poems.", D: "fictions." }, correct: "B", timestamp: 510,
+                translation: { question: "John đã viết được những gì cho đến nay?", options: { A: "các bài báo.", B: "sách du lịch.", C: "thơ.", D: "sách hư cấu." } },
+                explanations: { 
+                    A: "Sai. Báo chí là thứ ông ấy CÓ THỂ sẽ viết trong tương lai.", 
+                    B: "Đúng. Ông ấy nói rằng cho đến nay đã viết xong 'hai cuốn sách' mô tả những nơi ông đã đến (places I've seen). Đó chính là sách du lịch.", 
+                    C: "Sai. Ông ấy không bao giờ làm thơ.", 
+                    D: "Sai. Ông ấy không bao giờ viết truyện hư cấu." 
+                },
+                transcriptSnippet: `${hl("I've done two books so far")}. I write about ${hl("places I've seen")} and my feelings about them.`
+                }
+            ]
+            }
+        ]
+        };
+
+        // --- HÀM TRỘN MẢNG ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // --- AUDIO COMPONENT ---
+        const AudioPlayer = ({ src, audioId, isReviewMode = false, timestamps = [] }) => {
+            const audioRef = useRef(null);
+            const progressBarRef = useRef(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [hasEnded, setHasEnded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            
+            // Lắng nghe sự kiện để tắt các audio khác khi có 1 audio bắt đầu phát
+            useEffect(() => {
+                const handleStopOtherAudios = (e) => {
+                    if (e.detail !== audioId && audioRef.current) {
+                        audioRef.current.pause();
+                        setIsPlaying(false);
+                    }
+                };
+                window.addEventListener('stopAllAudios', handleStopOtherAudios);
+                return () => window.removeEventListener('stopAllAudios', handleStopOtherAudios);
+            }, [audioId]);
+
+            const playAudio = () => {
+                // Bắn tín hiệu yêu cầu các AudioPlayer khác dừng lại
+                window.dispatchEvent(new CustomEvent('stopAllAudios', { detail: audioId }));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        setIsPlaying(true);
+                        setHasEnded(false);
+                        setHasError(false);
+                    }).catch(error => {
+                        console.error("Lỗi phát âm thanh:", error);
+                        setHasError(true);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const togglePlay = () => {
+                if (hasEnded && !isReviewMode) return;
+                
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (isReviewMode && hasEnded) {
+                        audioRef.current.currentTime = 0;
+                    }
+                    playAudio();
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                const current = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
+                setCurrentTime(current);
+                if (duration) {
+                    setProgress((current / duration) * 100);
+                }
+            };
+
+            const handleEnded = () => {
+                setIsPlaying(false);
+                setHasEnded(true);
+            };
+
+            const handleError = (e) => {
+                console.error("Không thể tải nguồn âm thanh.", e);
+                setHasError(true);
+            };
+
+            // Tính năng tua trên thanh Progress
+            const handleProgressClick = (e) => {
+                if (!isReviewMode) return; // Chỉ cho tua khi ở chế độ Review
+                if (hasError || !audioRef.current?.duration) return;
+                
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newPercentage = clickX / width;
+                const newTime = newPercentage * audioRef.current.duration;
+                
+                audioRef.current.currentTime = newTime;
+                setProgress(newPercentage * 100);
+                
+                // Tự động phát tiếp nếu đang pause và tua xong
+                if (!isPlaying) playAudio();
+            };
+
+            // Tính toán Timestamp nào đang active (Đang nghe tới đâu sáng tới đó)
+            let activeTimestampIndex = -1;
+            if (timestamps && timestamps.length > 0) {
+                for (let i = timestamps.length - 1; i >= 0; i--) {
+                    if (currentTime >= timestamps[i].time - 0.5) {
+                        activeTimestampIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col shadow-sm w-full">
+                    <div className="flex items-center w-full">
+                        <audio ref={audioRef} src={src} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} onError={handleError} className="hidden" />
+                        <button onClick={togglePlay} disabled={hasEnded && !isReviewMode} className={`mr-4 focus:outline-none transition-colors ${(hasEnded && !isReviewMode) ? 'text-gray-400 cursor-not-allowed' : hasError ? 'text-red-500' : 'text-blue-600 hover:text-blue-800'}`}>
+                            {isPlaying ? <PauseCircle size={40} /> : hasError ? <AlertCircle size={40} /> : <PlayCircle size={40} />}
+                        </button>
+                        <div className="flex-1">
+                            <div 
+                                ref={progressBarRef}
+                                onClick={handleProgressClick}
+                                className={`h-3 bg-gray-200 rounded-full overflow-hidden ${isReviewMode ? 'cursor-pointer hover:h-4 transition-all' : ''}`}
+                                title={isReviewMode ? "Bấm vào thanh này để tua nhanh/chậm" : ""}
+                            >
+                                <div className={`h-full transition-all duration-100 ${(hasEnded && !isReviewMode) ? 'bg-gray-400' : hasError ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                                <span className={hasError ? "text-red-500 font-bold" : ""}>
+                                    {hasError ? "Lỗi Audio." : (hasEnded && !isReviewMode) ? "Đã khóa (Chỉ nghe 1 lần)" : (hasEnded && isReviewMode) ? "Bấm Play để nghe lại" : isReviewMode ? "Bấm thanh màu xám để tua" : "Bấm Play để nghe"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {/* KHU VỰC TIMESTAMPS GỌN GÀNG NHƯ YOUTUBE CHAPTERS */}
+                    {isReviewMode && timestamps && timestamps.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs font-bold text-blue-800 mb-2">TIMESTAMPS CHỮA BÀI (Bấm để tua đến vị trí bài nghe):</p>
+                            <div className="flex flex-wrap gap-2">
+                                {timestamps.map((ts, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => {
+                                            if (hasError || !audioRef.current) return;
+                                            audioRef.current.currentTime = ts.time;
+                                            if (!isPlaying) playAudio();
+                                        }}
+                                        className={`px-2 py-1 text-xs font-bold rounded shadow-sm transition-colors ${activeTimestampIndex === idx ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'}`}
+                                    >
+                                        {ts.label} ({formatTimeStr(ts.time)})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- STAGE 1: LÀM BÀI TEST ---
+        function Stage1Test({ answers, setAnswers, onSubmit }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const handleOptionChange = (questionId, option) => {
+                setAnswers(prev => ({ ...prev, [questionId]: option }));
+            };
+
+            const answeredCount = Object.keys(answers).length;
+
+            return (
+                <div className="h-full flex flex-col relative bg-gray-100 pb-12">
+                    <div className="max-w-5xl mx-auto mt-6 px-4 w-full">
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b sticky top-16 z-30">
+                        {TEST_DATA.parts.map(part => (
+                            <button
+                            key={part.id}
+                            className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab(part.id)}
+                            >
+                            Part {part.id}
+                            </button>
+                        ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl p-4 md:p-8">
+                        {TEST_DATA.parts.map(part => (
+                            <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                            <div className="mb-6">
+                                <h2 className="text-xl font-bold mb-2">{part.title}</h2>
+                                <p className="text-gray-600 italic text-sm mb-4">{part.instructions}</p>
+                                <AudioPlayer src={part.audioSrc} audioId={part.id} />
+                            </div>
+                            
+                            <div className="space-y-8">
+                                {part.questions.map(q => {
+                                const checkedVal = answers[q.id];
+                                return (
+                                    <div key={q.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div className="flex items-start mb-4">
+                                        <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded mr-3 mt-0.5 shrink-0 text-sm">Câu {q.id}</span>
+                                        <p className="font-semibold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(q.options).map(([key, value]) => {
+                                        const checked = checkedVal === key;
+                                        return (
+                                            <label key={key} className={`flex items-start p-3 rounded-md cursor-pointer border transition-colors ${checked ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                            <input type="radio" name={`q-${q.id}`} value={key} checked={checked} onChange={() => handleOptionChange(q.id, key)} className="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                            <span className="font-bold mr-2">{key}.</span><span>{value}</span>
+                                            </label>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+
+                        <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm gap-4 border border-gray-200">
+                            <div className="text-gray-600 font-medium flex items-center">
+                                <CheckCircle size={18} className="mr-2 text-green-500" />
+                                <span>Đã chọn: <span className="font-bold">{answeredCount}/35</span> câu</span>
+                            </div>
+                            <button onClick={() => setShowConfirm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform hover:scale-105 w-full md:w-auto">
+                                Nộp Bài Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    {showConfirm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl animate-fade-in text-center">
+                            <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+                            <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn nộp bài? Hành động này không thể hoàn tác và bạn sẽ không thể thay đổi đáp án.</p>
+                            <div className="flex justify-center space-x-3">
+                            <button onClick={() => setShowConfirm(false)} className="px-5 py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Hủy</button>
+                            <button onClick={() => { setShowConfirm(false); onSubmit(); }} className="px-5 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition">Đồng ý nộp</button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- STAGE 2: KẾT QUẢ ---
+        function Stage2Result({ answers, onGoToGame }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showTranscript, setShowTranscript] = useState({});
+            const [activeTranslation, setActiveTranslation] = useState({});
+
+            const calculateScore = () => {
+                let correct = 0;
+                TEST_DATA.parts.forEach(part => {
+                part.questions.forEach(q => {
+                    if (answers[q.id] === q.correct) correct++;
+                });
+                });
+                return correct;
+            };
+
+            const correctCount = calculateScore();
+            const vstepScore = convertVstepScore(correctCount);
+
+            const toggleTranscript = (partId) => {
+                setShowTranscript(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            const toggleTranslation = (partId, label) => {
+                setActiveTranslation(prev => {
+                    const currentActive = prev[partId];
+                    if (currentActive === label) {
+                        return { ...prev, [partId]: null };
+                    }
+                    return { ...prev, [partId]: label };
+                });
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 pb-12 relative">
+                    <div className="max-w-5xl mx-auto mt-6 px-4">
+                        
+                        {/* Khu vực thông báo kết quả và nút chuyển qua Minigame */}
+                        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 shadow-md text-center flex flex-col items-center">
+                            <Award className="text-yellow-500 mb-2" size={40} />
+                            <h2 className="text-2xl font-bold text-green-700 mb-2">Đã Nộp Bài!</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 w-full max-w-md">
+                                <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-green-200 flex-1">
+                                    <p className="text-sm text-gray-500 uppercase font-bold mb-1">Số câu đúng</p>
+                                    <p className="text-3xl font-bold text-gray-800">{correctCount}<span className="text-lg text-gray-500 font-normal">/35</span></p>
+                                </div>
+                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border-2 border-blue-400 relative overflow-hidden flex-1">
+                                    <div className="absolute top-0 left-0 right-0 bg-blue-500 h-1"></div>
+                                    <p className="text-sm text-blue-600 uppercase font-bold mb-1">Điểm VSTEP</p>
+                                    <p className="text-4xl font-black text-blue-700">{vstepScore.toFixed(1)}<span className="text-xl text-gray-400 font-bold">/10</span></p>
+                                </div>
+                            </div>
+                            
+                            {/* Banner Mời chơi Minigame */}
+                            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow-sm mt-4 w-full max-w-2xl">
+                                <h3 className="text-lg font-bold text-purple-700 flex items-center justify-center mb-2">
+                                    <Gamepad2 size={24} className="mr-2"/> Bạn muốn nhớ từ vựng lâu hơn?
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">Hệ thống đã chắt lọc ra 10 từ vựng quan trọng nhất xuất hiện trong đề thi này. Chơi Minigame để khắc phục những từ bạn sai nhé!</p>
+                                <button onClick={onGoToGame} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:scale-105">
+                                    Học & Chơi Minigame Từ Vựng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b">
+                            {TEST_DATA.parts.map(part => (
+                                <button key={part.id} className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} onClick={() => setActiveTab(part.id)}>
+                                Part {part.id}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl pb-8 relative">
+                            {TEST_DATA.parts.map(part => (
+                                <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                                    
+                                    {/* THẺ AUDIO CỐ ĐỊNH PHÍA TRÊN */}
+                                    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-200 p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center"><Headphones size={18} className="mr-2"/> {part.title} Audio - Cho phép tua</h3>
+                                        <AudioPlayer 
+                                            src={part.audioSrc} 
+                                            audioId={`review-${part.id}`} 
+                                            isReviewMode={true} 
+                                            timestamps={part.audioTimestamps}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-8 p-4 md:p-8 mt-4">
+                                        {part.questions.map(q => {
+                                        const userAns = answers[q.id];
+                                        const isCorrect = userAns === q.correct;
+                                        const isUnanswered = !userAns;
+                                        
+                                        return (
+                                            <div key={q.id} className={`p-4 md:p-5 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50/30' : isUnanswered ? 'border-yellow-500 bg-yellow-50/30' : 'border-red-500 bg-red-50/30'}`}>
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="flex items-start">
+                                                        <span className={`px-2 py-1 rounded text-white font-bold text-xs md:text-sm mr-3 shrink-0 ${isCorrect ? 'bg-green-500' : isUnanswered ? 'bg-yellow-500' : 'bg-red-500'}`}>Câu {q.id}</span>
+                                                        <p className="font-bold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                                    </div>
+                                                    {isCorrect ? <CheckCircle className="text-green-500 shrink-0 ml-2" size={24}/> : <XCircle className="text-red-500 shrink-0 ml-2" size={24}/>}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 md:ml-12">
+                                                    {Object.entries(q.options).map(([key, value]) => {
+                                                    const isSelected = userAns === key;
+                                                    const isActualCorrect = key === q.correct;
+                                                    
+                                                    let btnClass = "text-left px-3 py-2 rounded-md border flex items-center ";
+                                                    if (isActualCorrect) btnClass += "border-green-500 bg-green-100 text-green-800 font-bold shadow-sm";
+                                                    else if (isSelected && !isActualCorrect) btnClass += "border-red-500 bg-red-100 text-red-800";
+                                                    else btnClass += "border-gray-200 bg-white opacity-60";
+
+                                                    return (
+                                                        <div key={key} className={btnClass}>
+                                                            <span className="font-bold mr-2">{key}.</span> <span>{value}</span>
+                                                            {isActualCorrect && <CheckCircle size={18} className="ml-auto text-green-600" />}
+                                                            {isSelected && !isActualCorrect && <XCircle size={18} className="ml-auto text-red-600" />}
+                                                        </div>
+                                                    );
+                                                    })}
+                                                </div>
+
+                                                <div className="md:ml-12 bg-white p-4 rounded-lg border shadow-sm mt-4">
+                                                    <h4 className="font-bold mb-2 text-blue-800 border-b pb-2 flex items-center"><BookOpen size={18} className="mr-2"/> Giải thích chi tiết</h4>
+                                                    
+                                                    <div className="mb-4 text-sm text-gray-700">
+                                                        <p className="mb-1 font-semibold italic text-gray-800">Dịch câu hỏi: {q.translation.question}</p>
+                                                        <ul className="mb-3 pl-4 list-disc text-gray-700 mt-2">
+                                                            {Object.entries(q.translation.options).map(([k, v]) => (<li key={k}><strong>{k}.</strong> {v}</li>))}
+                                                        </ul>
+                                                    </div>
+
+                                                    {/* Phần giải thích logic sai/đúng */}
+                                                    <div className="space-y-3 text-sm">
+                                                        {isUnanswered && (
+                                                            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+                                                                <strong>Bạn đã bỏ trống câu này!</strong> Hãy luôn thử dự đoán đáp án dù không nghe rõ nhé.
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {userAns && !isCorrect && (
+                                                            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                                                                <span className="font-bold uppercase mb-1 block">Tại sao bạn sai?</span>
+                                                                <strong>Bạn chọn {userAns}:</strong> {q.explanations[userAns]}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="p-3 bg-green-50 border border-green-200 rounded text-green-800">
+                                                            <span className="font-bold uppercase mb-1 block">Phân tích đáp án đúng</span>
+                                                            <strong>Đáp án {q.correct}:</strong> {q.explanations[q.correct]}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Trích đoạn Transcript Bôi đỏ */}
+                                                    <div className="mt-4 pt-4 border-t border-dashed">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center"><FileText size={14} className="mr-1"/> Đoạn Audio xuất hiện đáp án:</h5>
+                                                        </div>
+                                                        <p className="bg-gray-50 p-3 rounded text-gray-800 italic leading-relaxed" dangerouslySetInnerHTML={{ __html: q.transcriptSnippet }}></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+
+                                    {/* NÚT ẨN/HIỆN TRANSCRIPT ĐẦY ĐỦ */}
+                                    <div className="mt-8 border-t-2 border-dashed pt-6 mb-4 px-4 md:px-8">
+                                        <button onClick={() => toggleTranscript(part.id)} className="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg transition-colors">
+                                            <FileText className="mr-2" size={20} />
+                                            {showTranscript[part.id] ? "Ẩn Transcript (Nội dung bài nghe đầy đủ)" : "Hiện Transcript (Nội dung bài nghe đầy đủ)"}
+                                        </button>
+
+                                        {/* PHẦN DỊCH TIẾNG VIỆT */}
+                                        {showTranscript[part.id] && part.transcriptTranslations && (
+                                            <div className="mt-4 p-4 bg-white border border-blue-200 rounded-lg shadow-sm">
+                                                <p className="text-sm font-bold text-blue-800 mb-3 uppercase flex items-center">
+                                                    <BookOpen size={16} className="mr-2" />
+                                                    Xem bản dịch tiếng Việt
+                                                </p>
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    {part.transcriptTranslations.map((trans, idx) => (
+                                                        <button 
+                                                            key={idx}
+                                                            onClick={() => toggleTranslation(part.id, trans.label)}
+                                                            className={`px-3 py-1.5 text-sm font-bold rounded shadow-sm transition-colors ${activeTranslation[part.id] === trans.label ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'}`}
+                                                        >
+                                                            Dịch {trans.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                
+                                                {/* Khu vực hiển thị nội dung dịch */}
+                                                {activeTranslation[part.id] && (
+                                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line animate-fade-in border-l-4 border-l-blue-500">
+                                                        <h5 className="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-2">
+                                                            {activeTranslation[part.id]} (Tiếng Việt):
+                                                        </h5>
+                                                        {part.transcriptTranslations.find(t => t.label === activeTranslation[part.id])?.text}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {showTranscript[part.id] && (
+                                            <div className="mt-4 p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {part.transcript}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- STAGE 3: MINIGAME TỪ VỰNG ---
+        function Stage3VocabGame({ onBackToResult }) {
+            const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
+            const [playList, setPlayList] = useState(VOCAB_DATA); // List từ đang chơi
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [options, setOptions] = useState([]);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [score, setScore] = useState(0);
+            const [playingWord, setPlayingWord] = useState(null);
+            
+            // Array lưu các từ làm sai
+            const [wrongVocabs, setWrongVocabs] = useState([]);
+
+            const loadQuestion = () => {
+                if (currentIndex >= playList.length) {
+                    setGamePhase('finish');
+                    return;
+                }
+                const currentVocab = playList[currentIndex];
+                
+                // Lấy 3 nghĩa sai ngẫu nhiên từ TỔNG DATA gốc để lúc nào cũng có đủ 3 options gây nhiễu
+                const incorrectOptions = VOCAB_DATA
+                    .filter(v => v.word !== currentVocab.word)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(v => v.meaning);
+                
+                const allOptions = shuffleArray([currentVocab.meaning, ...incorrectOptions]);
+                setOptions(allOptions);
+                setSelectedOption(null);
+                
+                // Trì hoãn một chút để UI render xong rồi mới phát âm thanh
+                setTimeout(() => playWordAudio(currentVocab.word), 500);
+            };
+
+            useEffect(() => {
+                if (gamePhase === 'play') {
+                    loadQuestion();
+                }
+            }, [currentIndex, gamePhase, playList]);
+
+            const playWordAudio = (word) => {
+                setPlayingWord(word);
+                const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(err => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(word);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        utterance.onend = () => setPlayingWord(null);
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        setPlayingWord(null);
+                    }
+                });
+                audio.onended = () => setPlayingWord(null);
+            };
+
+            const handleSelect = (opt) => {
+                if (selectedOption !== null) return; 
+                setSelectedOption(opt);
+                
+                const currentVocab = playList[currentIndex];
+                if (opt === currentVocab.meaning) {
+                    setScore(prev => prev + 1);
+                } else {
+                    // Nếu chọn sai, thêm từ đó vào danh sách wrongVocabs (không add trùng)
+                    if (!wrongVocabs.find(w => w.word === currentVocab.word)) {
+                        setWrongVocabs(prev => [...prev, currentVocab]);
+                    }
+                }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 >= playList.length) {
+                    setGamePhase('finish');
+                } else {
+                    setCurrentIndex(prev => prev + 1);
+                }
+            };
+
+            // Chơi lại toàn bộ 10 từ
+            const handleRestartAll = () => {
+                setPlayList(VOCAB_DATA);
+                setWrongVocabs([]); // reset sai
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play'); 
+            };
+
+            // Chỉ chơi lại những câu đã sai
+            const handleReplayWrong = () => {
+                setPlayList(wrongVocabs);
+                setWrongVocabs([]); // reset để bắt lỗi lại cho lượt đánh này
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play');
+            };
+
+            if (gamePhase === 'learn') {
+                return (
+                    <div className="max-w-4xl mx-auto mt-8 px-4 pb-12">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                            <div className="bg-blue-600 p-6 text-white text-center">
+                                <h2 className="text-2xl font-bold flex items-center justify-center">
+                                    <BookOpen className="mr-2" />
+                                    DANH SÁCH TỪ VỰNG QUAN TRỌNG
+                                </h2>
+                                <p className="mt-2 opacity-90">Hãy nghe và ghi nhớ các từ vựng này trước khi bước vào thử thách nhé!</p>
+                            </div>
+                            <div className="p-6 md:p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {VOCAB_DATA.map((item, idx) => (
+                                        <div key={idx} className={`flex items-center p-4 rounded-xl border transition-colors ${playingWord === item.word ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-blue-50'}`}>
+                                            <button 
+                                                onClick={() => playWordAudio(item.word)}
+                                                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 transition-all ${playingWord === item.word ? 'bg-blue-500 text-white shadow-md scale-110' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                            >
+                                                <Volume2 size={24} />
+                                            </button>
+                                            <div>
+                                                <p className="font-bold text-lg text-gray-800">{item.word}</p>
+                                                <p className="text-gray-600 text-sm">{item.meaning}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-10 text-center">
+                                    <button 
+                                        onClick={() => {
+                                            setPlayList(VOCAB_DATA);
+                                            setCurrentIndex(0);
+                                            setScore(0);
+                                            setWrongVocabs([]);
+                                            setGamePhase('play');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:scale-105 inline-flex items-center text-lg"
+                                    >
+                                        <Gamepad2 className="mr-2" size={28} /> Đã Nhớ! Bắt Đầu Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gamePhase === 'finish') {
+                return (
+                    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-8 border-purple-500">
+                            <Award size={64} className="text-yellow-400 mx-auto mb-4" />
+                            <h2 className="text-3xl font-black text-gray-800 mb-2">Hoàn Thành!</h2>
+                            <p className="text-gray-600 mb-6">Bạn đã đối mặt với {playList.length} thử thách từ vựng.</p>
+                            
+                            <div className="text-5xl font-black text-purple-600 mb-8">
+                                {score} <span className="text-2xl text-gray-400">/ {playList.length}</span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {wrongVocabs.length > 0 && (
+                                    <button 
+                                        onClick={handleReplayWrong}
+                                        className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition flex items-center justify-center animate-pulse shadow-md"
+                                    >
+                                        <RefreshCw size={20} className="mr-2" /> Chơi Lại {wrongVocabs.length} Câu Sai
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleRestartAll}
+                                    className="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <RefreshCw size={20} className="mr-2" /> Chơi Lại Toàn Bộ Từ Đầu
+                                </button>
+                                <button 
+                                    onClick={() => setGamePhase('learn')}
+                                    className="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <BookOpen size={20} className="mr-2" /> Xem Lại Từ Vựng
+                                </button>
+                                <button 
+                                    onClick={onBackToResult}
+                                    className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <FileText size={20} className="mr-2" /> Trở Về Bài Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentVocab = playList[currentIndex];
+            if (!currentVocab) return null; // Safety check
+
+            return (
+                <div className="max-w-3xl mx-auto mt-8 px-4 pb-12">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                        {/* Header của Minigame */}
+                        <div className="bg-purple-600 p-4 text-white flex justify-between items-center">
+                            <div className="font-bold flex items-center">
+                                <Gamepad2 className="mr-2" />
+                                {playList.length < 10 ? 'LUYỆN TẬP CÂU SAI' : 'THỬ THÁCH NGHE TỪ VỰNG'}
+                            </div>
+                            <div className="bg-purple-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+                                Câu {currentIndex + 1} / {playList.length}
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-10 text-center">
+                            <p className="text-gray-600 mb-6 font-medium">Lắng nghe kỹ và chọn nghĩa tiếng Việt chính xác nhất cho cụm từ bạn vừa nghe thấy:</p>
+                            
+                            {/* Nút phát loa */}
+                            <button 
+                                onClick={() => playWordAudio(currentVocab.word)}
+                                className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-lg mb-8 ${playingWord === currentVocab.word ? 'bg-purple-200 text-purple-600 scale-95 ring-4 ring-purple-300' : 'bg-purple-100 text-purple-500 hover:bg-purple-200 hover:scale-105'}`}
+                            >
+                                <Volume2 size={48} />
+                            </button>
+
+                            {/* Khu vực hiển thị từ tiếng Anh (chỉ hiện sau khi đã chọn đáp án) */}
+                            <div className="h-12 mb-6">
+                                {selectedOption !== null && (
+                                    <div className="animate-fade-in inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 px-6 py-2 rounded-xl text-xl font-bold tracking-wide shadow-sm">
+                                        {currentVocab.word}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Các lựa chọn đáp án */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {options.map((opt, idx) => {
+                                    let btnClass = "p-4 rounded-xl border-2 font-bold text-left transition-all ";
+                                    
+                                    if (selectedOption === null) {
+                                        btnClass += "border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50";
+                                    } else {
+                                        if (opt === currentVocab.meaning) {
+                                            btnClass += "border-green-500 bg-green-100 text-green-800"; // Đáp án đúng luôn hiện xanh
+                                        } else if (opt === selectedOption && selectedOption !== currentVocab.meaning) {
+                                            btnClass += "border-red-500 bg-red-100 text-red-800"; // Bấm sai thì hiện đỏ
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50"; // Các ô khác mờ đi
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => handleSelect(opt)}
+                                            className={btnClass}
+                                            disabled={selectedOption !== null}
+                                        >
+                                            {opt}
+                                            {selectedOption !== null && opt === currentVocab.meaning && <CheckCircle className="inline float-right text-green-600" size={20} />}
+                                            {selectedOption !== null && opt === selectedOption && selectedOption !== currentVocab.meaning && <XCircle className="inline float-right text-red-600" size={20} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Nút Next */}
+                            <div className="mt-8 h-12">
+                                {selectedOption !== null && (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-full shadow-md transition-transform hover:scale-105 animate-fade-in"
+                                    >
+                                        Câu Tiếp Theo &rarr;
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            const [stage, setStage] = useState(1); // 1: Test, 2: Result, 3: Vocab Game
+            const [answers, setAnswers] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(TEST_DATA.duration);
+
+            useEffect(() => {
+                if (isSubmitted) return;
+                if (timeLeft <= 0) {
+                    setIsSubmitted(true);
+                    setStage(2);
+                    return;
+                }
+                const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, isSubmitted]);
+
+            const handleSubmit = () => {
+                setIsSubmitted(true);
+                setStage(2);
+                window.scrollTo(0, 0);
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+                    {/* Header cố định */}
+                    <header className="bg-white shadow-md sticky top-0 z-50 overflow-x-auto">
+                        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-row justify-between items-center gap-4 min-w-[700px]">
+                            {/* Tiêu đề bên trái */}
+                            <div className="font-black text-xl md:text-2xl text-blue-800 uppercase tracking-wide whitespace-nowrap flex-1 text-left">
+                                VSTEP LISTENING TEST 04
+                            </div>
+                            
+                            {/* Đồng hồ ở giữa */}
+                            <div className="flex-1 flex justify-center">
+                                <div className={`flex items-center space-x-2 font-mono text-xl px-4 py-1.5 rounded-md font-bold whitespace-nowrap ${timeLeft < 300 && !isSubmitted ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
+                                    <Clock size={20} />
+                                    <span>{formatTime(timeLeft)}</span>
+                                </div>
+                            </div>
+
+                            {/* Navigation Tabs ở rìa phải */}
+                            <div className="flex-1 flex justify-end">
+                                <div className="flex bg-gray-100 p-1 rounded-lg whitespace-nowrap">
+                                    <button 
+                                        onClick={() => setStage(1)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 1 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'}`}
+                                    >
+                                        Làm Bài
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(2)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 2 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        Kết Quả
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(3)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors flex items-center ${stage === 3 ? 'bg-purple-500 text-white shadow-sm' : 'text-purple-600 hover:bg-purple-100'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        <Gamepad2 size={16} className="mr-1" /> Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="h-auto min-h-[calc(100vh-64px)] pb-10">
+                        {stage === 1 && <Stage1Test answers={answers} setAnswers={setAnswers} onSubmit={handleSubmit} />}
+                        {stage === 2 && <Stage2Result answers={answers} onGoToGame={() => setStage(3)} />}
+                        {stage === 3 && <Stage3VocabGame onBackToResult={() => setStage(2)} />}
+                    </main>
+
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .animate-fade-in {
+                            animation: fadeIn 0.3s ease-out forwards;
+                        }
+                    `}} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

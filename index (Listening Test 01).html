@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSTEP Listening Mock Test 01</title>
+    
+    <!-- Tải React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Tải Babel để chạy code JSX ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+    <!-- Tải Tailwind CSS để dựng giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Clock = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>);
+        const CheckCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+        const XCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>);
+        const PlayCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>);
+        const PauseCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>);
+        const FileText = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+        const AlertCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+        const Headphones = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>);
+        const Award = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>);
+        const BookOpen = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>);
+        const Volume2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>);
+        const RefreshCw = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>);
+        const Gamepad2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>);
+
+        // --- HÀM ĐỊNH DẠNG THỜI GIAN ---
+        const formatTimeStr = (seconds) => {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        };
+
+        // --- HÀM QUY ĐỔI ĐIỂM VSTEP LISTENING (Thang 10) ---
+        const convertVstepScore = (correctCount) => {
+            if (correctCount <= 1) return 0.0;
+            if (correctCount === 2) return 0.5;
+            if (correctCount === 3) return 1.0;
+            if (correctCount === 4) return 1.5;
+            if (correctCount <= 6) return 2.0;
+            if (correctCount === 7) return 2.5;
+            if (correctCount <= 9) return 3.0;
+            if (correctCount <= 11) return 3.5;
+            if (correctCount <= 13) return 4.0;
+            if (correctCount <= 15) return 4.5;
+            if (correctCount <= 17) return 5.0;
+            if (correctCount <= 19) return 5.5;
+            if (correctCount <= 21) return 6.0;
+            if (correctCount === 22) return 6.5;
+            if (correctCount <= 24) return 7.0;
+            if (correctCount === 25) return 7.5;
+            if (correctCount <= 27) return 8.0;
+            if (correctCount <= 29) return 8.5;
+            if (correctCount <= 31) return 9.0;
+            if (correctCount <= 33) return 9.5;
+            if (correctCount <= 35) return 10.0;
+            return 0.0;
+        };
+
+        // --- DATA TỪ VỰNG QUAN TRỌNG ĐÃ CHỌN LỌC (TEST 01) ---
+        const VOCAB_DATA = [
+            { word: "long-lasting", meaning: "bền bỉ, kéo dài lâu" },
+            { word: "stay current with", meaning: "cập nhật tình hình" },
+            { word: "supervisor", meaning: "người giám sát, quản lý" },
+            { word: "make a booking", meaning: "đặt chỗ (trước)" },
+            { word: "accommodation", meaning: "chỗ ở, nơi lưu trú" },
+            { word: "attendance", meaning: "sự có mặt, sự tham dự" },
+            { word: "lecturer", meaning: "giảng viên đại học" },
+            { word: "constant supply", meaning: "nguồn cung cấp liên tục" },
+            { word: "modification", meaning: "sự sửa đổi, điều chỉnh" },
+            { word: "emission", meaning: "sự phát thải (khí)" }
+        ];
+
+        // --- DATA CỦA BÀI THI 01 KÈM GIẢI THÍCH CHI TIẾT VÀ TIMESTAMPS ---
+        const hl = (text) => `<span class="text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1">${text}</span>`;
+        
+        const TEST_DATA = {
+        duration: 47 * 60,
+        parts: [
+            {
+            id: 1,
+            title: "PART 1: Questions 1-8",
+            instructions: "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
+            audioSrc: "https://files.catbox.moe/egofme.mp3",
+            audioTimestamps: [
+                { label: "Bài 1", time: 175 },
+                { label: "Bài 2", time: 221 },
+                { label: "Bài 3", time: 278 },
+                { label: "Bài 4", time: 340 },
+                { label: "Bài 5", time: 420 },
+                { label: "Bài 6", time: 478 },
+                { label: "Bài 7", time: 496 },
+                { label: "Bài 8", time: 521 }
+            ],
+            transcript: `1. Bruin Design announces a new line of products for the discriminating traveler. All are beautifully designed, long-lasting, and ultra-lightweight. These include handsome briefcases, travel alarm clocks, electric travel irons, and powerful portable shortwave radios for the world traveller. Bruin Design products are available at fine stores throughout Europe, North America, and Asia.
+
+2. Everyone knows that by the time you read something in a monthly or weekly business magazine, it is already old news. International business situations change from day to day. Now, Business Day, the only major daily business magazine, helps you stay current with the unfolding world of business every day, Monday through Friday. Today, we will send you our new international restaurant guide at no additional charge...
+
+3. This is Don Beeson of Beeson and Sitwell Architectural Associates. It's now 2:30 p.m. I will be out of the office for the rest of the afternoon... If you have an urgent problem, you can call my partner, Robin Sitwell, at 320-1631.
+
+4. Welcome to radio station WKYO's show, Garden Spot. This is your host, Peter Brooks. This time of year, is a good time to talk about harvesting your garden vegetables... And a little later, Professor Gail Mueller, an expert on plant parasites, will be dropping by the studio to chat with us. But first, this commercial message from our sponsor, the Colony Seed Company.
+
+5. And now, ladies and gentlemen, I'd like to present the award for employee of the month to Elizabeth Bryce... She not only received top evaluations from her supervisor. She also submitted a suggestion that could save the company thousands of dollars...
+
+6. Man 1: When I got to work this morning, the security system had been turned off. 
+Man 2: Really? That's strange. 
+Man 1: That's what I thought, too.
+
+7. Man 1: It's going to be another warm day. 
+Man 2: Of course. You know, I miss living somewhere that has four seasons. 
+Man 1: Me too. I especially miss those cool, brisk autumn mornings.
+
+8. Woman: I'm sorry. Ms. Bauer is at a sales meeting. 
+Man: I see. Will it last much longer? 
+Woman: Probably not. Why don't you get yourself some coffee or tea and have a seat over there?`,
+            questions: [
+                {
+                id: 1, text: "Where would you NOT be able to purchase these products?", options: { A: "Europe.", B: "North America.", C: "Asia.", D: "South America." }, correct: "D",
+                translation: { question: "Bạn sẽ KHÔNG thể mua những sản phẩm này ở đâu?", options: { A: "Châu Âu.", B: "Bắc Mỹ.", C: "Châu Á.", D: "Nam Mỹ." } },
+                explanations: {
+                    A: "Sai. Châu Âu có được nhắc đến.",
+                    B: "Sai. Bắc Mỹ có được nhắc đến.",
+                    C: "Sai. Châu Á có được nhắc đến.",
+                    D: "Đúng. Trong đoạn thông báo chỉ liệt kê Châu Âu, Bắc Mỹ và Châu Á. Nam Mỹ hoàn toàn không được nhắc đến."
+                },
+                transcriptSnippet: `...Bruin Design products are available at fine stores throughout ${hl("Europe, North America, and Asia.")}`
+                },
+                {
+                id: 2, text: "How often is this business magazine published?", options: { A: "Once a month.", B: "Once a week.", C: "Five times a week.", D: "Seven times a week." }, correct: "C",
+                translation: { question: "Tạp chí kinh doanh này được xuất bản bao lâu một lần?", options: { A: "Mỗi tháng 1 lần.", B: "Mỗi tuần 1 lần.", C: "5 lần 1 tuần.", D: "7 lần 1 tuần." } },
+                explanations: {
+                    A: "Sai. Báo tháng là nhược điểm của các đối thủ.",
+                    B: "Sai. Báo tuần cũng là nhược điểm của các đối thủ.",
+                    C: "Đúng. Tạp chí này giúp bạn cập nhật 'every day, Monday through Friday' (mỗi ngày, từ Thứ Hai đến Thứ Sáu), tức là xuất bản 5 lần một tuần.",
+                    D: "Sai. Không xuất bản vào thứ Bảy và Chủ nhật."
+                },
+                transcriptSnippet: `...helps you stay current with the unfolding world of business ${hl("every day, Monday through Friday.")}`
+                },
+                {
+                id: 3, text: "Who is Robin Sitwell?", options: { A: "The man's assistant.", B: "The man's partner.", C: "The person recording the message.", D: "An important client." }, correct: "B",
+                translation: { question: "Robin Sitwell là ai?", options: { A: "Trợ lý của người đàn ông.", B: "Đối tác của người đàn ông.", C: "Người ghi âm tin nhắn.", D: "Một khách hàng quan trọng." } },
+                explanations: {
+                    A: "Sai. Không phải là trợ lý.",
+                    B: "Đúng. Don Beeson giới thiệu Robin Sitwell là đối tác (partner) của mình.",
+                    C: "Sai. Don Beeson mới là người ghi âm tin nhắn này.",
+                    D: "Sai. Không phải khách hàng."
+                },
+                transcriptSnippet: `If you have an urgent problem, ${hl("you can call my partner, Robin Sitwell")}, at 320-1631.`
+                },
+                {
+                id: 4, text: "What will probably be heard right after this talk?", options: { A: "A discussion of plant parasites.", B: "More information about vitamins.", C: "An advertisement for seeds.", D: "Some tips for cooking vegetables." }, correct: "C",
+                translation: { question: "Điều gì có thể sẽ được phát ngay sau bài nói này?", options: { A: "Một cuộc thảo luận về ký sinh trùng thực vật.", B: "Thêm thông tin về vitamin.", C: "Một quảng cáo hạt giống.", D: "Vài mẹo nấu rau củ." } },
+                explanations: {
+                    A: "Sai. Cuộc thảo luận với giáo sư sẽ diễn ra 'a little later' (một lát sau), không phải ngay sau đây.",
+                    B: "Sai. Không nhắc đến vitamin.",
+                    C: "Đúng. Đoạn quảng cáo (commercial message) về công ty hạt giống (Colony Seed Company) sẽ được phát trước khi vào chương trình chính (But first).",
+                    D: "Sai. Không nhắc đến việc nấu ăn."
+                },
+                transcriptSnippet: `And a little later, Professor Gail Mueller... will be dropping by the studio to chat with us. ${hl("But first, this commercial message from our sponsor, the Colony Seed Company.")}`
+                },
+                {
+                id: 5, text: "What can be inferred from the talk?", options: { A: "She is a senior employee in her company.", B: "She will receive a car for the month award.", C: "She will get a promotion.", D: "Her evaluations were very good." }, correct: "D",
+                translation: { question: "Có thể suy luận điều gì từ bài nói?", options: { A: "Cô ấy là nhân viên lâu năm.", B: "Cô ấy sẽ nhận ô tô cho giải thưởng.", C: "Cô ấy sẽ được thăng chức.", D: "Đánh giá của cô ấy rất tốt." } },
+                explanations: {
+                    A: "Sai. Bài không nói cô ấy là nhân viên thâm niên.",
+                    B: "Sai. Phần thưởng không được tiết lộ là xe ô tô.",
+                    C: "Sai. Không nhắc đến việc cô ấy được thăng chức.",
+                    D: "Đúng. Đoạn văn đề cập cô ấy nhận được đánh giá cao nhất (top evaluations) từ người quản lý."
+                },
+                transcriptSnippet: `${hl("She not only received top evaluations from her supervisor.")} She also submitted a suggestion...`
+                },
+                {
+                id: 6, text: "What is known about the security system?", options: { A: "It is generally on in the morning.", B: "It is an unusual system.", C: "It was broken when the man arrived.", D: "It was recently installed." }, correct: "A",
+                translation: { question: "Điều gì được biết về hệ thống an ninh?", options: { A: "Nó thường được bật vào buổi sáng.", B: "Nó là một hệ thống bất thường.", C: "Nó bị hỏng khi người đàn ông đến.", D: "Nó mới được lắp đặt." } },
+                explanations: {
+                    A: "Đúng. Hai người đàn ông đều thấy việc hệ thống bị tắt vào buổi sáng là 'lạ' (strange), chứng tỏ thường ngày nó luôn được bật.",
+                    B: "Sai. Từ 'strange' chỉ việc hệ thống bị tắt, không phải bản thân hệ thống này là kỳ lạ.",
+                    C: "Sai. Hệ thống chỉ bị tắt chứ không phải bị hỏng (broken).",
+                    D: "Sai. Không nhắc đến việc mới lắp đặt."
+                },
+                transcriptSnippet: `Man 1: When I got to work this morning, ${hl("the security system had been turned off.")}<br/>Man 2: Really? ${hl("That's strange.")}<br/>Man 1: ${hl("That's what I thought, too.")}`
+                },
+                {
+                id: 7, text: "What can be inferred about the climate where they live now?", options: { A: "It has four seasons.", B: "It is always warm.", C: "It is usually cool and brisk.", D: "It is nicest in the autumn." }, correct: "B",
+                translation: { question: "Có thể suy luận gì về khí hậu nơi họ đang sống?", options: { A: "Có 4 mùa.", B: "Luôn luôn ấm áp.", C: "Thường mát mẻ và trong lành.", D: "Đẹp nhất vào mùa thu." } },
+                explanations: {
+                    A: "Sai. Hai người đang 'nhớ' cảm giác có 4 mùa, tức là nơi họ đang ở không có 4 mùa.",
+                    B: "Đúng. 'Lại một ngày ấm áp nữa' cộng với việc họ nhớ mùa thu mát mẻ chứng tỏ nơi đây quanh năm luôn ấm nóng.",
+                    C: "Sai. Họ nhớ khí hậu mát mẻ vì hiện tại không có.",
+                    D: "Sai. Tương tự trên."
+                },
+                transcriptSnippet: `Man 1: ${hl("It's going to be another warm day.")}<br/>Man 2: Of course. You know, ${hl("I miss living somewhere that has four seasons.")}`
+                },
+                {
+                id: 8, text: "What does she suggest the man do?", options: { A: "Go to a nearby café.", B: "Wait for Ms. Bauer.", C: "Go to the meeting.", D: "Come back another day." }, correct: "B",
+                translation: { question: "Người phụ nữ đề nghị người đàn ông làm gì?", options: { A: "Đến quán cafe gần đó.", B: "Chờ bà Bauer.", C: "Đi họp.", D: "Quay lại vào ngày khác." } },
+                explanations: {
+                    A: "Sai. Cô ấy bảo anh ta tự lấy cafe ở ngay đó, không bảo anh ta ra ngoài quán.",
+                    B: "Đúng. Cô ấy mời anh ta lấy đồ uống và tìm chỗ ngồi đợi (have a seat) vì cuộc họp sắp xong.",
+                    C: "Sai. Anh ta không được mời vào dự họp.",
+                    D: "Sai. Không cần phải quay lại ngày khác."
+                },
+                transcriptSnippet: `Woman: Probably not. ${hl("Why don't you get yourself some coffee or tea and have a seat over there?")}`
+                }
+            ]
+            },
+            {
+            id: 2,
+            title: "PART 2: Questions 9-20",
+            instructions: "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
+            audioSrc: "https://files.catbox.moe/ok0bib.mp3",
+            audioTimestamps: [
+                { label: "Hội thoại 1", time: 80 },
+                { label: "Hội thoại 2", time: 264 },
+                { label: "Hội thoại 3", time: 438 }
+            ],
+            transcript: `[Conversation 1: Whale Watching Tour]
+RECEPTIONIST: Oh, that's our Whale Watch Experience... It's two days that includes four hours' travel time each way from here.
+CUSTOMER: So is that by coach?
+RECEPTIONIST: Actually, it's by minibus... we only take up to fifteen people on this tour.
+CUSTOMER: And when is the next one going?
+RECEPTIONIST: Um, there's one in three weeks' time which is April the 18th...
+
+[Conversation 2: Tour details]
+RECEPTIONIST: ...But there are table tennis tables downstairs, and they're part of the accommodation package.
+CUSTOMER: So how much is the basic tour price?
+RECEPTIONIST: ...oh, it's actually $280.
+RECEPTIONIST: Can I just mention that we require all bookings to be made at least fourteen days before you travel...
+RECEPTIONIST: OK, it's three nine seven, four five, T. That's T for tango.
+
+[Conversation 3: Student and Administrator]
+M: I was looking for the Economics office... 
+F: Yes, this is the School of Economics.
+F: Ah, well, the Economics I course is a double unit, so there are two lectures a week and one tutorial.
+F: We expect at least 90% attendance at this university, you know.
+F: You'll have to talk to the lecturer on the course. Dr. Roberts is his name.`,
+            questions: [
+                {
+                id: 9, text: "How long does the tour 'Whale Watching' last?", options: { A: "One day.", B: "Two days.", C: "Three days.", D: "Four days." }, correct: "B",
+                translation: { question: "Tour 'Ngắm cá voi' kéo dài bao lâu?", options: { A: "1 ngày.", B: "2 ngày.", C: "3 ngày.", D: "4 ngày." } },
+                explanations: {
+                    A: "Sai. Thời gian dài hơn 1 ngày.",
+                    B: "Đúng. Nhân viên nói rõ tour kéo dài 2 ngày (two days).",
+                    C: "Sai. Không phải 3 ngày.",
+                    D: "Sai. Có nhắc đến 4 tiếng (four hours) đi đường chứ không phải 4 ngày."
+                },
+                transcriptSnippet: `RECEPTIONIST: Oh, that's our Whale Watch Experience... ${hl("It's two days")} that includes four hours' travel time each way from here.`
+                },
+                {
+                id: 10, text: "How are they going to travel?", options: { A: "By coach.", B: "By boat.", C: "By minibus.", D: "By train." }, correct: "C",
+                translation: { question: "Họ sẽ di chuyển bằng phương tiện gì?", options: { A: "Xe khách (coach).", B: "Tàu thuyền.", C: "Xe buýt nhỏ (minibus).", D: "Tàu hỏa." } },
+                explanations: {
+                    A: "Sai. Khách hàng hỏi có phải đi bằng coach không nhưng bị phủ nhận.",
+                    B: "Sai. Không nhắc đến thuyền làm phương tiện di chuyển chính.",
+                    C: "Đúng. Lễ tân xác nhận tour di chuyển bằng xe buýt nhỏ (minibus).",
+                    D: "Sai. Không nhắc đến tàu hỏa."
+                },
+                transcriptSnippet: `CUSTOMER: So is that by coach?<br/>RECEPTIONIST: ${hl("Actually, it's by minibus")}...`
+                },
+                {
+                id: 11, text: "What is the maximum group size on the tour?", options: { A: "12.", B: "13.", C: "14.", D: "15." }, correct: "D",
+                translation: { question: "Quy mô nhóm tối đa trong tour là bao nhiêu?", options: { A: "12 người.", B: "13 người.", C: "14 người.", D: "15 người." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Đúng. Tour chỉ nhận tối đa 15 người (up to fifteen people)."
+                },
+                transcriptSnippet: `RECEPTIONIST: ...we only take ${hl("up to fifteen people")} on this tour.`
+                },
+                {
+                id: 12, text: "When is the next tour going?", options: { A: "April 18th.", B: "April 19th.", C: "April 20th.", D: "April 21st." }, correct: "A",
+                translation: { question: "Khi nào tour tiếp theo khởi hành?", options: { A: "18 tháng 4.", B: "19 tháng 4.", C: "20 tháng 4.", D: "21 tháng 4." } },
+                explanations: {
+                    A: "Đúng. Chuyến tiếp theo là vào ngày 18 tháng 4.",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `RECEPTIONIST: Um, there's one in three weeks' time ${hl("which is April the 18th")}...`
+                },
+                {
+                id: 13, text: "What is included in the price of the tour?", options: { A: "Fishing trip.", B: "Reptile Park entry.", C: "Table tennis.", D: "Tennis." }, correct: "C",
+                translation: { question: "Dịch vụ nào đã bao gồm trong giá tour?", options: { A: "Chuyến câu cá.", B: "Vé vào công viên bò sát.", C: "Bóng bàn.", D: "Quần vợt." } },
+                explanations: {
+                    A: "Sai. Thường những cái này phải trả thêm (theo bài chi tiết đầy đủ).",
+                    B: "Sai. Tương tự câu A.",
+                    C: "Đúng. Bóng bàn (table tennis) được nhắc đến là nằm trong gói chỗ ở (part of the accommodation package).",
+                    D: "Sai. Quần vợt không được nhắc đến bao gồm."
+                },
+                transcriptSnippet: `RECEPTIONIST: ...But there are ${hl("table tennis")} tables downstairs, and they're ${hl("part of the accommodation package.")}`
+                },
+                {
+                id: 14, text: "How much is the tour?", options: { A: "$50.", B: "$120.", C: "$280.", D: "$300." }, correct: "C",
+                translation: { question: "Giá tour là bao nhiêu?", options: { A: "$50.", B: "$120.", C: "$280.", D: "$300." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Sai.",
+                    C: "Đúng. Lễ tân xác nhận giá thực tế là $280.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `RECEPTIONIST: ...oh, it's actually ${hl("$280.")}`
+                },
+                {
+                id: 15, text: "How many days must bookings be made in advance?", options: { A: "12.", B: "14.", C: "20.", D: "30." }, correct: "B",
+                translation: { question: "Phải đặt chỗ trước bao nhiêu ngày?", options: { A: "12.", B: "14.", C: "20.", D: "30." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Đúng. Tour yêu cầu đặt cọc/đặt chỗ trước ít nhất 14 ngày (fourteen days).",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `RECEPTIONIST: Can I just mention that we require all bookings to be made ${hl("at least fourteen days before you travel")}...`
+                },
+                {
+                id: 16, text: "What is the customer's reference number?", options: { A: "39745T.", B: "39754T.", C: "39475T.", D: "39574T." }, correct: "A",
+                translation: { question: "Mã tham chiếu của khách hàng là gì?", options: { A: "39745T.", B: "39754T.", C: "39475T.", D: "39574T." } },
+                explanations: {
+                    A: "Đúng. Nhân viên đọc các số lần lượt: ba, chín, bảy, bốn, năm và chữ T (three nine seven, four five, T).",
+                    B: "Sai. Bị lộn thứ tự.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `RECEPTIONIST: OK, it's ${hl("three nine seven, four five, T")}. That's T for tango.`
+                },
+                {
+                id: 17, text: "What is the student looking for?", options: { A: "The school of Fine Arts.", B: "The school of Economic History.", C: "The school of Economics.", D: "Accountancy." }, correct: "C",
+                translation: { question: "Sinh viên này đang tìm kiếm gì?", options: { A: "Trường Mỹ thuật.", B: "Trường Lịch sử Kinh tế.", C: "Trường/Khoa Kinh tế.", D: "Khoa Kế toán." } },
+                explanations: {
+                    A: "Sai. Fine Arts không được nhắc đến.",
+                    B: "Sai. Chỉ là Economics chứ không phải Economic History.",
+                    C: "Đúng. Nam sinh viên mở lời bằng việc hỏi tìm văn phòng Khoa Kinh tế.",
+                    D: "Sai. Kế toán không được nhắc đến."
+                },
+                transcriptSnippet: `M: I was looking for the ${hl("Economics office")}... <br/>F: Yes, this is the School of Economics.`
+                },
+                {
+                id: 18, text: "How many lectures are there per week?", options: { A: "One.", B: "Two.", C: "Three.", D: "Four." }, correct: "B",
+                translation: { question: "Có bao nhiêu bài giảng (lectures) mỗi tuần?", options: { A: "1.", B: "2.", C: "3.", D: "4." } },
+                explanations: {
+                    A: "Sai. Có 1 giờ tự học (tutorial), không phải bài giảng.",
+                    B: "Đúng. Có 2 bài giảng mỗi tuần (two lectures a week).",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `F: Ah, well, the Economics I course is a double unit, so there are ${hl("two lectures a week")} and one tutorial.`
+                },
+                {
+                id: 19, text: "What can be inferred about attendance at lectures?", options: { A: "Students have to attend lectures approximately 80%.", B: "Students have to attend lectures over 90%.", C: "Students are allowed to skip class for up to 20%.", D: "Students are allowed to skip class for up to 10%." }, correct: "B",
+                translation: { question: "Có thể suy luận gì về việc tham gia lớp học?", options: { A: "Tham dự khoảng 80%.", B: "Tham dự trên 90%.", C: "Được phép nghỉ tới 20%.", D: "Được phép nghỉ tới 10%." } },
+                explanations: {
+                    A: "Sai. Mức 80% là không đủ.",
+                    B: "Đúng. Giáo vụ yêu cầu tham gia ít nhất 90% (at least 90%). Trong trắc nghiệm này, lựa chọn 'over 90%' là phương án sát nghĩa nhất được công nhận.",
+                    C: "Sai. Không được nghỉ 20%.",
+                    D: "Có thể gây nhầm lẫn vì vắng 10% tức là đi học 90%. Tuy nhiên theo format đề gốc, B là đáp án được chọn vì nó khẳng định trực tiếp mức đi học bắt buộc."
+                },
+                transcriptSnippet: `F: We expect ${hl("at least 90% attendance")} at this university, you know.`
+                },
+                {
+                id: 20, text: "What should the man do if he wants to arrange time for tutorials?", options: { A: "Talk to the lecturer on the course.", B: "Talk to the program administrator.", C: "Talk to the tutor on the course.", D: "Talk to the counsellor of the course." }, correct: "A",
+                translation: { question: "Sinh viên nên làm gì nếu muốn sắp xếp thời gian cho giờ tự học (tutorial)?", options: { A: "Nói chuyện với giảng viên khóa học.", B: "Nói chuyện với quản lý chương trình.", C: "Nói chuyện với gia sư.", D: "Nói chuyện với cố vấn." } },
+                explanations: {
+                    A: "Đúng. Cô giáo vụ khuyên nam sinh nên trao đổi trực tiếp với giảng viên là tiến sĩ Roberts.",
+                    B: "Sai.",
+                    C: "Sai. Không nhắc đến việc tìm tutor.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `F: You'll have to ${hl("talk to the lecturer")} on the course. Dr. Roberts is his name.`
+                }
+            ]
+            },
+            {
+            id: 3,
+            title: "PART 3: Questions 21-35",
+            instructions: "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
+            audioSrc: "https://files.catbox.moe/v0lhag.mp3",
+            audioTimestamps: [
+                { label: "Bài giảng 1", time: 12 },
+                { label: "Bài giảng 2", time: 246 },
+                { label: "Bài giảng 3", time: 446 }
+            ],
+            transcript: `[Talk 1: Pedal Power Charity]
+I decided to join a voluntary organization and was sent to Ecuador... Then I realized having a bike meant he could get where he wanted to go without much trouble... But in order to continue operating we need to have a constant supply of bikes... The local economy has developed so much, you wouldn't recognise it... In August 2000, we simply ran out of money. We had containers of bikes ready to send but no money to pay the bills.
+
+[Talk 2: Environmental Noise]
+The only noise after dark is from the highway, and the traffic is somewhat reduced between 7:30 pm and 5:30 am. So, the people most affected by the noise will be, I expect, housewives... The weekends are still a problem of course, but the traffic is certainly reduced on Saturdays to a large extent and even more so on Sundays... The modifications I am about to outline will add about $25,000 to the price... Of course, those nearest the highway will be the worst hit, with heavy traffic noise as well as the noise from the light planes overhead.
+
+[Talk 3: Household waste recycled]
+my group has been doing a project on how household waste is recycled in Britain... The agreed targets for the UK mean that by 2008 we must reduce our carbon dioxide emissions by 12.5 percent... The production of recycled glass and paper uses much less energy... One problem here is taking out everything that shouldn't have been placed in the recycling containers. People put all sorts of things into bottle banks... Two million tons of glass is thrown away each year... But only 500,000 tons of that is collected and recycled.`,
+            questions: [
+                {
+                id: 21, text: "In 1993, Dan Pearman went to Ecuador...", options: { A: "as a tourist guide.", B: "as part of his studies.", C: "as a voluntary worker.", D: "as a bike racer." }, correct: "C",
+                translation: { question: "Năm 1993, Dan Pearman đến Ecuador...", options: { A: "với tư cách hướng dẫn viên.", B: "như một phần của việc học.", C: "như một tình nguyện viên.", D: "với tư cách tay đua xe đạp." } },
+                explanations: {
+                    A: "Sai. Không làm hướng dẫn viên.",
+                    B: "Sai. Không đi học.",
+                    C: "Đúng. Anh ấy quyết định tham gia một tổ chức tình nguyện (voluntary organization).",
+                    D: "Sai. Không nhắc đến đua xe."
+                },
+                transcriptSnippet: `I decided to join a ${hl("voluntary organization")} and was sent to Ecuador...`
+                },
+                {
+                id: 22, text: "Dan's neighbour was successful in business because he...", options: { A: "employed carpenters from the area.", B: "found it easy to reach customers.", C: "was the most skilled craftsman in the town.", D: "could do many jobs without any trouble." }, correct: "B",
+                translation: { question: "Người hàng xóm của Dan kinh doanh thành công vì...", options: { A: "thuê thợ mộc trong vùng.", B: "dễ dàng tiếp cận khách hàng.", C: "là thợ giỏi nhất.", D: "làm được nhiều việc không rắc rối." } },
+                explanations: {
+                    A: "Sai. Không nhắc đến việc thuê người.",
+                    B: "Đúng. Chiếc xe đạp giúp anh ấy di chuyển dễ dàng hơn, đồng nghĩa với việc tìm kiếm và tiếp cận được nhiều khách hàng hơn.",
+                    C: "Sai. Không có so sánh kỹ năng tay nghề.",
+                    D: "Sai. Dễ dàng di chuyển chứ không phải làm được nhiều công việc."
+                },
+                transcriptSnippet: `Then I realized having a bike meant ${hl("he could get where he wanted to go without much trouble")}...`
+                },
+                {
+                id: 23, text: "Dan says the charity relies on...", options: { A: "getting enough bicycles to send regularly.", B: "finding new areas which need the bicycles.", C: "charging for the bicycles it sends aboard.", D: "giving bicycles to the poorest people." }, correct: "A",
+                translation: { question: "Dan nói quỹ từ thiện phụ thuộc vào...", options: { A: "việc có đủ xe đạp để gửi thường xuyên.", B: "tìm khu vực mới cần xe đạp.", C: "thu phí xe đạp gửi ra nước ngoài.", D: "tặng xe cho người nghèo." } },
+                explanations: {
+                    A: "Đúng. Để hoạt động, họ cần nguồn cung cấp xe đạp liên tục và đều đặn (constant supply).",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `But in order to continue operating we need to have a ${hl("constant supply of bikes")}...`
+                },
+                {
+                id: 24, text: "What does Dan say about the town of Rivas?", options: { A: "It has received the greatest number of bikes.", B: "It has almost as many bikes as Amsterdam.", C: "Its economy has been totally transformed.", D: "It is now the first place everyone owns a bike." }, correct: "C",
+                translation: { question: "Dan nói gì về thị trấn Rivas?", options: { A: "Nhận được nhiều xe đạp nhất.", B: "Có gần bằng lượng xe của Amsterdam.", C: "Nền kinh tế của nó đã thay đổi hoàn toàn.", D: "Nơi đầu tiên mọi người đều có xe." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Sai.",
+                    C: "Đúng. Nền kinh tế phát triển đến mức không thể nhận ra, tức là đã biến đổi hoàn toàn (totally transformed).",
+                    D: "Sai."
+                },
+                transcriptSnippet: `The local economy has ${hl("developed so much, you wouldn't recognise it")}...`
+                },
+                {
+                id: 25, text: "What problem did the charity face in August 2000?", options: { A: "It did not have enough bikes to send to the poorest people.", B: "It was criticized by the British media.", C: "It had to delay sending the bikes.", D: "It couldn't afford shipping bills." }, correct: "D",
+                translation: { question: "Vấn đề của quỹ từ thiện vào tháng 8/2000 là gì?", options: { A: "Không đủ xe để gửi.", B: "Bị báo chí Anh chỉ trích.", C: "Phải hoãn gửi xe.", D: "Không đủ tiền trả cước vận chuyển." } },
+                explanations: {
+                    A: "Sai. Họ có xe (containers of bikes) nhưng không gửi được.",
+                    B: "Sai.",
+                    C: "Sai. Hệ quả của việc thiếu tiền, nhưng nguyên nhân chính là đáp án D.",
+                    D: "Đúng. Họ hết sạch tiền và không thể trả hóa đơn gửi xe."
+                },
+                transcriptSnippet: `In August 2000, we simply ${hl("ran out of money")}. We had containers of bikes ready to send but ${hl("no money to pay the bills.")}`
+                },
+                {
+                id: 26, text: "Between what times is the road traffic lightest?", options: { A: "6 a.m. and 5.30 p.m.", B: "6 p.m. and 5.30 a.m.", C: "7.30 p.m. to 5.30 a.m.", D: "7 a.m. to 5.30 p.m." }, correct: "C",
+                translation: { question: "Giao thông vắng nhất vào khoảng thời gian nào?", options: { A: "6 sáng đến 5:30 chiều.", B: "6 chiều đến 5:30 sáng.", C: "7:30 tối đến 5:30 sáng.", D: "7 sáng đến 5:30 chiều." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Sai.",
+                    C: "Đúng. Lượng giao thông giảm (reduced) từ 7:30 tối đến 5:30 sáng.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `...the traffic is somewhat reduced ${hl("between 7:30 pm and 5:30 am.")}`
+                },
+                {
+                id: 27, text: "Who will notice the noise most?", options: { A: "Housewives.", B: "Students.", C: "Workers.", D: "Passengers." }, correct: "A",
+                translation: { question: "Ai sẽ bị ảnh hưởng (chú ý) bởi tiếng ồn nhiều nhất?", options: { A: "Các bà nội trợ.", B: "Học sinh.", C: "Công nhân.", D: "Hành khách." } },
+                explanations: {
+                    A: "Đúng. Giảng viên dự đoán các bà nội trợ (housewives) sẽ bị ảnh hưởng nhất do ở nhà vào ban ngày.",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `So, the people most affected by the noise will be, I expect, ${hl("housewives")}...`
+                },
+                {
+                id: 28, text: "Which day of the week has the least traffic?", options: { A: "Saturday.", B: "Sunday.", C: "Monday.", D: "Tuesday." }, correct: "B",
+                translation: { question: "Ngày nào trong tuần ít phương tiện giao thông nhất?", options: { A: "Thứ 7.", B: "Chủ nhật.", C: "Thứ 2.", D: "Thứ 3." } },
+                explanations: {
+                    A: "Sai. Giao thông thứ 7 giảm nhưng chưa phải thấp nhất.",
+                    B: "Đúng. Giao thông Chủ Nhật còn giảm nhiều hơn cả thứ Bảy (even more so on Sundays).",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `...but the traffic is certainly reduced on Saturdays to a large extent and ${hl("even more so on Sundays")}...`
+                },
+                {
+                id: 29, text: "What will be the extra cost of modifying houses?", options: { A: "$ 25.000.", B: "$ 47.000.", C: "$ 55.000.", D: "$ 67.000." }, correct: "A",
+                translation: { question: "Chi phí phụ trội để sửa đổi các ngôi nhà là bao nhiêu?", options: { A: "$ 25,000.", B: "$ 47,000.", C: "$ 55,000.", D: "$ 67,000." } },
+                explanations: {
+                    A: "Đúng. Giảng viên đưa ra con số rõ ràng là cộng thêm khoảng 25,000 đô la.",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `The modifications I am about to outline will add about ${hl("$25,000")} to the price...`
+                },
+                {
+                id: 30, text: "What things mainly cause the highway noise?", options: { A: "Light planes.", B: "Trains.", C: "Undergrounds.", D: "Trams." }, correct: "A",
+                translation: { question: "Bên cạnh ô tô, thứ gì chủ yếu gây ra tiếng ồn cao tốc?", options: { A: "Máy bay hạng nhẹ.", B: "Tàu hỏa.", C: "Tàu điện ngầm.", D: "Xe điện." } },
+                explanations: {
+                    A: "Đúng. Có nhắc đến tiếng ồn giao thông và tiếng ồn từ máy bay hạng nhẹ bay ngang qua (light planes).",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `...with heavy traffic noise as well as the noise from the ${hl("light planes overhead.")}`
+                },
+                {
+                id: 31, text: "What is the talk mainly talking about?", options: { A: "Household waste recycling.", B: "Carbon dioxide emissions.", C: "Energy consuming.", D: "Household chores." }, correct: "A",
+                translation: { question: "Bài nói chủ yếu về vấn đề gì?", options: { A: "Tái chế rác sinh hoạt.", B: "Lượng khí thải carbon dioxide.", C: "Tiêu thụ năng lượng.", D: "Việc nhà." } },
+                explanations: {
+                    A: "Đúng. Ngay từ đầu, nhóm của người nói xác nhận họ đang thực hiện dự án về tái chế rác thải sinh hoạt (household waste recycled).",
+                    B: "Sai. Đây chỉ là một ý nhỏ được đề cập trong bài.",
+                    C: "Sai. Tương tự B.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `my group has been doing a project on how ${hl("household waste is recycled")} in Britain...`
+                },
+                {
+                id: 32, text: "By 2008, what percentage must the carbon dioxide emission be reduced compared with 1990?", options: { A: "9%.", B: "12.5%.", C: "15%.", D: "18.5%." }, correct: "B",
+                translation: { question: "Đến năm 2008, lượng phát thải carbon dioxide phải giảm bao nhiêu % so với năm 1990?", options: { A: "9%.", B: "12.5%.", C: "15%.", D: "18.5%." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Đúng. Mục tiêu đề ra cho năm 2008 là giảm 12.5%.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `The agreed targets for the UK mean that by 2008 we must reduce our carbon dioxide emissions by ${hl("12.5 percent")}...`
+                },
+                {
+                id: 33, text: "What possible solution does the speaker suggest to help lower the carbon dioxide emissions?", options: { A: "Lower the household gases through cooking.", B: "Limit the uses of chemicals in agriculture.", C: "Save energy through the production of recycled waste.", D: "Reduce the number of plastic bags in daily life." }, correct: "C",
+                translation: { question: "Diễn giả đề xuất giải pháp nào giúp giảm khí thải CO2?", options: { A: "Giảm khí gas qua nấu ăn.", B: "Hạn chế hóa chất nông nghiệp.", C: "Tiết kiệm năng lượng qua sản xuất rác tái chế.", D: "Giảm số lượng túi nilon." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Sai.",
+                    C: "Đúng. Sản xuất thủy tinh, giấy từ đồ tái chế tốn ít năng lượng hơn rất nhiều.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `The production of ${hl("recycled glass and paper uses much less energy")}...`
+                },
+                {
+                id: 34, text: "What problem is connected with the household recycling waste?", options: { A: "There is no recycled bin for every household.", B: "The household recycling waste is not collected every day.", C: "Glass designed to be utilized for cooking cannot be recycled.", D: "The household waste is not sorted in the recycled bin." }, correct: "D",
+                translation: { question: "Vấn đề nào liên quan đến rác thải tái chế sinh hoạt?", options: { A: "Không có thùng rác tái chế cho mọi nhà.", B: "Rác không được thu gom mỗi ngày.", C: "Thủy tinh dùng nấu ăn không thể tái chế.", D: "Rác thải không được phân loại đúng trong thùng tái chế." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Sai.",
+                    C: "Sai.",
+                    D: "Đúng. Vấn đề đau đầu nhất là người dân vứt lung tung mọi thứ vào thùng tái chế (không phân loại)."
+                },
+                transcriptSnippet: `One problem here is ${hl("taking out everything that shouldn't have been placed in the recycling containers.")} People put all sorts of things into bottle banks...`
+                },
+                {
+                id: 35, text: "In the UK, how many tons of glass is annually recycled?", options: { A: "400.000.", B: "500.000.", C: "600.000.", D: "700.000." }, correct: "B",
+                translation: { question: "Ở Anh, bao nhiêu tấn thủy tinh được tái chế hàng năm?", options: { A: "400,000.", B: "500,000.", C: "600,000.", D: "700,000." } },
+                explanations: {
+                    A: "Sai.",
+                    B: "Đúng. 2 triệu tấn bị ném đi nhưng chỉ có 500.000 tấn thực sự được thu gom tái chế.",
+                    C: "Sai.",
+                    D: "Sai."
+                },
+                transcriptSnippet: `Two million tons of glass is thrown away each year... But only ${hl("500,000 tons of that is collected and recycled.")}`
+                }
+            ]
+            }
+        ]
+        };
+
+        // --- HÀM TRỘN MẢNG ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // --- AUDIO COMPONENT ---
+        const AudioPlayer = ({ src, audioId, isReviewMode = false, timestamps = [] }) => {
+            const audioRef = useRef(null);
+            const progressBarRef = useRef(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [hasEnded, setHasEnded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            
+            // Lắng nghe sự kiện để tắt các audio khác khi có 1 audio bắt đầu phát
+            useEffect(() => {
+                const handleStopOtherAudios = (e) => {
+                    if (e.detail !== audioId && audioRef.current) {
+                        audioRef.current.pause();
+                        setIsPlaying(false);
+                    }
+                };
+                window.addEventListener('stopAllAudios', handleStopOtherAudios);
+                return () => window.removeEventListener('stopAllAudios', handleStopOtherAudios);
+            }, [audioId]);
+
+            const playAudio = () => {
+                // Bắn tín hiệu yêu cầu các AudioPlayer khác dừng lại
+                window.dispatchEvent(new CustomEvent('stopAllAudios', { detail: audioId }));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        setIsPlaying(true);
+                        setHasEnded(false);
+                        setHasError(false);
+                    }).catch(error => {
+                        console.error("Lỗi phát âm thanh:", error);
+                        setHasError(true);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const togglePlay = () => {
+                if (hasEnded && !isReviewMode) return;
+                
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (isReviewMode && hasEnded) {
+                        audioRef.current.currentTime = 0;
+                    }
+                    playAudio();
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                const current = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
+                setCurrentTime(current);
+                if (duration) {
+                    setProgress((current / duration) * 100);
+                }
+            };
+
+            const handleEnded = () => {
+                setIsPlaying(false);
+                setHasEnded(true);
+            };
+
+            const handleError = (e) => {
+                console.error("Không thể tải nguồn âm thanh.", e);
+                setHasError(true);
+            };
+
+            // Tính năng tua trên thanh Progress
+            const handleProgressClick = (e) => {
+                if (!isReviewMode) return; // Chỉ cho tua khi ở chế độ Review
+                if (hasError || !audioRef.current?.duration) return;
+                
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newPercentage = clickX / width;
+                const newTime = newPercentage * audioRef.current.duration;
+                
+                audioRef.current.currentTime = newTime;
+                setProgress(newPercentage * 100);
+                
+                // Tự động phát tiếp nếu đang pause và tua xong
+                if (!isPlaying) playAudio();
+            };
+
+            // Tính toán Timestamp nào đang active (Đang nghe tới đâu sáng tới đó)
+            let activeTimestampIndex = -1;
+            if (timestamps && timestamps.length > 0) {
+                for (let i = timestamps.length - 1; i >= 0; i--) {
+                    if (currentTime >= timestamps[i].time - 0.5) {
+                        activeTimestampIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col shadow-sm w-full">
+                    <div className="flex items-center w-full">
+                        <audio ref={audioRef} src={src} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} onError={handleError} className="hidden" />
+                        <button onClick={togglePlay} disabled={hasEnded && !isReviewMode} className={`mr-4 focus:outline-none transition-colors ${(hasEnded && !isReviewMode) ? 'text-gray-400 cursor-not-allowed' : hasError ? 'text-red-500' : 'text-blue-600 hover:text-blue-800'}`}>
+                            {isPlaying ? <PauseCircle size={40} /> : hasError ? <AlertCircle size={40} /> : <PlayCircle size={40} />}
+                        </button>
+                        <div className="flex-1">
+                            <div 
+                                ref={progressBarRef}
+                                onClick={handleProgressClick}
+                                className={`h-3 bg-gray-200 rounded-full overflow-hidden ${isReviewMode ? 'cursor-pointer hover:h-4 transition-all' : ''}`}
+                                title={isReviewMode ? "Bấm vào thanh này để tua nhanh/chậm" : ""}
+                            >
+                                <div className={`h-full transition-all duration-100 ${(hasEnded && !isReviewMode) ? 'bg-gray-400' : hasError ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                                <span className={hasError ? "text-red-500 font-bold" : ""}>
+                                    {hasError ? "Lỗi Audio." : (hasEnded && !isReviewMode) ? "Đã khóa (Chỉ nghe 1 lần)" : (hasEnded && isReviewMode) ? "Bấm Play để nghe lại" : isReviewMode ? "Bấm thanh màu xám để tua" : "Bấm Play để nghe"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {/* KHU VỰC TIMESTAMPS GỌN GÀNG NHƯ YOUTUBE CHAPTERS */}
+                    {isReviewMode && timestamps && timestamps.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs font-bold text-blue-800 mb-2">TIMESTAMPS CHỮA BÀI (Bấm để tua đến vị trí bài nghe):</p>
+                            <div className="flex flex-wrap gap-2">
+                                {timestamps.map((ts, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => {
+                                            if (hasError || !audioRef.current) return;
+                                            audioRef.current.currentTime = ts.time;
+                                            if (!isPlaying) playAudio();
+                                        }}
+                                        className={`px-2 py-1 text-xs font-bold rounded shadow-sm transition-colors ${activeTimestampIndex === idx ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'}`}
+                                    >
+                                        {ts.label} ({formatTimeStr(ts.time)})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- STAGE 1: LÀM BÀI TEST ---
+        function Stage1Test({ answers, setAnswers, onSubmit }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const handleOptionChange = (questionId, option) => {
+                setAnswers(prev => ({ ...prev, [questionId]: option }));
+            };
+
+            const answeredCount = Object.keys(answers).length;
+
+            return (
+                <div className="h-full flex flex-col relative bg-gray-100 pb-12">
+                    <div className="max-w-5xl mx-auto mt-6 px-4 w-full">
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b sticky top-16 z-30">
+                        {TEST_DATA.parts.map(part => (
+                            <button
+                            key={part.id}
+                            className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab(part.id)}
+                            >
+                            Part {part.id}
+                            </button>
+                        ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl p-4 md:p-8">
+                        {TEST_DATA.parts.map(part => (
+                            <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                            <div className="mb-6">
+                                <h2 className="text-xl font-bold mb-2">{part.title}</h2>
+                                <p className="text-gray-600 italic text-sm mb-4">{part.instructions}</p>
+                                <AudioPlayer src={part.audioSrc} audioId={part.id} />
+                            </div>
+                            
+                            <div className="space-y-8">
+                                {part.questions.map(q => {
+                                const checkedVal = answers[q.id];
+                                return (
+                                    <div key={q.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div className="flex items-start mb-4">
+                                        <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded mr-3 mt-0.5 shrink-0 text-sm">Câu {q.id}</span>
+                                        <p className="font-semibold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(q.options).map(([key, value]) => {
+                                        const checked = checkedVal === key;
+                                        return (
+                                            <label key={key} className={`flex items-start p-3 rounded-md cursor-pointer border transition-colors ${checked ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                            <input type="radio" name={`q-${q.id}`} value={key} checked={checked} onChange={() => handleOptionChange(q.id, key)} className="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                            <span className="font-bold mr-2">{key}.</span><span>{value}</span>
+                                            </label>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+
+                        <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm gap-4 border border-gray-200">
+                            <div className="text-gray-600 font-medium flex items-center">
+                                <CheckCircle size={18} className="mr-2 text-green-500" />
+                                <span>Đã chọn: <span className="font-bold">{answeredCount}/35</span> câu</span>
+                            </div>
+                            <button onClick={() => setShowConfirm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform hover:scale-105 w-full md:w-auto">
+                                Nộp Bài Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    {showConfirm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl animate-fade-in text-center">
+                            <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+                            <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn nộp bài? Hành động này không thể hoàn tác và bạn sẽ không thể thay đổi đáp án.</p>
+                            <div className="flex justify-center space-x-3">
+                            <button onClick={() => setShowConfirm(false)} className="px-5 py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Hủy</button>
+                            <button onClick={() => { setShowConfirm(false); onSubmit(); }} className="px-5 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition">Đồng ý nộp</button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- STAGE 2: KẾT QUẢ ---
+        function Stage2Result({ answers, onGoToGame }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showTranscript, setShowTranscript] = useState({});
+
+            const calculateScore = () => {
+                let correct = 0;
+                TEST_DATA.parts.forEach(part => {
+                part.questions.forEach(q => {
+                    if (answers[q.id] === q.correct) correct++;
+                });
+                });
+                return correct;
+            };
+
+            const correctCount = calculateScore();
+            const vstepScore = convertVstepScore(correctCount);
+
+            const toggleTranscript = (partId) => {
+                setShowTranscript(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 pb-12 relative">
+                    <div className="max-w-5xl mx-auto mt-6 px-4">
+                        
+                        {/* Khu vực thông báo kết quả và nút chuyển qua Minigame */}
+                        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 shadow-md text-center flex flex-col items-center">
+                            <Award className="text-yellow-500 mb-2" size={40} />
+                            <h2 className="text-2xl font-bold text-green-700 mb-2">Đã Nộp Bài!</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 w-full max-w-md">
+                                <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-green-200 flex-1">
+                                    <p className="text-sm text-gray-500 uppercase font-bold mb-1">Số câu đúng</p>
+                                    <p className="text-3xl font-bold text-gray-800">{correctCount}<span className="text-lg text-gray-500 font-normal">/35</span></p>
+                                </div>
+                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border-2 border-blue-400 relative overflow-hidden flex-1">
+                                    <div className="absolute top-0 left-0 right-0 bg-blue-500 h-1"></div>
+                                    <p className="text-sm text-blue-600 uppercase font-bold mb-1">Điểm VSTEP</p>
+                                    <p className="text-4xl font-black text-blue-700">{vstepScore.toFixed(1)}<span className="text-xl text-gray-400 font-bold">/10</span></p>
+                                </div>
+                            </div>
+                            
+                            {/* Banner Mời chơi Minigame */}
+                            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow-sm mt-4 w-full max-w-2xl">
+                                <h3 className="text-lg font-bold text-purple-700 flex items-center justify-center mb-2">
+                                    <Gamepad2 size={24} className="mr-2"/> Bạn muốn nhớ từ vựng lâu hơn?
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">Hệ thống đã chắt lọc ra 10 từ vựng quan trọng nhất xuất hiện trong đề thi này. Chơi Minigame để khắc phục những từ bạn sai nhé!</p>
+                                <button onClick={onGoToGame} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:scale-105">
+                                    Học & Chơi Minigame Từ Vựng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b">
+                            {TEST_DATA.parts.map(part => (
+                                <button key={part.id} className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} onClick={() => setActiveTab(part.id)}>
+                                Part {part.id}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl pb-8 relative">
+                            {TEST_DATA.parts.map(part => (
+                                <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                                    
+                                    {/* THẺ AUDIO CỐ ĐỊNH PHÍA TRÊN */}
+                                    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-200 p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center"><Headphones size={18} className="mr-2"/> {part.title} Audio - Cho phép tua</h3>
+                                        <AudioPlayer 
+                                            src={part.audioSrc} 
+                                            audioId={`review-${part.id}`} 
+                                            isReviewMode={true} 
+                                            timestamps={part.audioTimestamps}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-8 p-4 md:p-8 mt-4">
+                                        {part.questions.map(q => {
+                                        const userAns = answers[q.id];
+                                        const isCorrect = userAns === q.correct;
+                                        const isUnanswered = !userAns;
+                                        
+                                        return (
+                                            <div key={q.id} className={`p-4 md:p-5 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50/30' : isUnanswered ? 'border-yellow-500 bg-yellow-50/30' : 'border-red-500 bg-red-50/30'}`}>
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="flex items-start">
+                                                        <span className={`px-2 py-1 rounded text-white font-bold text-xs md:text-sm mr-3 shrink-0 ${isCorrect ? 'bg-green-500' : isUnanswered ? 'bg-yellow-500' : 'bg-red-500'}`}>Câu {q.id}</span>
+                                                        <p className="font-bold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                                    </div>
+                                                    {isCorrect ? <CheckCircle className="text-green-500 shrink-0 ml-2" size={24}/> : <XCircle className="text-red-500 shrink-0 ml-2" size={24}/>}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 md:ml-12">
+                                                    {Object.entries(q.options).map(([key, value]) => {
+                                                    const isSelected = userAns === key;
+                                                    const isActualCorrect = key === q.correct;
+                                                    
+                                                    let btnClass = "text-left px-3 py-2 rounded-md border flex items-center ";
+                                                    if (isActualCorrect) btnClass += "border-green-500 bg-green-100 text-green-800 font-bold shadow-sm";
+                                                    else if (isSelected && !isActualCorrect) btnClass += "border-red-500 bg-red-100 text-red-800";
+                                                    else btnClass += "border-gray-200 bg-white opacity-60";
+
+                                                    return (
+                                                        <div key={key} className={btnClass}>
+                                                            <span className="font-bold mr-2">{key}.</span> <span>{value}</span>
+                                                            {isActualCorrect && <CheckCircle size={18} className="ml-auto text-green-600" />}
+                                                            {isSelected && !isActualCorrect && <XCircle size={18} className="ml-auto text-red-600" />}
+                                                        </div>
+                                                    );
+                                                    })}
+                                                </div>
+
+                                                <div className="md:ml-12 bg-white p-4 rounded-lg border shadow-sm mt-4">
+                                                    <h4 className="font-bold mb-2 text-blue-800 border-b pb-2 flex items-center"><BookOpen size={18} className="mr-2"/> Giải thích chi tiết</h4>
+                                                    
+                                                    <div className="mb-4 text-sm text-gray-700">
+                                                        <p className="mb-1 font-semibold italic text-gray-800">Dịch câu hỏi: {q.translation.question}</p>
+                                                        <ul className="mb-3 pl-4 list-disc text-gray-700 mt-2">
+                                                            {Object.entries(q.translation.options).map(([k, v]) => (<li key={k}><strong>{k}.</strong> {v}</li>))}
+                                                        </ul>
+                                                    </div>
+
+                                                    {/* Phần giải thích logic sai/đúng */}
+                                                    <div className="space-y-3 text-sm">
+                                                        {isUnanswered && (
+                                                            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+                                                                <strong>Bạn đã bỏ trống câu này!</strong> Hãy luôn thử dự đoán đáp án dù không nghe rõ nhé.
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {userAns && !isCorrect && (
+                                                            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                                                                <span className="font-bold uppercase mb-1 block">Tại sao bạn sai?</span>
+                                                                <strong>Bạn chọn {userAns}:</strong> {q.explanations[userAns]}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="p-3 bg-green-50 border border-green-200 rounded text-green-800">
+                                                            <span className="font-bold uppercase mb-1 block">Phân tích đáp án đúng</span>
+                                                            <strong>Đáp án {q.correct}:</strong> {q.explanations[q.correct]}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Trích đoạn Transcript Bôi đỏ */}
+                                                    <div className="mt-4 pt-4 border-t border-dashed">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center"><FileText size={14} className="mr-1"/> Đoạn Audio xuất hiện đáp án:</h5>
+                                                        </div>
+                                                        <p className="bg-gray-50 p-3 rounded text-gray-800 italic leading-relaxed" dangerouslySetInnerHTML={{ __html: q.transcriptSnippet }}></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+
+                                    {/* NÚT ẨN/HIỆN TRANSCRIPT ĐẦY ĐỦ */}
+                                    <div className="mt-8 border-t-2 border-dashed pt-6 mb-4 px-4 md:px-8">
+                                        <button onClick={() => toggleTranscript(part.id)} className="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg transition-colors">
+                                            <FileText className="mr-2" size={20} />
+                                            {showTranscript[part.id] ? "Ẩn Transcript (Nội dung bài nghe đầy đủ)" : "Hiện Transcript (Nội dung bài nghe đầy đủ)"}
+                                        </button>
+                                        {showTranscript[part.id] && (
+                                            <div className="mt-4 p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {part.transcript}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- STAGE 3: MINIGAME TỪ VỰNG ---
+        function Stage3VocabGame({ onBackToResult }) {
+            const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
+            const [playList, setPlayList] = useState(VOCAB_DATA); // List từ đang chơi
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [options, setOptions] = useState([]);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [score, setScore] = useState(0);
+            const [playingWord, setPlayingWord] = useState(null);
+            
+            // Array lưu các từ làm sai
+            const [wrongVocabs, setWrongVocabs] = useState([]);
+
+            const loadQuestion = () => {
+                if (currentIndex >= playList.length) {
+                    setGamePhase('finish');
+                    return;
+                }
+                const currentVocab = playList[currentIndex];
+                
+                // Lấy 3 nghĩa sai ngẫu nhiên từ TỔNG DATA gốc để lúc nào cũng có đủ 3 options gây nhiễu
+                const incorrectOptions = VOCAB_DATA
+                    .filter(v => v.word !== currentVocab.word)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(v => v.meaning);
+                
+                const allOptions = shuffleArray([currentVocab.meaning, ...incorrectOptions]);
+                setOptions(allOptions);
+                setSelectedOption(null);
+                
+                // Trì hoãn một chút để UI render xong rồi mới phát âm thanh
+                setTimeout(() => playWordAudio(currentVocab.word), 500);
+            };
+
+            useEffect(() => {
+                if (gamePhase === 'play') {
+                    loadQuestion();
+                }
+            }, [currentIndex, gamePhase, playList]);
+
+            const playWordAudio = (word) => {
+                setPlayingWord(word);
+                const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(err => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(word);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        utterance.onend = () => setPlayingWord(null);
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        setPlayingWord(null);
+                    }
+                });
+                audio.onended = () => setPlayingWord(null);
+            };
+
+            const handleSelect = (opt) => {
+                if (selectedOption !== null) return; 
+                setSelectedOption(opt);
+                
+                const currentVocab = playList[currentIndex];
+                if (opt === currentVocab.meaning) {
+                    setScore(prev => prev + 1);
+                } else {
+                    // Nếu chọn sai, thêm từ đó vào danh sách wrongVocabs (không add trùng)
+                    if (!wrongVocabs.find(w => w.word === currentVocab.word)) {
+                        setWrongVocabs(prev => [...prev, currentVocab]);
+                    }
+                }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 >= playList.length) {
+                    setGamePhase('finish');
+                } else {
+                    setCurrentIndex(prev => prev + 1);
+                }
+            };
+
+            // Chơi lại toàn bộ 10 từ
+            const handleRestartAll = () => {
+                setPlayList(VOCAB_DATA);
+                setWrongVocabs([]); // reset sai
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play'); 
+            };
+
+            // Chỉ chơi lại những câu đã sai
+            const handleReplayWrong = () => {
+                setPlayList(wrongVocabs);
+                setWrongVocabs([]); // reset để bắt lỗi lại cho lượt đánh này
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play');
+            };
+
+            if (gamePhase === 'learn') {
+                return (
+                    <div className="max-w-4xl mx-auto mt-8 px-4 pb-12">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                            <div className="bg-blue-600 p-6 text-white text-center">
+                                <h2 className="text-2xl font-bold flex items-center justify-center">
+                                    <BookOpen className="mr-2" />
+                                    DANH SÁCH TỪ VỰNG QUAN TRỌNG
+                                </h2>
+                                <p className="mt-2 opacity-90">Hãy nghe và ghi nhớ các từ vựng này trước khi bước vào thử thách nhé!</p>
+                            </div>
+                            <div className="p-6 md:p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {VOCAB_DATA.map((item, idx) => (
+                                        <div key={idx} className={`flex items-center p-4 rounded-xl border transition-colors ${playingWord === item.word ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-blue-50'}`}>
+                                            <button 
+                                                onClick={() => playWordAudio(item.word)}
+                                                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 transition-all ${playingWord === item.word ? 'bg-blue-500 text-white shadow-md scale-110' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                            >
+                                                <Volume2 size={24} />
+                                            </button>
+                                            <div>
+                                                <p className="font-bold text-lg text-gray-800">{item.word}</p>
+                                                <p className="text-gray-600 text-sm">{item.meaning}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-10 text-center">
+                                    <button 
+                                        onClick={() => {
+                                            setPlayList(VOCAB_DATA);
+                                            setCurrentIndex(0);
+                                            setScore(0);
+                                            setWrongVocabs([]);
+                                            setGamePhase('play');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:scale-105 inline-flex items-center text-lg"
+                                    >
+                                        <Gamepad2 className="mr-2" size={28} /> Đã Nhớ! Bắt Đầu Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gamePhase === 'finish') {
+                return (
+                    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-8 border-purple-500">
+                            <Award size={64} className="text-yellow-400 mx-auto mb-4" />
+                            <h2 className="text-3xl font-black text-gray-800 mb-2">Hoàn Thành!</h2>
+                            <p className="text-gray-600 mb-6">Bạn đã đối mặt với {playList.length} thử thách từ vựng.</p>
+                            
+                            <div className="text-5xl font-black text-purple-600 mb-8">
+                                {score} <span className="text-2xl text-gray-400">/ {playList.length}</span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {wrongVocabs.length > 0 && (
+                                    <button 
+                                        onClick={handleReplayWrong}
+                                        className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition flex items-center justify-center animate-pulse shadow-md"
+                                    >
+                                        <RefreshCw size={20} className="mr-2" /> Chơi Lại {wrongVocabs.length} Câu Sai
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleRestartAll}
+                                    className="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <RefreshCw size={20} className="mr-2" /> Chơi Lại Toàn Bộ Từ Đầu
+                                </button>
+                                <button 
+                                    onClick={() => setGamePhase('learn')}
+                                    className="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <BookOpen size={20} className="mr-2" /> Xem Lại Từ Vựng
+                                </button>
+                                <button 
+                                    onClick={onBackToResult}
+                                    className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <FileText size={20} className="mr-2" /> Trở Về Bài Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentVocab = playList[currentIndex];
+            if (!currentVocab) return null; // Safety check
+
+            return (
+                <div className="max-w-3xl mx-auto mt-8 px-4 pb-12">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                        {/* Header của Minigame */}
+                        <div className="bg-purple-600 p-4 text-white flex justify-between items-center">
+                            <div className="font-bold flex items-center">
+                                <Gamepad2 className="mr-2" />
+                                {playList.length < 10 ? 'LUYỆN TẬP CÂU SAI' : 'THỬ THÁCH NGHE TỪ VỰNG'}
+                            </div>
+                            <div className="bg-purple-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+                                Câu {currentIndex + 1} / {playList.length}
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-10 text-center">
+                            <p className="text-gray-600 mb-6 font-medium">Lắng nghe kỹ và chọn nghĩa tiếng Việt chính xác nhất cho cụm từ bạn vừa nghe thấy:</p>
+                            
+                            {/* Nút phát loa */}
+                            <button 
+                                onClick={() => playWordAudio(currentVocab.word)}
+                                className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-lg mb-8 ${playingWord === currentVocab.word ? 'bg-purple-200 text-purple-600 scale-95 ring-4 ring-purple-300' : 'bg-purple-100 text-purple-500 hover:bg-purple-200 hover:scale-105'}`}
+                            >
+                                <Volume2 size={48} />
+                            </button>
+
+                            {/* Khu vực hiển thị từ tiếng Anh (chỉ hiện sau khi đã chọn đáp án) */}
+                            <div className="h-12 mb-6">
+                                {selectedOption !== null && (
+                                    <div className="animate-fade-in inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 px-6 py-2 rounded-xl text-xl font-bold tracking-wide shadow-sm">
+                                        {currentVocab.word}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Các lựa chọn đáp án */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {options.map((opt, idx) => {
+                                    let btnClass = "p-4 rounded-xl border-2 font-bold text-left transition-all ";
+                                    
+                                    if (selectedOption === null) {
+                                        btnClass += "border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50";
+                                    } else {
+                                        if (opt === currentVocab.meaning) {
+                                            btnClass += "border-green-500 bg-green-100 text-green-800"; // Đáp án đúng luôn hiện xanh
+                                        } else if (opt === selectedOption && selectedOption !== currentVocab.meaning) {
+                                            btnClass += "border-red-500 bg-red-100 text-red-800"; // Bấm sai thì hiện đỏ
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50"; // Các ô khác mờ đi
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => handleSelect(opt)}
+                                            className={btnClass}
+                                            disabled={selectedOption !== null}
+                                        >
+                                            {opt}
+                                            {selectedOption !== null && opt === currentVocab.meaning && <CheckCircle className="inline float-right text-green-600" size={20} />}
+                                            {selectedOption !== null && opt === selectedOption && selectedOption !== currentVocab.meaning && <XCircle className="inline float-right text-red-600" size={20} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Nút Next */}
+                            <div className="mt-8 h-12">
+                                {selectedOption !== null && (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-full shadow-md transition-transform hover:scale-105 animate-fade-in"
+                                    >
+                                        Câu Tiếp Theo &rarr;
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            const [stage, setStage] = useState(1); // 1: Test, 2: Result, 3: Vocab Game
+            const [answers, setAnswers] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(TEST_DATA.duration);
+
+            useEffect(() => {
+                if (isSubmitted) return;
+                if (timeLeft <= 0) {
+                    setIsSubmitted(true);
+                    setStage(2);
+                    return;
+                }
+                const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, isSubmitted]);
+
+            const handleSubmit = () => {
+                setIsSubmitted(true);
+                setStage(2);
+                window.scrollTo(0, 0);
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+                    {/* Header cố định */}
+                    <header className="bg-white shadow-md sticky top-0 z-50">
+                        <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-2">
+                            <div className="font-black text-xl md:text-2xl text-blue-800 uppercase tracking-wide flex items-center">
+                                VSTEP LISTENING 01
+                            </div>
+                            
+                            {/* Navigation Tabs */}
+                            <div className="flex bg-gray-100 p-1 rounded-lg">
+                                <button 
+                                    onClick={() => setStage(1)}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 1 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'}`}
+                                >
+                                    Làm Bài
+                                </button>
+                                <button 
+                                    onClick={() => isSubmitted && setStage(2)}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 2 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                    disabled={!isSubmitted}
+                                >
+                                    Kết Quả
+                                </button>
+                                <button 
+                                    onClick={() => isSubmitted && setStage(3)}
+                                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors flex items-center ${stage === 3 ? 'bg-purple-500 text-white shadow-sm' : 'text-purple-600 hover:bg-purple-100'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                    disabled={!isSubmitted}
+                                >
+                                    <Gamepad2 size={16} className="mr-1" /> Minigame
+                                </button>
+                            </div>
+
+                            <div className={`flex items-center space-x-2 font-mono text-xl px-3 py-1 rounded-md font-bold ${timeLeft < 300 && !isSubmitted ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
+                                <Clock size={20} />
+                                <span>{formatTime(timeLeft)}</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="h-auto min-h-[calc(100vh-64px)] pb-10">
+                        {stage === 1 && <Stage1Test answers={answers} setAnswers={setAnswers} onSubmit={handleSubmit} />}
+                        {stage === 2 && <Stage2Result answers={answers} onGoToGame={() => setStage(3)} />}
+                        {stage === 3 && <Stage3VocabGame onBackToResult={() => setStage(2)} />}
+                    </main>
+
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .animate-fade-in {
+                            animation: fadeIn 0.3s ease-out forwards;
+                        }
+                    `}} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

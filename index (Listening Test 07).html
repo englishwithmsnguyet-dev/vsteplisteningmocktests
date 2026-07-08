@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSTEP Listening Mock Test 07</title>
+    
+    <!-- Tải React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Tải Babel để chạy code JSX ngay trên trình duyệt -->
+    <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js"></script>
+    <!-- Tải Tailwind CSS để dựng giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Clock = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>);
+        const CheckCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+        const XCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>);
+        const PlayCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>);
+        const PauseCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>);
+        const FileText = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>);
+        const AlertCircle = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>);
+        const Headphones = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>);
+        const Award = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>);
+        const BookOpen = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>);
+        const Volume2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>);
+        const RefreshCw = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>);
+        const Gamepad2 = ({ size = 24, className = "" }) => (<svg className={className} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>);
+
+        // --- HÀM ĐỊNH DẠNG THỜI GIAN ---
+        const formatTimeStr = (seconds) => {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        };
+
+        // --- HÀM QUY ĐỔI ĐIỂM VSTEP LISTENING (Thang 10) ---
+        const convertVstepScore = (correctCount) => {
+            if (correctCount <= 1) return 0.0;
+            if (correctCount === 2) return 0.5;
+            if (correctCount === 3) return 1.0;
+            if (correctCount === 4) return 1.5;
+            if (correctCount <= 6) return 2.0;
+            if (correctCount === 7) return 2.5;
+            if (correctCount <= 9) return 3.0;
+            if (correctCount <= 11) return 3.5;
+            if (correctCount <= 13) return 4.0;
+            if (correctCount <= 15) return 4.5;
+            if (correctCount <= 17) return 5.0;
+            if (correctCount <= 19) return 5.5;
+            if (correctCount <= 21) return 6.0;
+            if (correctCount === 22) return 6.5;
+            if (correctCount <= 24) return 7.0;
+            if (correctCount === 25) return 7.5;
+            if (correctCount <= 27) return 8.0;
+            if (correctCount <= 29) return 8.5;
+            if (correctCount <= 31) return 9.0;
+            if (correctCount <= 33) return 9.5;
+            if (correctCount <= 35) return 10.0;
+            return 0.0;
+        };
+
+        // --- DATA TỪ VỰNG QUAN TRỌNG TỪ TEST 07 ---
+        const VOCAB_DATA = [
+          {
+                    "word": "lively",
+                    "meaning": "sôi nổi, hoạt bát"
+          },
+          {
+                    "word": "depend on",
+                    "meaning": "phụ thuộc vào"
+          },
+          {
+                    "word": "sightseeing",
+                    "meaning": "tham quan, ngắm cảnh"
+          },
+          {
+                    "word": "spectacular",
+                    "meaning": "ngoạn mục, hùng vĩ"
+          },
+          {
+                    "word": "unspoilt",
+                    "meaning": "còn hoang sơ, chưa bị tác động"
+          },
+          {
+                    "word": "sponsorship",
+                    "meaning": "tiền tài trợ, sự bảo trợ"
+          },
+          {
+                    "word": "charity",
+                    "meaning": "tổ chức từ thiện, việc thiện"
+          },
+          {
+                    "word": "recreation",
+                    "meaning": "hoạt động giải trí, thư giãn"
+          },
+          {
+                    "word": "demolition",
+                    "meaning": "sự phá dỡ"
+          },
+          {
+                    "word": "diversity",
+                    "meaning": "sự đa dạng"
+          }
+];
+
+        // --- DATA CỦA BÀI THI 07 KÈM GIẢI THÍCH CHI TIẾT VÀ TIMESTAMPS ---
+        const hl = (text) => `<span class="text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1">${text}</span>`;
+        
+        const TEST_DATA = {
+        "duration": 2820,
+        "parts": [
+                {
+                        "id": 1,
+                        "title": "PART 1: Questions 1-8",
+                        "instructions": "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
+                        "audioSrc": "https://www.dropbox.com/scl/fi/hxbq1t9ixu5njoof1uau2/Part-01.mp3?rlkey=wypn1i9j78g8qq17lsrbkhbjm&st=tbl571fg&raw=1",
+                        "audioTimestamps": [
+                                {
+                                        "label": "Bài 1",
+                                        "time": 95
+                                },
+                                {
+                                        "label": "Bài 2",
+                                        "time": 139
+                                },
+                                {
+                                        "label": "Bài 3",
+                                        "time": 173
+                                },
+                                {
+                                        "label": "Bài 4",
+                                        "time": 215
+                                },
+                                {
+                                        "label": "Bài 5",
+                                        "time": 241
+                                },
+                                {
+                                        "label": "Bài 6",
+                                        "time": 282
+                                },
+                                {
+                                        "label": "Bài 7",
+                                        "time": 315
+                                },
+                                {
+                                        "label": "Bài 8",
+                                        "time": 350
+                                }
+                        ],
+                        "transcriptTranslations": [
+                                {
+                                        "label": "Bài 1",
+                                        "text": "Được rồi mọi người. Bài tập tiếp theo hơi khó, nhưng rất tốt cho chân. Bạn đặt lưng vào tường, đặt hai bàn chân cách tường khoảng nửa mét, trượt lưng xuống tường để đầu gối gập 90 độ. Sau đó đưa hai tay thẳng ra phía trước. Hãy giữ đầu áp vào tường và xem bạn trụ được bao lâu. Nếu làm được hai phút thì rất tốt."
+                                },
+                                {
+                                        "label": "Bài 2",
+                                        "text": "Vì vòng chung kết nhảy ski kết thúc muộn nên tối nay có một vài thay đổi trong chương trình. Chúng tôi sẽ không phát chương trình thiên nhiên về cá heo gần bờ biển Florida lúc 9 giờ. Thay vào đó, chương trình Tim Wong's Chinese Kitchen sẽ được phát vào giờ này, muộn hơn lịch quảng cáo một tiếng. Chương trình thiên nhiên sẽ trở lại vào giờ thường lệ tuần sau."
+                                },
+                                {
+                                        "label": "Bài 3",
+                                        "text": "Tất cả người hâm mộ Peter Robbins nên đến hiệu sách South Street vào chiều mai, nơi Peter sẽ ký sách Love of Life và trả lời câu hỏi. Ông dự kiến đến lúc 2 giờ 15 và hứa ở lại đến 3 giờ 30, trước khi phải đi một cuộc hẹn khác. Hãy đến càng sớm càng tốt vì nếu giống lần trước, hàng đợi có thể bắt đầu từ 1 giờ 45 hoặc sớm hơn."
+                                },
+                                {
+                                        "label": "Bài 4",
+                                        "text": "Dự báo thời tiết: Hôm nay trời rất nhiều mây, mặc dù đến tối mới mưa. Thời tiết ngày mai sẽ giống hôm qua, có nắng và có mưa rào. Cuối tuần thì đẹp hơn, nhiều nắng và rất ít mưa."
+                                },
+                                {
+                                        "label": "Bài 5",
+                                        "text": "Ngày mai các em không cần tiền xe buýt hay vé vào sở thú vì đã được trả trước. Nhưng hãy mang một ít tiền lẻ để mua đồ uống khi khát. Thức ăn hoặc đồ uống duy nhất được phép mang lên xe buýt là trái cây, nên hãy mang theo vì chuyến đi dài. Không được mang thức ăn hoặc đồ uống vào sở thú. Các em cũng cần mang đủ bút chì màu cho bài tập ở đó."
+                                },
+                                {
+                                        "label": "Bài 6",
+                                        "text": "Dự báo thời tiết ngày mai: Buổi sáng bắt đầu có mưa rào và gió. Gió sẽ hết vào cuối buổi sáng, nhưng thời tiết ẩm ướt sẽ tiếp tục đến tận tối. Có thể có vài khoảng nắng giữa các cơn mưa lúc đầu, nhưng đến trưa trời sẽ nhiều mây, nhiệt độ chỉ khoảng 10 đến 12 độ C."
+                                },
+                                {
+                                        "label": "Bài 7",
+                                        "text": "Thật lạ khi quay lại Redmond, nơi tôi từng sống. Mọi thứ đã thay đổi rất nhiều. Ngôi nhà cũ của tôi trước đây có cây trong vườn và một hàng rào phía trước. Chủ mới đã xây thêm một phòng ngủ phía trên gara và bỏ cây cùng hàng rào để có thêm chỗ đỗ xe. Điều đó làm tôi buồn vì ngôi nhà trông khác hẳn."
+                                },
+                                {
+                                        "label": "Bài 8",
+                                        "text": "Tiếp theo trên The Science Channel là phim tài liệu mới nhất do nhiếp ảnh gia Daniel Hamilton sản xuất và dẫn chương trình. Ông từng làm loạt phim đoạt giải về động vật châu Phi. Loạt phim mới có tên đơn giản là Earth, với những hình ảnh tuyệt đẹp về hành tinh được chụp từ không gian bằng công nghệ vệ tinh mới nhất."
+                                }
+                        ],
+                        "transcript": "Question 1.\nOK everybody. This next exercise is a bit difficult, but it's really good for your legs. All you do is put your back against the wall, place your feet about half a meter away from the wall, move your back down the wall so your knees are bent at 90 degrees. Now, put your hands out straight in front of you. Right! Make sure your head is against the wall. Now, see how long you can stay like that. If you do two minutes, you're doing well.\n\nQuestion 2.\nBecause of the ski jumping finals we're late finishing, so there are some changes to this evening's programs. We won't now show the Nature Program about the dolphins found near the Florida coast at nine o'clock. Instead, Tim Wong's Chinese Kitchen will be at this time, an hour later than advertised. You can see the Nature Program at its usual time next week.\n\nQuestion 3.\nAll fans of Peter Robbins should go to the South Street book store tomorrow afternoon where Peter will sign copies of his book Love of Life and answer questions. He is expected at a quarter past two, and promises to stay until half past three, when he has to leave for another appointment. Get there as soon as you can because if it's anything like Peter's last visit, queues will start to form at quarter to two, or even earlier. Don't miss this opportunity to meet everyone's favorite writer.\n\nQuestion 4.\nHere is the weather forecast. Today will be very cloudy although it won't rain until the evening. The weather tomorrow will be the same as yesterday, sunshine and showers. But the weekend looks good plenty of sunshine and very little rain.\n\nQuestion 5.\nNow, you won't need any money for the bus or your entrance ticket to the zoo tomorrow because that's already paid for. But bring some small change for when you get thirsty and want a drink. The only food or drink allowed on the bus is fruit. Bring some with you because it's a long trip and you'll get hungry. No food or drink must be taken into the zoo. And you'll need to bring all your colored pencils for the work I'm going to ask you to do there.\n\nQuestion 6.\nAnd now for tomorrow's weather. The day will start showery and windy. Those winds should disappear by late morning, but the wet weather will continue until well into the evening. Although we might see some bright sunny periods between the showers early on by midday, it will be cloudy with temperatures of no more than ten or twelve degrees centigrade.\n\nQuestion 7.\nIt was really strange going back to Redmond where I used to live. Everything has changed so much. I went to see my old house. It used to have trees in the garden, and a hedge in the front. Well, the people who own it now have built another bedroom over the top of the garage, and removed the trees and hedge so they have more room to park their cars. It made me feel really sad because it looked so different.\n\nQuestion 8.\nComing up next on The Science Channel is the latest documentary produced and presented by photographer Daniel Hamilton, who made the prize-winning series about African animals, which you may have seen last year. His latest series is simply called Earth and viewers can enjoy some amazing photography with pictures of the planet shot from cameras in space using the latest satellite technology. So sit back, relax, and enjoy!",
+                        "questions": [
+                                {
+                                        "id": 1,
+                                        "text": "Which part(s) of the body does the exercise affect well?",
+                                        "options": {
+                                                "A": "Knees",
+                                                "B": "Back",
+                                                "C": "Hands",
+                                                "D": "Legs"
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 95,
+                                        "translation": {
+                                                "question": "Bài tập tác động tốt tới bộ phận nào của cơ thể?",
+                                                "options": {
+                                                        "A": "Đầu gối",
+                                                        "B": "Lưng",
+                                                        "C": "Bàn tay",
+                                                        "D": "Chân"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Đầu gối chỉ được nhắc đến như tư thế gập 90 độ.",
+                                                "B": "Sai. Lưng đặt vào tường để thực hiện động tác, không phải bộ phận được nhấn mạnh là tốt.",
+                                                "C": "Sai. Tay chỉ đưa thẳng ra phía trước.",
+                                                "D": "Đúng. Người hướng dẫn nói bài tập này rất tốt cho chân."
+                                        },
+                                        "transcriptSnippet": "This next exercise is a bit difficult, but it's really good for your <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">legs</span>."
+                                },
+                                {
+                                        "id": 2,
+                                        "text": "Which TV programme is on at 9 o'clock tonight?",
+                                        "options": {
+                                                "A": "Ski jumping finals",
+                                                "B": "Nature Programme",
+                                                "C": "Tim Wong's Chinese Kitchen",
+                                                "D": "a programme about dolphins"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 139,
+                                        "translation": {
+                                                "question": "Chương trình TV nào chiếu lúc 9 giờ tối nay?",
+                                                "options": {
+                                                        "A": "Chung kết nhảy ski",
+                                                        "B": "Chương trình thiên nhiên",
+                                                        "C": "Tim Wong's Chinese Kitchen",
+                                                        "D": "Chương trình về cá heo"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Chung kết nhảy ski là lý do làm lịch phát sóng bị muộn.",
+                                                "B": "Sai. Chương trình thiên nhiên không được chiếu lúc 9 giờ tối nay.",
+                                                "C": "Đúng. Thông báo nói Tim Wong's Chinese Kitchen sẽ chiếu vào thời điểm đó.",
+                                                "D": "Sai. Chương trình về cá heo thuộc Nature Programme và bị dời sang tuần sau."
+                                        },
+                                        "transcriptSnippet": "Instead, <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">Tim Wong's Chinese Kitchen</span> will be at this time, an hour later than advertised."
+                                },
+                                {
+                                        "id": 3,
+                                        "text": "What time will the writer arrive at the bookshop?",
+                                        "options": {
+                                                "A": "At 1.45",
+                                                "B": "At 2.15",
+                                                "C": "At 3.30",
+                                                "D": "At 2.30"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 173,
+                                        "translation": {
+                                                "question": "Nhà văn sẽ đến hiệu sách lúc mấy giờ?",
+                                                "options": {
+                                                        "A": "Lúc 1:45",
+                                                        "B": "Lúc 2:15",
+                                                        "C": "Lúc 3:30",
+                                                        "D": "Lúc 2:30"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Đây là thời điểm hàng đợi có thể bắt đầu hình thành.",
+                                                "B": "Đúng. Peter được dự kiến đến lúc a quarter past two, tức 2:15.",
+                                                "C": "Sai. Đây là lúc ông phải rời đi.",
+                                                "D": "Sai. Thời gian này không được nói là thời điểm đến."
+                                        },
+                                        "transcriptSnippet": "He is expected at <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">a quarter past two</span>, and promises to stay until half past three."
+                                },
+                                {
+                                        "id": 4,
+                                        "text": "What will the weather be like tomorrow?",
+                                        "options": {
+                                                "A": "Rainy",
+                                                "B": "Cloudy",
+                                                "C": "Sunny",
+                                                "D": "Both sunny and rainy"
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 215,
+                                        "translation": {
+                                                "question": "Thời tiết ngày mai sẽ như thế nào?",
+                                                "options": {
+                                                        "A": "Có mưa",
+                                                        "B": "Nhiều mây",
+                                                        "C": "Có nắng",
+                                                        "D": "Vừa có nắng vừa có mưa"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Chỉ có mưa là chưa đủ vì dự báo có cả nắng.",
+                                                "B": "Sai. Nhiều mây là hôm nay.",
+                                                "C": "Sai. Chỉ có nắng là chưa đủ vì có showers.",
+                                                "D": "Đúng. Ngày mai giống hôm qua: sunshine and showers, tức vừa nắng vừa có mưa rào."
+                                        },
+                                        "transcriptSnippet": "The weather tomorrow will be the same as yesterday, <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">sunshine and showers</span>."
+                                },
+                                {
+                                        "id": 5,
+                                        "text": "What should the students take on the school trip?",
+                                        "options": {
+                                                "A": "Drink, fruit, and some change",
+                                                "B": "Drink, fruit, and coloured pencils",
+                                                "C": "Fruit, some change, and coloured pencils",
+                                                "D": "Fruit and coloured pencils"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 241,
+                                        "translation": {
+                                                "question": "Học sinh nên mang gì trong chuyến đi của trường?",
+                                                "options": {
+                                                        "A": "Đồ uống, trái cây và tiền lẻ",
+                                                        "B": "Đồ uống, trái cây và bút chì màu",
+                                                        "C": "Trái cây, tiền lẻ và bút chì màu",
+                                                        "D": "Trái cây và bút chì màu"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Không được mang đồ uống lên xe, chỉ mang tiền lẻ để mua khi khát.",
+                                                "B": "Sai. Đồ uống không phải thứ cần mang theo.",
+                                                "C": "Đúng. Cần mang tiền lẻ, trái cây và bút chì màu.",
+                                                "D": "Sai. Thiếu tiền lẻ."
+                                        },
+                                        "transcriptSnippet": "But bring <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">some small change</span>... The only food or drink allowed on the bus is <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">fruit</span>... you'll need to bring all your <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">colored pencils</span>."
+                                },
+                                {
+                                        "id": 6,
+                                        "text": "What will the weather be like tomorrow afternoon?",
+                                        "options": {
+                                                "A": "Rainy",
+                                                "B": "Windy",
+                                                "C": "Sunny",
+                                                "D": "Cloudy"
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 282,
+                                        "translation": {
+                                                "question": "Chiều mai thời tiết sẽ như thế nào?",
+                                                "options": {
+                                                        "A": "Có mưa",
+                                                        "B": "Có gió",
+                                                        "C": "Có nắng",
+                                                        "D": "Nhiều mây"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Dự báo nói thời tiết ẩm ướt sẽ tiếp tục đến tận tối, nên buổi chiều vẫn có mưa.",
+                                                "B": "Sai. Gió sẽ hết vào cuối buổi sáng.",
+                                                "C": "Sai. Chỉ có vài khoảng nắng lúc đầu ngày.",
+                                                "D": "Sai. Trời có mây từ trưa, nhưng ý chính cho buổi chiều là wet weather tiếp tục."
+                                        },
+                                        "transcriptSnippet": "Those winds should disappear by late morning, but the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">wet weather will continue until well into the evening</span>."
+                                },
+                                {
+                                        "id": 7,
+                                        "text": "What does the woman's house look like now?",
+                                        "options": {
+                                                "A": "It has another bedroom over the garage.",
+                                                "B": "It has trees in the garden.",
+                                                "C": "It has a hedge in the front.",
+                                                "D": "It has trees in the garden and a hedge in the front."
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 315,
+                                        "translation": {
+                                                "question": "Ngôi nhà của người phụ nữ hiện nay trông như thế nào?",
+                                                "options": {
+                                                        "A": "Có thêm một phòng ngủ phía trên gara.",
+                                                        "B": "Có cây trong vườn.",
+                                                        "C": "Có hàng rào phía trước.",
+                                                        "D": "Có cây trong vườn và hàng rào phía trước."
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Chủ mới đã xây thêm một phòng ngủ phía trên gara.",
+                                                "B": "Sai. Cây trong vườn đã bị bỏ.",
+                                                "C": "Sai. Hàng rào phía trước đã bị bỏ.",
+                                                "D": "Sai. Cả cây và hàng rào đều không còn."
+                                        },
+                                        "transcriptSnippet": "The people who own it now have <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">built another bedroom over the top of the garage</span>, and removed the trees and hedge."
+                                },
+                                {
+                                        "id": 8,
+                                        "text": "What is the next TV program about?",
+                                        "options": {
+                                                "A": "The satellite",
+                                                "B": "The Earth",
+                                                "C": "African animals",
+                                                "D": "Photography"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 350,
+                                        "translation": {
+                                                "question": "Chương trình TV tiếp theo nói về nội dung gì?",
+                                                "options": {
+                                                        "A": "Vệ tinh",
+                                                        "B": "Trái Đất",
+                                                        "C": "Động vật châu Phi",
+                                                        "D": "Nhiếp ảnh"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Công nghệ vệ tinh chỉ là cách chụp hình.",
+                                                "B": "Đúng. Loạt phim mới tên là Earth và có hình ảnh của hành tinh.",
+                                                "C": "Sai. Động vật châu Phi là loạt phim trước đó của Daniel Hamilton.",
+                                                "D": "Sai. Có hình ảnh đẹp, nhưng chủ đề chính là Trái Đất."
+                                        },
+                                        "transcriptSnippet": "His latest series is simply called <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">Earth</span>... pictures of the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">planet</span> shot from cameras in space."
+                                }
+                        ]
+                },
+                {
+                        "id": 2,
+                        "title": "PART 2: Questions 9-20",
+                        "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
+                        "audioSrc": "https://www.dropbox.com/scl/fi/j4ksmkez4tbr92x5u4pwn/Part-02.mp3?rlkey=508t52l7sy4y0azbe8f52chv8&st=10dv69s8&raw=1",
+                        "audioTimestamps": [
+                                {
+                                        "label": "Hội thoại 1",
+                                        "time": 78
+                                },
+                                {
+                                        "label": "Hội thoại 2",
+                                        "time": 275
+                                },
+                                {
+                                        "label": "Hội thoại 3",
+                                        "time": 448
+                                }
+                        ],
+                        "transcriptTranslations": [
+                                {
+                                        "label": "Hội thoại 1",
+                                        "text": "Người dẫn: Khách mời hôm nay là ngôi sao của London Ballet Company, Elena Karpov, 22 tuổi. Elena sinh ra ở Bulgaria. Cô có luôn muốn trở thành vũ công không?\nElena: Tôi là một cô bé rất hiếu động, nên năm 7 tuổi mẹ cho tôi học thể dục dụng cụ. Khi 9 tuổi, tôi chuyển sang học ba lê và từ khoảnh khắc đó tôi biết mình muốn dành cả đời để nhảy múa. Hai năm sau, lúc 11 tuổi, tôi được nhận vào New York Ballet School.\nNgười dẫn: Vậy cô phải chuyển đến Mỹ. Cô có nhớ gia đình không?\nElena: Có chứ. Ban đầu rất khó khi xa nhà và không biết nhiều tiếng Anh. Nhưng điều đó dạy tôi tự chăm sóc bản thân và không phụ thuộc vào người khác.\nNgười dẫn: Hãy kể về vai diễn mới nhất của cô.\nElena: Tôi sẽ múa vai Cinderella. Đó là câu chuyện về một cô gái nghèo cưới một hoàng tử đẹp trai. Bố mẹ từng đọc truyện này cho tôi khi tôi còn nhỏ. Tôi chưa từng xem vở ba lê này trước đây, nhưng tôi đã biết rất rõ phần nhạc. Tôi chắc trẻ em sẽ thích vở này.\nNgười dẫn: Cô làm gì khi không luyện tập hoặc biểu diễn?\nElena: Trước khi vào đoàn, tôi từng đi tham quan London hai tuần như một khách du lịch. Giờ tôi không có thời gian ngắm cảnh, nhưng tôi thích thử thời trang mới với bạn bè. Tôi luôn mua quần jeans và giày thể thao mới. Tôi không thích vũ trường lắm vì ban ngày tôi đã nhảy đủ rồi.\nNgười dẫn: Điều tuyệt nhất trong sự nghiệp của cô là gì?\nElena: Tôi từng làm vũ công khách mời ở Moscow và Vienna, xuất hiện hai lần trên truyền hình Bulgaria và gặp tổng thống. Nhưng điều làm tôi hài lòng nhất là được trả tiền để làm điều tôi thật sự yêu thích: nhảy múa."
+                                },
+                                {
+                                        "label": "Hội thoại 2",
+                                        "text": "Người dẫn: Hôm nay tôi trò chuyện với Robin Marshall, người vừa viết một cuốn sách về du lịch Argentina.\nRobin: Tôi đi Nam Mỹ nhiều vì công việc và giờ biết Argentina rất rõ, đến mức nếu muốn tôi có thể làm hướng dẫn viên. Tôi nói tiếng Tây Ban Nha trôi chảy nên không cần phiên dịch. Công việc của tôi là đi khắp nơi bán sản phẩm cho công ty. Tôi gặp nhiều người và muốn chia sẻ những trải nghiệm đó nên thử viết sách.\nNgười dẫn: Lần gần nhất đến Argentina thời tiết thế nào?\nRobin: Lúc đó là mùa đông nên buổi sáng lạnh, nhưng sau đó ngày nào cũng nắng, rất phù hợp để đi tham quan.\nNgười dẫn: Ông đã đi đâu?\nRobin: Tôi đến một khu chợ tuyệt vời bán đủ thứ từ nghệ thuật hiện đại đến những bản thu cũ của nhạc truyền thống. Tôi sưu tầm chúng. Tôi mang về một bức tranh đẹp về khu vực đó. Tôi cũng thấy một chiếc ghế cổ rất tuyệt nhưng quá lớn để mang về.\nNgười dẫn: Ông có xem biểu diễn nhảy không?\nRobin: Có. Nó làm tôi nhớ lại thời còn học nhảy. Tôi thích học nhưng không giỏi. Những vũ công ấy khiến mọi thứ trông dễ đến mức lúc đó tôi muốn đứng dậy nhảy cùng họ.\nNgười dẫn: Ông còn làm gì nữa?\nRobin: Tôi đến một ngôi làng nhỏ ven biển, đi xe buýt và ở một khách sạn nhỏ. Chủ khách sạn rất thân thiện, đưa tôi đi thuyền xuôi sông. Cảnh rất đẹp, có thể thấy rừng ở xa.\nNgười dẫn: Ông có nơi yêu thích ở Argentina không?\nRobin: Chắc chắn có. Đó là một ngọn núi gần Buenos Aires, nổi tiếng với phong cảnh ngoạn mục. Khi tôi đến, trời mù sương và mặt trời vừa mọc. Không thấy nhiều, không có chim hay thú, hoàn toàn yên tĩnh, và tôi yêu điều đó."
+                                },
+                                {
+                                        "label": "Hội thoại 3",
+                                        "text": "Người dẫn: Harry Park, ông điều hành một công ty du lịch tổ chức các kỳ nghỉ phiêu lưu ở những nơi khó đi. Ông bắt đầu quan tâm đến du lịch phiêu lưu thế nào?\nHarry: Trước khi có gia đình, cha tôi đã dành nhiều năm đi khắp thế giới. Ông luôn kể cho chúng tôi nghe về điều đó. Những câu chuyện ấy thú vị hơn nhiều so với sách tôi đọc và khiến tôi muốn tự mình đi du lịch, phiêu lưu.\nNgười dẫn: Điều gì khiến ông mở công ty du lịch phiêu lưu?\nHarry: Khi còn ở tuổi đôi mươi, tôi đi nhiều nước, khám phá và leo núi ở các dãy núi và sa mạc. Tôi muốn cho người khác thấy những điều đó tuyệt vời như thế nào. Công ty thành công, nhưng lúc bắt đầu tôi không biết có kiếm được tiền không.\nNgười dẫn: Tên công ty là Far and Wide. Ông chọn tên thế nào?\nHarry: Ban đầu tôi gọi là Park Travel nhưng mọi người thấy quá chán. Vợ tôi gợi ý nhiều tên, nhưng cuối cùng một khách hàng đã cho tôi ý tưởng. Far and Wide cũng là tên một cuốn sách của một người bạn, nên nó làm tôi nhớ đến anh ấy.\nNgười dẫn: Những nơi ông đưa khách đến thường còn rất hoang sơ. Có người nghĩ không nên đưa du khách đến đó.\nHarry: Phần lớn nơi chúng tôi đến không có cư dân, nên chúng tôi không làm ảnh hưởng lối sống của ai. Tôi cũng luôn đảm bảo chúng tôi chăm sóc môi trường, không gây ô nhiễm và mang rác đi.\nNgười dẫn: Một số hoạt động cũng nguy hiểm. Ông có thích nguy hiểm không?\nHarry: Không phải là thích. Chỉ là không thể làm công việc này mà không nghĩ đến các nguy hiểm có thể xảy ra. Tôi không sợ. Nếu dẫn đoàn lên núi, tôi tập trung vào việc cần làm và tiếp tục.\nNgười dẫn: Nơi ông thích nhất là đâu?\nHarry: Ở Ấn Độ. Bạn đi dọc một con sông qua cảnh quan tuyệt đẹp, lên vùng núi Madhya Pradesh. Ở thung lũng bên kia có một lâu đài cổ tuyệt vời. Nó thật kỳ diệu và bị núi che khuất nên ít người biết."
+                                }
+                        ],
+                        "transcript": "Questions 9 to 12\nMan: My guest today is the star of the London Ballet Company, twenty-two-year-old Elena Karpov. Elena you were born in Bulgaria. Did you always want to be a dancer?\nWoman: Well, I was a very lively little girl, so at the age of seven my mother sent me to gymnastics classes. When I was nine, I went on to ballet lessons and from that moment I knew that I wanted to spend my life dancing. Two years later, when I was eleven, I won a place at the New York Ballet School.\nMan: So you had to move to the United States. Did you miss your family?\nWoman: Oh yes. At first it was difficult being away from home and not knowing a lot of English. But it taught me how to look after myself and not to depend on others. There were other Bulgarian students there and we actually found it quite easy to learn enough English to take part in the lessons with the other students.\nMan: Tell us about your latest role with the London Ballet Company.\nWoman: I'm going to dance the part of Cinderella. It's a story about a poor girl who marries a handsome prince. My parents used to read it to me when I was little. I'd never seen the ballet before, but I already knew the music really well. I'm sure children will love the ballet.\nMan: What do you do when you're not practicing or performing?\nWoman: Before I joined this company I spent two weeks going round London as a tourist. I don't have time for sightseeing now, but I love trying on the latest fashions with my friends. I'm always buying new jeans and trainers! I'm not too keen on discos and nightclubs I dance enough during the day!\nMan: You must have lots of fans.\nWoman: Quite a few! They always ask for a photograph of me, but unfortunately I don't have many to give away. I sometimes sign their programs instead and if I can I give them one of the flowers I've received from the audience. They always ask for tickets, but of course that's not possible.\nMan: What's been the best thing that's happened in your career so far?\nWoman: Well, I've been a guest dancer with ballet companies in Moscow and Vienna and I appeared twice on television in Bulgaria and met the president! I shall never forget that! But the most satisfying thing for me is that I'm paid for doing what I really enjoy - dancing!\nMan: Elena, thank you for talking to us.\nWoman: Thank you.\n\nQuestions 13 to 16\nWoman: Today, I'm with Robin Marshall, who has just written a book about traveling in Argentina. Robin, tell us about yourself...\nMan: Well, I've travelled to South America a lot for my work and I know Argentina well now. So well that I could be a tour guide if I wanted! I speak fluent Spanish, so I don't need anyone to translate for me. My job involves traveling around selling products for my company. I meet a lot of people doing that, and I wanted to share those experiences with others, so I decided to try writing.\nWoman: So, tell us about your last visit to Argentina. What was the weather like?\nMan: Well, it was winter there, so mornings were cold, but I'd expected that. Every day they said on the radio that it would be sunny later and sure enough, it was! I wanted to go sightseeing, and the weather was perfect for that.\nWoman: And where did you go when you went sightseeing?\nMan: Well, I went to a wonderful market that sold everything from modern art to old recordings of traditional music, which I collect. I came home with a beautiful painting of the area I also saw a wonderful antique chair, but unfortunately it was too big to bring back.\nWoman: Now, Argentina is famous for its dancing. Did you see any performances during your trip?\nMan: I did, yes. It reminded me of when I used to attend dance classes. I enjoyed them although I was never very good. I'm sure my teacher was pleased when I said I wasn't going to continue! But these dancers made it look so easy that at that moment I felt like joining in and dancing with them.\nWoman: It sounds wonderful! And what else did you do?\nMan: Well, I went to a small village on the coast. I took the bus there, and got a room in a small hotel. The hotel owner was very friendly. He took me down the river in his boat. It was very beautiful - you could see the forest in the distance.\nWoman: Do you have a favorite place in Argentina?\nMan: Definitely. It's a mountain near Buenos Aires. It's famous for its spectacular scenery. But when I went there it was very misty and the sun was just rising. You couldn't see much. there were no birds or animals about It was totally quiet, and I loved that. I shall go back one day.\nWoman: We look forward to reading your book. Thank you, Robin.\nMan: Thank you.\n\nQuestions 17 to 20\nWoman: Harry Park, you run a travel company which organizes adventure holidays in some difficult places? How did you first become interested in Adventure travel?\nMan: Well, my father worked in an insurance company once he had a family but before that he'd spent several years traveling the world and he never stopped telling us about it. His stories were much more exciting than the books I read and they make me want to travel and have adventures of my own.\nWoman: And what made you decide to start an adventure travel company?\nMan: Well, when I was in my twenties, I traveled a lot in different countries I went exploring and climbing in mountains and deserts. I wanted to show other people how wonderful these things were. The business has been very successful but when I started it I didn't know if I'd make any money.\nWoman: Your company is called Far and wide. How did you choose the name?\nMan: Well, I just called it Park Travel at first. But everyone thought that was terribly boring! My wife kept suggesting different things but in the end it was a customer who gave me the idea. Far and wide is also the title of a book that a friend wrote so it reminds me of him too.\nWoman: Great... The places you visit are usually very unspoilt, Harry. Some people think it's not a good idea to take tourists there. What would you say to them?\nMan: Well, most of the places we visit have no inhabitants, so we aren't going to spoil people's way of life or bring in things like television and fridges! And I make sure that we always take care of the environment. We are careful not to cause pollution, so we take all our rubbish away.\nWoman: Some of the things you do are also dangerous. Do you enjoy danger?\nMan: Well, it's not a question of enjoying it. It's just that you can't do what I do without thinking about the possible dangers. I'm never frightened though. If I'm taking a group up a mountain or something like that. I just concentrate on what I have to do and get on with it.\nWoman: You've been to some fascinating places, Harry. What's your favorite?\nMan: It's in India. You travel along a river through spectacular scenery and up into the mountains in Madhya Pradesh. In the valley on the other side there's a wonderful old castle. It's magical. The mountains hide it, so few people know it's there ...\nWoman: Thanks for talking to us, Harry ...\nMan: Thank you.",
+                        "questions": [
+                                {
+                                        "id": 9,
+                                        "text": "How old was Elena when she decided to become a dancer?",
+                                        "options": {
+                                                "A": "Seven",
+                                                "B": "Nine",
+                                                "C": "Ten",
+                                                "D": "Eleven"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 78,
+                                        "translation": {
+                                                "question": "Elena bao nhiêu tuổi khi cô quyết định trở thành vũ công?",
+                                                "options": {
+                                                        "A": "7 tuổi",
+                                                        "B": "9 tuổi",
+                                                        "C": "10 tuổi",
+                                                        "D": "11 tuổi"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. 7 tuổi là lúc cô bắt đầu học thể dục dụng cụ.",
+                                                "B": "Đúng. Khi 9 tuổi, cô học ba lê và từ lúc đó biết mình muốn dành cả đời để nhảy múa.",
+                                                "C": "Sai. Tuổi này không được nhắc đến.",
+                                                "D": "Sai. 11 tuổi là lúc cô được nhận vào New York Ballet School."
+                                        },
+                                        "transcriptSnippet": "When I was <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">nine</span>, I went on to ballet lessons and from that moment I knew that I wanted to spend my life dancing."
+                                },
+                                {
+                                        "id": 10,
+                                        "text": "What does Elena say about the ballet called Cinderella?",
+                                        "options": {
+                                                "A": "It will attract both adults and children.",
+                                                "B": "The music was unfamiliar to her.",
+                                                "C": "She saw it when she was a child.",
+                                                "D": "She will play one role in it."
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 78,
+                                        "translation": {
+                                                "question": "Elena nói gì về vở ba lê Cinderella?",
+                                                "options": {
+                                                        "A": "Vở diễn sẽ thu hút cả người lớn và trẻ em.",
+                                                        "B": "Phần nhạc xa lạ với cô.",
+                                                        "C": "Cô đã xem vở này khi còn nhỏ.",
+                                                        "D": "Cô sẽ đóng một vai trong vở đó."
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Cô chỉ nói trẻ em chắc sẽ thích, không nói cả người lớn.",
+                                                "B": "Sai. Cô biết rất rõ phần nhạc.",
+                                                "C": "Sai. Cô chưa từng xem vở ba lê này trước đây.",
+                                                "D": "Đúng. Cô nói mình sẽ múa vai Cinderella."
+                                        },
+                                        "transcriptSnippet": "I'm going to dance the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">part of Cinderella</span>."
+                                },
+                                {
+                                        "id": 11,
+                                        "text": "What does Elena like to do in her free time?",
+                                        "options": {
+                                                "A": "Go sightseeing",
+                                                "B": "Go to clubs",
+                                                "C": "Go dancing",
+                                                "D": "Go shopping"
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 78,
+                                        "translation": {
+                                                "question": "Elena thích làm gì trong thời gian rảnh?",
+                                                "options": {
+                                                        "A": "Đi tham quan",
+                                                        "B": "Đi câu lạc bộ",
+                                                        "C": "Đi nhảy",
+                                                        "D": "Đi mua sắm"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Cô không còn thời gian đi tham quan.",
+                                                "B": "Sai. Cô không thích discos và nightclubs lắm.",
+                                                "C": "Sai. Cô nói ban ngày đã nhảy đủ rồi.",
+                                                "D": "Đúng. Cô thích thử thời trang mới và luôn mua jeans, giày thể thao."
+                                        },
+                                        "transcriptSnippet": "I love trying on the latest fashions with my friends. I'm always <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">buying new jeans and trainers</span>."
+                                },
+                                {
+                                        "id": 12,
+                                        "text": "What does Elena like best about her job?",
+                                        "options": {
+                                                "A": "Appearing on television",
+                                                "B": "Doing something she loves",
+                                                "C": "Travelling to different countries",
+                                                "D": "Meeting the president"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 78,
+                                        "translation": {
+                                                "question": "Elena thích nhất điều gì ở công việc của mình?",
+                                                "options": {
+                                                        "A": "Xuất hiện trên truyền hình",
+                                                        "B": "Được làm điều cô yêu thích",
+                                                        "C": "Đi đến nhiều quốc gia khác nhau",
+                                                        "D": "Gặp tổng thống"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Xuất hiện trên TV chỉ là một kỷ niệm.",
+                                                "B": "Đúng. Điều khiến cô hài lòng nhất là được trả tiền để làm điều mình yêu thích.",
+                                                "C": "Sai. Cô không nói đây là điều thích nhất.",
+                                                "D": "Sai. Gặp tổng thống là điều đáng nhớ, nhưng không phải điều hài lòng nhất."
+                                        },
+                                        "transcriptSnippet": "The most satisfying thing for me is that I'm paid for <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">doing what I really enjoy</span> - dancing!"
+                                },
+                                {
+                                        "id": 13,
+                                        "text": "What was Robin's job in Argentina?",
+                                        "options": {
+                                                "A": "Translator",
+                                                "B": "Tour guide",
+                                                "C": "Salesman",
+                                                "D": "Tourist"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 275,
+                                        "translation": {
+                                                "question": "Công việc của Robin ở Argentina là gì?",
+                                                "options": {
+                                                        "A": "Phiên dịch viên",
+                                                        "B": "Hướng dẫn viên du lịch",
+                                                        "C": "Nhân viên bán hàng",
+                                                        "D": "Khách du lịch"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Ông nói không cần người phiên dịch.",
+                                                "B": "Sai. Ông có thể làm hướng dẫn viên nếu muốn, nhưng đó không phải công việc của ông.",
+                                                "C": "Đúng. Công việc của ông là đi bán sản phẩm cho công ty.",
+                                                "D": "Sai. Ông đi vì công việc, không chỉ là khách du lịch."
+                                        },
+                                        "transcriptSnippet": "My job involves traveling around <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">selling products for my company</span>."
+                                },
+                                {
+                                        "id": 14,
+                                        "text": "What did Robin buy from the market he visited?",
+                                        "options": {
+                                                "A": "A picture",
+                                                "B": "A chair",
+                                                "C": "A record",
+                                                "D": "A CD"
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 275,
+                                        "translation": {
+                                                "question": "Robin đã mua gì ở khu chợ ông đến thăm?",
+                                                "options": {
+                                                        "A": "Một bức tranh",
+                                                        "B": "Một cái ghế",
+                                                        "C": "Một đĩa thu âm",
+                                                        "D": "Một CD"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Ông mang về một bức tranh đẹp về khu vực đó.",
+                                                "B": "Sai. Ông thấy một cái ghế cổ nhưng quá lớn để mang về.",
+                                                "C": "Sai. Ông nói có các bản thu cũ, nhưng không nói mua chúng.",
+                                                "D": "Sai. CD không được nhắc đến như món ông mua."
+                                        },
+                                        "transcriptSnippet": "I came home with a <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">beautiful painting</span> of the area."
+                                },
+                                {
+                                        "id": 15,
+                                        "text": "How did Robin feel during the dance performance he saw?",
+                                        "options": {
+                                                "A": "He wanted to get up and dance.",
+                                                "B": "He wished he had continued his dance classes.",
+                                                "C": "He was sad he didn't dance well.",
+                                                "D": "He thought Argentinean dancing was much easier than his country's dancing."
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 275,
+                                        "translation": {
+                                                "question": "Robin cảm thấy thế nào trong buổi biểu diễn nhảy ông xem?",
+                                                "options": {
+                                                        "A": "Ông muốn đứng dậy nhảy.",
+                                                        "B": "Ông ước mình đã tiếp tục học nhảy.",
+                                                        "C": "Ông buồn vì mình nhảy không giỏi.",
+                                                        "D": "Ông nghĩ điệu nhảy Argentina dễ hơn điệu nhảy ở nước mình."
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Các vũ công làm mọi thứ trông dễ đến mức ông muốn tham gia nhảy cùng.",
+                                                "B": "Sai. Ông chỉ nhớ lại các lớp học nhảy trước đây.",
+                                                "C": "Sai. Ông nói mình từng không giỏi, nhưng không nói buồn lúc xem biểu diễn.",
+                                                "D": "Sai. Không có so sánh như vậy."
+                                        },
+                                        "transcriptSnippet": "At that moment I felt like <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">joining in and dancing with them</span>."
+                                },
+                                {
+                                        "id": 16,
+                                        "text": "What did Robin like about his favourite place?",
+                                        "options": {
+                                                "A": "The wildlife",
+                                                "B": "The views",
+                                                "C": "The peace",
+                                                "D": "The weather"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 275,
+                                        "translation": {
+                                                "question": "Robin thích điều gì ở nơi ông yêu thích nhất?",
+                                                "options": {
+                                                        "A": "Động vật hoang dã",
+                                                        "B": "Khung cảnh",
+                                                        "C": "Sự yên bình",
+                                                        "D": "Thời tiết"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Ông nói không có chim hay động vật.",
+                                                "B": "Sai. Nơi đó nổi tiếng có cảnh đẹp, nhưng lúc ông đến trời mù nên không thấy nhiều.",
+                                                "C": "Đúng. Điều ông nhấn mạnh là sự yên tĩnh hoàn toàn.",
+                                                "D": "Sai. Thời tiết mù sương không phải điều ông nói thích."
+                                        },
+                                        "transcriptSnippet": "There were no birds or animals about. It was <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">totally quiet</span>, and I loved that."
+                                },
+                                {
+                                        "id": 17,
+                                        "text": "Why did Harry decide to start an adventure travel company?",
+                                        "options": {
+                                                "A": "He wanted to share his experience with others.",
+                                                "B": "He thought he could make a lot of money.",
+                                                "C": "His father encouraged him to do it.",
+                                                "D": "He hoped to do more travelling himself."
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 448,
+                                        "translation": {
+                                                "question": "Tại sao Harry quyết định mở công ty du lịch phiêu lưu?",
+                                                "options": {
+                                                        "A": "Ông muốn chia sẻ trải nghiệm với người khác.",
+                                                        "B": "Ông nghĩ có thể kiếm nhiều tiền.",
+                                                        "C": "Cha ông khuyến khích ông làm vậy.",
+                                                        "D": "Ông hy vọng tự mình đi du lịch nhiều hơn."
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Ông muốn cho người khác thấy những trải nghiệm đó tuyệt vời như thế nào.",
+                                                "B": "Sai. Lúc bắt đầu ông không biết có kiếm được tiền hay không.",
+                                                "C": "Sai. Cha truyền cảm hứng qua những câu chuyện, nhưng không trực tiếp khuyến khích mở công ty.",
+                                                "D": "Sai. Mục đích là đưa người khác trải nghiệm, không phải để ông đi nhiều hơn."
+                                        },
+                                        "transcriptSnippet": "I wanted to <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">show other people how wonderful these things were</span>."
+                                },
+                                {
+                                        "id": 18,
+                                        "text": "Who suggested the name for Harry's company?",
+                                        "options": {
+                                                "A": "A friend",
+                                                "B": "A customer",
+                                                "C": "His wife",
+                                                "D": "His parents"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 448,
+                                        "translation": {
+                                                "question": "Ai gợi ý tên công ty của Harry?",
+                                                "options": {
+                                                        "A": "Một người bạn",
+                                                        "B": "Một khách hàng",
+                                                        "C": "Vợ ông",
+                                                        "D": "Cha mẹ ông"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Far and Wide cũng là tên sách của một người bạn, nhưng bạn không gợi ý tên.",
+                                                "B": "Đúng. Một khách hàng đã cho ông ý tưởng.",
+                                                "C": "Sai. Vợ ông gợi ý nhiều tên nhưng không phải tên cuối cùng.",
+                                                "D": "Sai. Cha mẹ không được nhắc đến trong việc đặt tên."
+                                        },
+                                        "transcriptSnippet": "In the end it was <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">a customer who gave me the idea</span>."
+                                },
+                                {
+                                        "id": 19,
+                                        "text": "What does Harry say about doing dangerous things?",
+                                        "options": {
+                                                "A": "It's part of his job.",
+                                                "B": "He always thinks of how to avoid possible dangers.",
+                                                "C": "It's frightening.",
+                                                "D": "It's enjoyable."
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 448,
+                                        "translation": {
+                                                "question": "Harry nói gì về việc làm những điều nguy hiểm?",
+                                                "options": {
+                                                        "A": "Đó là một phần công việc của ông.",
+                                                        "B": "Ông luôn nghĩ cách tránh các nguy hiểm có thể xảy ra.",
+                                                        "C": "Điều đó đáng sợ.",
+                                                        "D": "Điều đó thú vị."
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Nguy hiểm có trong công việc, nhưng ý chính ông nói là phải nghĩ đến các rủi ro có thể xảy ra.",
+                                                "B": "Đúng. Ông nói không thể làm việc này mà không nghĩ về những nguy hiểm có thể xảy ra.",
+                                                "C": "Sai. Ông nói mình không sợ.",
+                                                "D": "Sai. Ông nói không phải vấn đề thích nguy hiểm."
+                                        },
+                                        "transcriptSnippet": "You can't do what I do without <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">thinking about the possible dangers</span>."
+                                },
+                                {
+                                        "id": 20,
+                                        "text": "What is Harry's favourite place?",
+                                        "options": {
+                                                "A": "A mountain",
+                                                "B": "A building",
+                                                "C": "A river",
+                                                "D": "Valley"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 448,
+                                        "translation": {
+                                                "question": "Địa điểm Harry yêu thích là gì?",
+                                                "options": {
+                                                        "A": "Một ngọn núi",
+                                                        "B": "Một tòa nhà",
+                                                        "C": "Một con sông",
+                                                        "D": "Thung lũng"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Núi là đường đi và che khuất nơi đó.",
+                                                "B": "Đúng. Nơi ông gọi là kỳ diệu là một lâu đài cổ, tức một công trình/tòa nhà.",
+                                                "C": "Sai. Con sông là tuyến đường đi tới nơi đó.",
+                                                "D": "Sai. Lâu đài nằm trong thung lũng, nhưng địa điểm nổi bật là lâu đài."
+                                        },
+                                        "transcriptSnippet": "In the valley on the other side there's a <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">wonderful old castle</span>. It's magical."
+                                }
+                        ]
+                },
+                {
+                        "id": 3,
+                        "title": "PART 3: Questions 21-35",
+                        "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
+                        "audioSrc": "https://www.dropbox.com/scl/fi/lmo24wvul6wmsljl4iyrg/Part-03.mp3?rlkey=zocano02bs3zgg6dymrez8ly8&st=8dpsrq0r&raw=1",
+                        "audioTimestamps": [
+                                {
+                                        "label": "Bài nói 1",
+                                        "time": 55
+                                },
+                                {
+                                        "label": "Bài nói 2",
+                                        "time": 299
+                                },
+                                {
+                                        "label": "Bài nói 3",
+                                        "time": 532
+                                }
+                        ],
+                        "transcriptTranslations": [
+                                {
+                                        "label": "Bài nói 1",
+                                        "text": "Chào buổi sáng. Tôi rất vui được mời đến câu lạc bộ để nói về kỳ nghỉ đi bộ gây quỹ từ thiện cho Education Aid. Đây là kỳ nghỉ 10 ngày, từ ngày 6 đến ngày 16 tháng 11, trong đó có 8 ngày đi bộ thực tế ở dãy núi Semira. Người tham gia cần gây quỹ ít nhất 3.200 đô la, trả trước 250 đô la làm tiền đặt cọc. Khoảng 35% dùng cho chi phí, còn 65% chắc chắn dành cho từ thiện. Chuyến đi này hỗ trợ giáo dục ở vùng Semira, đặc biệt là học sinh có nhu cầu đặc biệt tại các trường miền núi.\nVề giới hạn tuổi, người tham gia phải ít nhất 18 tuổi và tối đa 70 tuổi. Người trên 60 cần giấy chứng nhận sức khỏe của bác sĩ. Tuy dãy Semira thuộc nhóm núi cao nhất thế giới, đoàn chủ yếu đi ở vùng chân núi, nhưng vẫn cần thể lực rất tốt.\nNgười tham gia sẽ ngủ trong lều và có khá nhiều thiết bị, nhưng trợ lý địa phương sẽ mang đồ ngủ và các vật dụng tương tự. Khi đi bộ, bạn chỉ mang một ba lô nhỏ với những thứ cần trong ngày. Khu vực này có các đỉnh núi phủ tuyết, thung lũng và làng cổ. Vùng Semira nổi tiếng hàng thế kỷ với nghề làm thảm đẹp, dù gần đây có xu hướng chuyển sang dệt chăn và chạm khắc gỗ."
+                                },
+                                {
+                                        "label": "Bài nói 2",
+                                        "text": "Chào mừng mọi người. Tôi là Sally, hướng dẫn viên của chuyến tham quan Bicentennial Park. Hy vọng mọi người mang giày thoải mái và theo kịp tốc độ đi bộ.\nTrước đây khu vực này có nhiều nhà máy cho đến thập niên 1960. Để tạo công viên, người ta phải phá dỡ nhiều tòa nhà bỏ hoang, vì phần lớn không gian công viên ban đầu là nhà kho và kho chứa. Ý tưởng xây công viên xuất hiện khi một nhà phát triển bất động sản đề xuất xây khu nhà cao tầng, nhưng cộng đồng địa phương không đồng ý. Nếu khu đất được làm sạch, cư dân muốn dùng nó cho giải trí, các hoạt động ngoài trời, thay vì nhà ở hoặc khu thể thao trong nhà.\nBicentennial Park gồm hai khu: khu bảo tồn thiên nhiên và công viên chính thức với các đặc điểm nhân tạo cùng vườn. Tòa nhà cao màu xanh trắng phía trước gọi là The Tower, nằm ở trung tâm khu vườn chính thức, cao 12 mét và có tầm nhìn tuyệt đẹp. Từ đỉnh tháp nhìn về phía đông là khu Olympic với nhà thi đấu, sân vận động và hồ bơi. Phía nam có hồ trang trí hình tròn, phía tây là vườn hoa hồng, phía bắc là một hồ nước có đảo nhỏ ở giữa."
+                                },
+                                {
+                                        "label": "Bài nói 3",
+                                        "text": "Chào mừng đến Green Vale Agricultural Park. Công viên mới mở một tuần nên các bạn là những khách đầu tiên. Khu phức hợp rất rộng với nhiều triển lãm trong nhà và ngoài trời. Nhiệm vụ của công viên là tạo cơ hội giáo dục cho công chúng rộng rãi, đồng thời cung cấp địa điểm nghiên cứu cho nhiều nhà nông học và nhà khoa học.\nTừ khu lễ tân, đi theo lối chính sẽ đến khu Rare Breeds, nơi giữ nhiều loài vật. Bên cạnh đó về phía đông là khu đồng cỏ lớn cho các giống quý hiếm. Xa hơn về phía đông, phần lớn nhất của công viên là Forest Area. Phía nam khu đồng cỏ, cạnh khu lễ tân, là Experimental Crop Area. Ở giữa công viên có hồ tròn. Hai hình chữ nhật nhỏ là Fish Farms, phía đông là vùng đầm lầy thu hút chim di cư, và góc đông nam là Market Garden trồng rau và hoa.\nCông chúng có thể thăm hầu hết các khu gần như quanh năm, trừ khi có biển báo khu vực đang dùng cho thí nghiệm kiểm soát. Ô tô bị cấm trong công viên. Khách có thể thuê xe đạp phía sau khu lễ tân, đi bộ hoặc đi xe điện chạy bằng năng lượng mặt trời. Ở khu Rare Breeds hiện có dê, cừu, gà mái và các loại gia cầm khác. Mục đích chính của khu này không phải chỉ để bảo tồn động vật hiếm, mà để duy trì sự đa dạng giống và mở rộng nguồn gene cho phát triển nông nghiệp."
+                                }
+                        ],
+                        "transcript": "Questions 21 to 25:\nGood morning. I'm very pleased to have been invited along to your club to talk about our Charity Sponsored Walking Holiday for Education Aid. I'll start by giving you a brief overview of what it entails. First of all, let me explain what we mean by 'sponsored' here. This is where people promise to donate money to the charity if you achieve your goal. In this case, to walk a certain number of miles. Basically, we are organizing a ten-day holiday, from the sixth to the sixteenth of November, with eight-day actual walking, trekking in the Semira Mountains. Let's have a look at some of the details.\nWe require you to raise sponsorship money of at least $3,200, paying $250 of it up front as a deposit, and the rest in stages throughout the year. Out of this, about 35% will go on your expenses, and that leaves 65% guaranteed to go to the charity, which brings me to the most important part. This trek is being specifically organized to help education in the Semira region. Last year, we helped train teachers for the disabled, and this year, we're focusing on the pupils. Each of the walkers' sponsorship money will go to help an individual special needs pupil in one of the mountain schools.\nIn the second part of the talk, I'll be giving you a lot more details, but back to the basic information - age limits. This is the second time we have run this kind of holiday, and um, on the first we even had an eighty-year old. But we found it was wise to establish limits this time. You have to be at least eighteen and the top limit is now seventy, though you need to obtain a health certificate from your doctor if you are over sixty years old. Now, the Semira Mountains are among the highest in the world but you mustn't be too daunted we will mainly be trekking in the foothills only, although there will be spectacular views even in the foothills. However, you will need to be extremely fit if you aren't now, and you're interested in coming with us. You have plenty of time to get into shape.\nYou will be sleeping in tents, so you must have quite a bit of equipment with you, but you will be helped by local assistants. Your bedding and so forth will be carried by them. We ask that you only walk with a small rucksack with needs for the day.\nI don't think I've really said enough about the marvellous area you'll be walking in. Let's have a look at some of the sights you'll be seeing. Apart from these spectacular snow-covered peaks and valleys, there are marvellous historic villages. The area has been famous for centuries for making beautiful carpets although recently there has been a trend to move into weaving blankets and wood carving. The people are extremely friendly and welcoming. We deliberately keep the parties small in size to minimize disruption to people and landscape.\n\nQuestions 26 to 30:\nWelcome to all of you ... Can everybody see and hear me? ... Good .... I'm Sally, your guide for this tour of the Bicentennial Park. I hope that you're all wearing your most comfortable shoes and that you can keep up the pace. So, let's get under way on our tour around this wonderful park.\nI'll start today with some general background information. There used to be a lot of factories in this area until the 1960s. Creating the park required the demolition of lots of derelict buildings on the site, so most of the exciting park space all around you was originally warehouses and storehouses. The idea of building a public park here was first discussed when a property developer proposed a high-rise housing development, but the local community wasn't happy. If the land was to be cleaned up, they wanted to use the site for recreation. Residents wanted open space for outdoor activities rather than housing or even an indoor sports complex.\nNow, to the Bicentennial Park itself. It has two areas, a nature reserve and a formal park with man-made features and gardens. The tall blue-and-white building in front of us is called The Tower, and is the centre point for the formal gardens. It stands twelve metres high, so follow me up the stairs to where we can take advantage of the fantastic views.\nWell, here we are at the top of The Tower, and we're going to look at the view from each direction. Out to the east, the large buildings about a kilometre away are on the Olympic site. There's an indoor arena for gymnastics, a stadium for track and field, and a swimming pool for races and synchronised swimming and also diving. If you look carefully down there, you can see the train lines. The Olympic site has its own station to encourage the use of public transport. There is also a car park, but it only holds a limited number of cars. The formal park has some specially-created water features. If you look out here to the south, you can see a circular ornamental pond. And around to the west, you can relax and sit on a bench to smell the flowers in the rose garden, and finally up to the north, if you look in front of you now, there's a lake with a small island in the centre. You can hire rowing boats at the boat shed, which you can't see from here. But if you look through the trees, you can see the café, which has lovely views across the water. Okay, let's climb down now.\n\nQuestions 31 to 35:\nWelcome to Green Vale Agricultural Park. As you know, we have only been open a week, so you are amongst our first visitors. We have lots of fascinating indoor and outdoor exhibits on our huge complex, spreading hundreds of hectares. Our remit is to give educational opportunities to the wider public, as well as to offer research sites for a wide variety of agriculturists and other scientists.\nLet's start by seeing what there is to do. As you can see, here on our giant wall plan, we are now situated in the Reception block ... here. As you walk out of the main door into the park, there is a path you can follow. If you follow this route, you will immediately come into the Rare Breeds section where we keep a wide variety of animals, which I shall be telling you a little more about later.\nNext to this ... moving east... is the large grazing area for the rare breeds. Then, further east... in the largest section of our Park is the Forest Area. South of the grazing area and in fact just next to the Reception block is our Experimental Crop Area. In the middle of the Park ... this circular area is our lake. These two small rectangular shapes here are the Fish Farms where we rear fish for sale. To the east of those is the marsh area which attracts a great many migrant birds. In the south-eastern corner, beyond the marsh, is our Market Garden area, growing vegetables and flowers.\nAll these areas can be visited by the general public for almost all the year... Although ... please take note of the large signs at the entrance to each area ... which tell ... which tell you when certain areas are being used for particular controlled experiments, and are therefore, temporarily out of bounds to the public. You can see for yourself what a huge area the park covers, and a key question is always how can we move around? Well, you have a choice of means, all environmentally friendly. Cars are banned in the park. We have bicycles which you can hire behind the reception block .. here ... the healthy ones of you can go on foot, and finally there's our electric tram, powered from solar cells. You find more information about this at the front entrance. A good place to start on your tour is the Rare Breeds section. We keep goats, sheep, and hens, and other kinds of poultry. We are also thinking of bringing in cows and horses, but we do not, as yet, have facilities for these bigger animals. The animals are fed in public twice a day, and a short lecture given on their feeding habits and nutritional needs. These are very popular with the public, but of course we mustn't lose sight of the main purpose of having this section not as such to preserve rare animals, but to maintain the diversity of breeds ... to broaden the gene pool for agricultural development.",
+                        "questions": [
+                                {
+                                        "id": 21,
+                                        "text": "How long will you be walking on the holiday?",
+                                        "options": {
+                                                "A": "6 days",
+                                                "B": "8 days",
+                                                "C": "10 days",
+                                                "D": "16 days"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 55,
+                                        "translation": {
+                                                "question": "Bạn sẽ đi bộ trong bao lâu trong kỳ nghỉ?",
+                                                "options": {
+                                                        "A": "6 ngày",
+                                                        "B": "8 ngày",
+                                                        "C": "10 ngày",
+                                                        "D": "16 ngày"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Không có 6 ngày đi bộ.",
+                                                "B": "Đúng. Kỳ nghỉ 10 ngày nhưng chỉ có 8 ngày đi bộ thực tế.",
+                                                "C": "Sai. 10 ngày là tổng thời gian kỳ nghỉ.",
+                                                "D": "Sai. Ngày 6 đến ngày 16 là khoảng ngày trong tháng, không phải số ngày đi bộ."
+                                        },
+                                        "transcriptSnippet": "We are organizing a ten-day holiday... with <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">eight-day actual walking</span>, trekking in the Semira Mountains."
+                                },
+                                {
+                                        "id": 22,
+                                        "text": "What proportion of the sponsorship money goes to charity?",
+                                        "options": {
+                                                "A": "25%",
+                                                "B": "35%",
+                                                "C": "50%",
+                                                "D": "65%"
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 55,
+                                        "translation": {
+                                                "question": "Bao nhiêu phần trăm tiền tài trợ được chuyển cho từ thiện?",
+                                                "options": {
+                                                        "A": "25%",
+                                                        "B": "35%",
+                                                        "C": "50%",
+                                                        "D": "65%"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. 25% không được nhắc đến.",
+                                                "B": "Sai. 35% dùng cho chi phí.",
+                                                "C": "Sai. 50% không được nhắc đến.",
+                                                "D": "Đúng. Sau chi phí, 65% chắc chắn chuyển cho từ thiện."
+                                        },
+                                        "transcriptSnippet": "About 35% will go on your expenses, and that leaves <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">65% guaranteed to go to the charity</span>."
+                                },
+                                {
+                                        "id": 23,
+                                        "text": "What is the top age limit to attend the holiday?",
+                                        "options": {
+                                                "A": "50 years old",
+                                                "B": "60 years old",
+                                                "C": "80 years old",
+                                                "D": "70 years old"
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 55,
+                                        "translation": {
+                                                "question": "Giới hạn tuổi cao nhất để tham gia kỳ nghỉ là bao nhiêu?",
+                                                "options": {
+                                                        "A": "50 tuổi",
+                                                        "B": "60 tuổi",
+                                                        "C": "80 tuổi",
+                                                        "D": "70 tuổi"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Không phải giới hạn được nói.",
+                                                "B": "Sai. Trên 60 tuổi cần giấy chứng nhận sức khỏe, nhưng không phải giới hạn trên.",
+                                                "C": "Sai. 80 tuổi là người từng tham gia lần trước.",
+                                                "D": "Đúng. Giới hạn trên hiện nay là 70 tuổi."
+                                        },
+                                        "transcriptSnippet": "You have to be at least eighteen and the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">top limit is now seventy</span>."
+                                },
+                                {
+                                        "id": 24,
+                                        "text": "What will you carry as you walk?",
+                                        "options": {
+                                                "A": "All of your belongings",
+                                                "B": "Some of your belongings",
+                                                "C": "None of your belongings",
+                                                "D": "Some of your belongings and food"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 55,
+                                        "translation": {
+                                                "question": "Bạn sẽ mang gì khi đi bộ?",
+                                                "options": {
+                                                        "A": "Tất cả đồ đạc",
+                                                        "B": "Một số đồ đạc cần thiết",
+                                                        "C": "Không mang gì",
+                                                        "D": "Một số đồ đạc và thức ăn"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Đồ ngủ và các vật dụng lớn sẽ có trợ lý địa phương mang.",
+                                                "B": "Đúng. Bạn chỉ mang ba lô nhỏ với những thứ cần trong ngày.",
+                                                "C": "Sai. Vẫn phải mang một ba lô nhỏ.",
+                                                "D": "Sai. Script không nói riêng rằng phải mang thức ăn."
+                                        },
+                                        "transcriptSnippet": "We ask that you only walk with a <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">small rucksack with needs for the day</span>."
+                                },
+                                {
+                                        "id": 25,
+                                        "text": "What does the Semira Region have a long tradition of?",
+                                        "options": {
+                                                "A": "Making carpets",
+                                                "B": "Weaving blankets",
+                                                "C": "Carving wood",
+                                                "D": "Processing food"
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 55,
+                                        "translation": {
+                                                "question": "Vùng Semira có truyền thống lâu đời về việc gì?",
+                                                "options": {
+                                                        "A": "Làm thảm",
+                                                        "B": "Dệt chăn",
+                                                        "C": "Chạm khắc gỗ",
+                                                        "D": "Chế biến thực phẩm"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Khu vực này nổi tiếng hàng thế kỷ với việc làm thảm đẹp.",
+                                                "B": "Sai. Dệt chăn là xu hướng gần đây.",
+                                                "C": "Sai. Chạm khắc gỗ cũng là xu hướng gần đây.",
+                                                "D": "Sai. Không được nhắc đến."
+                                        },
+                                        "transcriptSnippet": "The area has been famous for centuries for <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">making beautiful carpets</span>."
+                                },
+                                {
+                                        "id": 26,
+                                        "text": "What kind of tour is Sally leading?",
+                                        "options": {
+                                                "A": "A bus tour",
+                                                "B": "A train tour",
+                                                "C": "A walking tour",
+                                                "D": "A cruise"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 299,
+                                        "translation": {
+                                                "question": "Sally đang dẫn loại tour nào?",
+                                                "options": {
+                                                        "A": "Tour xe buýt",
+                                                        "B": "Tour tàu hỏa",
+                                                        "C": "Tour đi bộ",
+                                                        "D": "Du thuyền"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Không phải tour xe buýt.",
+                                                "B": "Sai. Tàu chỉ được nhắc đến ở khu Olympic.",
+                                                "C": "Đúng. Cô nhắc mọi người đi giày thoải mái và theo kịp tốc độ khi tham quan công viên.",
+                                                "D": "Sai. Không phải du thuyền."
+                                        },
+                                        "transcriptSnippet": "I hope that you're all wearing your most comfortable shoes and that you can <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">keep up the pace</span>."
+                                },
+                                {
+                                        "id": 27,
+                                        "text": "What kind of buildings was it before the Park was made?",
+                                        "options": {
+                                                "A": "House",
+                                                "B": "Industrial buildings",
+                                                "C": "Shops",
+                                                "D": "A school"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 299,
+                                        "translation": {
+                                                "question": "Trước khi công viên được xây, nơi này từng có loại công trình nào?",
+                                                "options": {
+                                                        "A": "Nhà ở",
+                                                        "B": "Công trình công nghiệp",
+                                                        "C": "Cửa hàng",
+                                                        "D": "Trường học"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Nhà cao tầng chỉ là đề xuất sau đó.",
+                                                "B": "Đúng. Khu này từng có nhà máy, nhà kho và kho chứa.",
+                                                "C": "Sai. Cửa hàng không được nhắc đến.",
+                                                "D": "Sai. Trường học không được nhắc đến."
+                                        },
+                                        "transcriptSnippet": "There used to be a lot of <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">factories</span> in this area... originally <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">warehouses and storehouses</span>."
+                                },
+                                {
+                                        "id": 28,
+                                        "text": "What did the local residents want to use the site for?",
+                                        "options": {
+                                                "A": "Leisure",
+                                                "B": "Apartment blocks",
+                                                "C": "A sports centre",
+                                                "D": "Office buildings"
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 299,
+                                        "translation": {
+                                                "question": "Cư dân địa phương muốn dùng khu đất này để làm gì?",
+                                                "options": {
+                                                        "A": "Giải trí, thư giãn",
+                                                        "B": "Các tòa căn hộ",
+                                                        "C": "Trung tâm thể thao",
+                                                        "D": "Tòa văn phòng"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Họ muốn dùng nơi này cho recreation và không gian mở cho hoạt động ngoài trời.",
+                                                "B": "Sai. Họ không muốn khu nhà cao tầng.",
+                                                "C": "Sai. Script nói họ muốn không gian ngoài trời hơn là khu thể thao trong nhà.",
+                                                "D": "Sai. Văn phòng không được nhắc đến."
+                                        },
+                                        "transcriptSnippet": "They wanted to use the site for <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">recreation</span>. Residents wanted open space for outdoor activities."
+                                },
+                                {
+                                        "id": 29,
+                                        "text": "What does the speaker say about the Tower?",
+                                        "options": {
+                                                "A": "It is located in the centre of the nature reserve.",
+                                                "B": "It's a blue and black building.",
+                                                "C": "It's 20 meters high.",
+                                                "D": "It offers tourists wonderful views."
+                                        },
+                                        "correct": "D",
+                                        "timestamp": 299,
+                                        "translation": {
+                                                "question": "Người nói nói gì về The Tower?",
+                                                "options": {
+                                                        "A": "Nằm ở trung tâm khu bảo tồn thiên nhiên.",
+                                                        "B": "Là tòa nhà màu xanh và đen.",
+                                                        "C": "Cao 20 mét.",
+                                                        "D": "Cho du khách tầm nhìn tuyệt vời."
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. The Tower là trung tâm của formal gardens, không phải nature reserve.",
+                                                "B": "Sai. Tòa nhà màu xanh trắng.",
+                                                "C": "Sai. Nó cao 12 mét.",
+                                                "D": "Đúng. Lên tháp để tận hưởng tầm nhìn tuyệt đẹp."
+                                        },
+                                        "transcriptSnippet": "Follow me up the stairs to where we can take advantage of the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">fantastic views</span>."
+                                },
+                                {
+                                        "id": 30,
+                                        "text": "In which direction from the top of the Tower can the tourists see the Olympic site?",
+                                        "options": {
+                                                "A": "To the North",
+                                                "B": "To the South",
+                                                "C": "To the East",
+                                                "D": "To the West"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 299,
+                                        "translation": {
+                                                "question": "Từ đỉnh The Tower, du khách nhìn thấy khu Olympic ở hướng nào?",
+                                                "options": {
+                                                        "A": "Phía Bắc",
+                                                        "B": "Phía Nam",
+                                                        "C": "Phía Đông",
+                                                        "D": "Phía Tây"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Phía bắc là hồ có đảo nhỏ.",
+                                                "B": "Sai. Phía nam là hồ trang trí hình tròn.",
+                                                "C": "Đúng. Khu Olympic nằm về phía đông.",
+                                                "D": "Sai. Phía tây là vườn hoa hồng."
+                                        },
+                                        "transcriptSnippet": "<span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">Out to the east</span>, the large buildings about a kilometre away are on the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">Olympic site</span>."
+                                },
+                                {
+                                        "id": 31,
+                                        "text": "According to the speaker, what are the main purposes of the park?",
+                                        "options": {
+                                                "A": "Education and entertainment",
+                                                "B": "Research and education",
+                                                "C": "Research and entertainment",
+                                                "D": "Education and agriculture"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 532,
+                                        "translation": {
+                                                "question": "Theo người nói, mục đích chính của công viên là gì?",
+                                                "options": {
+                                                        "A": "Giáo dục và giải trí",
+                                                        "B": "Nghiên cứu và giáo dục",
+                                                        "C": "Nghiên cứu và giải trí",
+                                                        "D": "Giáo dục và nông nghiệp"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Công viên có thể thú vị, nhưng entertainment không phải mục đích chính được nêu.",
+                                                "B": "Đúng. Công viên tạo cơ hội giáo dục và cung cấp địa điểm nghiên cứu.",
+                                                "C": "Sai. Entertainment không phải mục đích chính.",
+                                                "D": "Sai. Agriculture là lĩnh vực liên quan, nhưng cặp mục đích chính là research và education."
+                                        },
+                                        "transcriptSnippet": "Our remit is to give <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">educational opportunities</span>... as well as to offer <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">research sites</span>."
+                                },
+                                {
+                                        "id": 32,
+                                        "text": "Which is the biggest part of the Park?",
+                                        "options": {
+                                                "A": "The Forest area",
+                                                "B": "Market Garden area",
+                                                "C": "The Rare Breed section",
+                                                "D": "Experimental Crop Area"
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 532,
+                                        "translation": {
+                                                "question": "Phần lớn nhất của công viên là khu nào?",
+                                                "options": {
+                                                        "A": "Khu rừng",
+                                                        "B": "Khu vườn thị trường",
+                                                        "C": "Khu giống vật nuôi quý hiếm",
+                                                        "D": "Khu cây trồng thử nghiệm"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Phần lớn nhất của công viên là Forest Area.",
+                                                "B": "Sai. Market Garden ở góc đông nam.",
+                                                "C": "Sai. Rare Breeds section không phải khu lớn nhất.",
+                                                "D": "Sai. Experimental Crop Area nằm cạnh khu lễ tân."
+                                        },
+                                        "transcriptSnippet": "Further east... in the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">largest section</span> of our Park is the <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">Forest Area</span>."
+                                },
+                                {
+                                        "id": 33,
+                                        "text": "How can you move around the park?",
+                                        "options": {
+                                                "A": "By tram, walking or bicycle",
+                                                "B": "By solar car or bicycle",
+                                                "C": "By bicycle, walking or bus",
+                                                "D": "By bus or bicycle"
+                                        },
+                                        "correct": "A",
+                                        "timestamp": 532,
+                                        "translation": {
+                                                "question": "Bạn có thể di chuyển quanh công viên bằng cách nào?",
+                                                "options": {
+                                                        "A": "Bằng xe điện, đi bộ hoặc xe đạp",
+                                                        "B": "Bằng xe hơi năng lượng mặt trời hoặc xe đạp",
+                                                        "C": "Bằng xe đạp, đi bộ hoặc xe buýt",
+                                                        "D": "Bằng xe buýt hoặc xe đạp"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Đúng. Có thể thuê xe đạp, đi bộ hoặc đi electric tram chạy bằng năng lượng mặt trời.",
+                                                "B": "Sai. Không có solar car, mà là electric tram.",
+                                                "C": "Sai. Không có xe buýt.",
+                                                "D": "Sai. Không có xe buýt và thiếu đi bộ/tram."
+                                        },
+                                        "transcriptSnippet": "We have <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">bicycles</span>... you can <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">go on foot</span>, and finally there's our <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">electric tram</span>."
+                                },
+                                {
+                                        "id": 34,
+                                        "text": "What rare breed animals are kept in the park?",
+                                        "options": {
+                                                "A": "Hens and horses",
+                                                "B": "Goats and cows",
+                                                "C": "Goats and hens",
+                                                "D": "Cows and horses"
+                                        },
+                                        "correct": "C",
+                                        "timestamp": 532,
+                                        "translation": {
+                                                "question": "Những động vật giống quý hiếm nào được nuôi trong công viên?",
+                                                "options": {
+                                                        "A": "Gà mái và ngựa",
+                                                        "B": "Dê và bò",
+                                                        "C": "Dê và gà mái",
+                                                        "D": "Bò và ngựa"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Có hens nhưng chưa có horses.",
+                                                "B": "Sai. Có goats nhưng chưa có cows.",
+                                                "C": "Đúng. Công viên hiện nuôi goats, sheep, hens và gia cầm khác.",
+                                                "D": "Sai. Bò và ngựa mới chỉ đang được cân nhắc."
+                                        },
+                                        "transcriptSnippet": "We keep <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">goats, sheep, and hens</span>, and other kinds of poultry."
+                                },
+                                {
+                                        "id": 35,
+                                        "text": "What is the main purpose of having the Rare Breeds Section?",
+                                        "options": {
+                                                "A": "To save unusual animals",
+                                                "B": "To keep a variety of breeds",
+                                                "C": "To educate the public",
+                                                "D": "To save injured animals"
+                                        },
+                                        "correct": "B",
+                                        "timestamp": 532,
+                                        "translation": {
+                                                "question": "Mục đích chính của khu Rare Breeds là gì?",
+                                                "options": {
+                                                        "A": "Cứu các loài động vật lạ",
+                                                        "B": "Duy trì sự đa dạng giống",
+                                                        "C": "Giáo dục công chúng",
+                                                        "D": "Cứu động vật bị thương"
+                                                }
+                                        },
+                                        "explanations": {
+                                                "A": "Sai. Người nói nhấn mạnh không phải chỉ để bảo tồn động vật hiếm.",
+                                                "B": "Đúng. Mục đích chính là duy trì sự đa dạng giống và mở rộng nguồn gene.",
+                                                "C": "Sai. Có bài nói ngắn cho công chúng, nhưng đó không phải mục đích chính của khu này.",
+                                                "D": "Sai. Động vật bị thương không được nhắc đến."
+                                        },
+                                        "transcriptSnippet": "Not as such to preserve rare animals, but to <span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1\">maintain the diversity of breeds</span>..."
+                                }
+                        ]
+                }
+        ]
+};
+
+        // --- HÀM TRỘN MẢNG ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        // --- AUDIO COMPONENT ---
+        const AudioPlayer = ({ src, audioId, isReviewMode = false, timestamps = [] }) => {
+            const audioRef = useRef(null);
+            const progressBarRef = useRef(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [hasEnded, setHasEnded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            
+            // Lắng nghe sự kiện để tắt các audio khác khi có 1 audio bắt đầu phát
+            useEffect(() => {
+                const handleStopOtherAudios = (e) => {
+                    if (e.detail !== audioId && audioRef.current) {
+                        audioRef.current.pause();
+                        setIsPlaying(false);
+                    }
+                };
+                window.addEventListener('stopAllAudios', handleStopOtherAudios);
+                return () => window.removeEventListener('stopAllAudios', handleStopOtherAudios);
+            }, [audioId]);
+
+            const playAudio = () => {
+                // Bắn tín hiệu yêu cầu các AudioPlayer khác dừng lại
+                window.dispatchEvent(new CustomEvent('stopAllAudios', { detail: audioId }));
+                const playPromise = audioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        setIsPlaying(true);
+                        setHasEnded(false);
+                        setHasError(false);
+                    }).catch(error => {
+                        console.error("Lỗi phát âm thanh:", error);
+                        setHasError(true);
+                        setIsPlaying(false);
+                    });
+                }
+            };
+
+            const togglePlay = () => {
+                if (hasEnded && !isReviewMode) return;
+                
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (isReviewMode && hasEnded) {
+                        audioRef.current.currentTime = 0;
+                    }
+                    playAudio();
+                }
+            };
+
+            const handleTimeUpdate = () => {
+                const current = audioRef.current.currentTime;
+                const duration = audioRef.current.duration;
+                setCurrentTime(current);
+                if (duration) {
+                    setProgress((current / duration) * 100);
+                }
+            };
+
+            const handleEnded = () => {
+                setIsPlaying(false);
+                setHasEnded(true);
+            };
+
+            const handleError = (e) => {
+                console.error("Không thể tải nguồn âm thanh.", e);
+                setHasError(true);
+            };
+
+            // Tính năng tua trên thanh Progress
+            const handleProgressClick = (e) => {
+                if (!isReviewMode) return; // Chỉ cho tua khi ở chế độ Review
+                if (hasError || !audioRef.current?.duration) return;
+                
+                const rect = progressBarRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newPercentage = clickX / width;
+                const newTime = newPercentage * audioRef.current.duration;
+                
+                audioRef.current.currentTime = newTime;
+                setProgress(newPercentage * 100);
+                
+                // Tự động phát tiếp nếu đang pause và tua xong
+                if (!isPlaying) playAudio();
+            };
+
+            // Tính toán Timestamp nào đang active (Đang nghe tới đâu sáng tới đó)
+            let activeTimestampIndex = -1;
+            if (timestamps && timestamps.length > 0) {
+                for (let i = timestamps.length - 1; i >= 0; i--) {
+                    if (currentTime >= timestamps[i].time - 0.5) {
+                        activeTimestampIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col shadow-sm w-full">
+                    <div className="flex items-center w-full">
+                        <audio ref={audioRef} src={src} onTimeUpdate={handleTimeUpdate} onEnded={handleEnded} onError={handleError} className="hidden" />
+                        <button onClick={togglePlay} disabled={hasEnded && !isReviewMode} className={`mr-4 focus:outline-none transition-colors ${(hasEnded && !isReviewMode) ? 'text-gray-400 cursor-not-allowed' : hasError ? 'text-red-500' : 'text-blue-600 hover:text-blue-800'}`}>
+                            {isPlaying ? <PauseCircle size={40} /> : hasError ? <AlertCircle size={40} /> : <PlayCircle size={40} />}
+                        </button>
+                        <div className="flex-1">
+                            <div 
+                                ref={progressBarRef}
+                                onClick={handleProgressClick}
+                                className={`h-3 bg-gray-200 rounded-full overflow-hidden ${isReviewMode ? 'cursor-pointer hover:h-4 transition-all' : ''}`}
+                                title={isReviewMode ? "Bấm vào thanh này để tua nhanh/chậm" : ""}
+                            >
+                                <div className={`h-full transition-all duration-100 ${(hasEnded && !isReviewMode) ? 'bg-gray-400' : hasError ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                                <span className={hasError ? "text-red-500 font-bold" : ""}>
+                                    {hasError ? "Lỗi Audio." : (hasEnded && !isReviewMode) ? "Đã khóa (Chỉ nghe 1 lần)" : (hasEnded && isReviewMode) ? "Bấm Play để nghe lại" : isReviewMode ? "Bấm thanh màu xám để tua" : "Bấm Play để nghe"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {/* KHU VỰC TIMESTAMPS GỌN GÀNG NHƯ YOUTUBE CHAPTERS */}
+                    {isReviewMode && timestamps && timestamps.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                            <p className="text-xs font-bold text-blue-800 mb-2">TIMESTAMPS CHỮA BÀI (Bấm để tua đến vị trí bài nghe):</p>
+                            <div className="flex flex-wrap gap-2">
+                                {timestamps.map((ts, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => {
+                                            if (hasError || !audioRef.current) return;
+                                            audioRef.current.currentTime = ts.time;
+                                            if (!isPlaying) playAudio();
+                                        }}
+                                        className={`px-2 py-1 text-xs font-bold rounded shadow-sm transition-colors ${activeTimestampIndex === idx ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'}`}
+                                    >
+                                        {ts.label} ({formatTimeStr(ts.time)})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- STAGE 1: LÀM BÀI TEST ---
+        function Stage1Test({ answers, setAnswers, onSubmit }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const handleOptionChange = (questionId, option) => {
+                setAnswers(prev => ({ ...prev, [questionId]: option }));
+            };
+
+            const answeredCount = Object.keys(answers).length;
+
+            return (
+                <div className="h-full flex flex-col relative bg-gray-100 pb-12">
+                    <div className="max-w-5xl mx-auto mt-6 px-4 w-full">
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b sticky top-16 z-30">
+                        {TEST_DATA.parts.map(part => (
+                            <button
+                            key={part.id}
+                            className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab(part.id)}
+                            >
+                            Part {part.id}
+                            </button>
+                        ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl p-4 md:p-8">
+                        {TEST_DATA.parts.map(part => (
+                            <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                            <div className="mb-6">
+                                <h2 className="text-xl font-bold mb-2">{part.title}</h2>
+                                <p className="text-gray-600 italic text-sm mb-4">{part.instructions}</p>
+                                <AudioPlayer src={part.audioSrc} audioId={part.id} />
+                            </div>
+                            
+                            <div className="space-y-8">
+                                {part.questions.map(q => {
+                                const checkedVal = answers[q.id];
+                                return (
+                                    <div key={q.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div className="flex items-start mb-4">
+                                        <span className="bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded mr-3 mt-0.5 shrink-0 text-sm">Câu {q.id}</span>
+                                        <p className="font-semibold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {Object.entries(q.options).map(([key, value]) => {
+                                        const checked = checkedVal === key;
+                                        return (
+                                            <label key={key} className={`flex items-start p-3 rounded-md cursor-pointer border transition-colors ${checked ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                            <input type="radio" name={`q-${q.id}`} value={key} checked={checked} onChange={() => handleOptionChange(q.id, key)} className="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                            <span className="font-bold mr-2">{key}.</span><span>{value}</span>
+                                            </label>
+                                        );
+                                        })}
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+
+                        <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm gap-4 border border-gray-200">
+                            <div className="text-gray-600 font-medium flex items-center">
+                                <CheckCircle size={18} className="mr-2 text-green-500" />
+                                <span>Đã chọn: <span className="font-bold">{answeredCount}/35</span> câu</span>
+                            </div>
+                            <button onClick={() => setShowConfirm(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform hover:scale-105 w-full md:w-auto">
+                                Nộp Bài Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    {showConfirm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl animate-fade-in text-center">
+                            <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+                            <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn nộp bài? Hành động này không thể hoàn tác và bạn sẽ không thể thay đổi đáp án.</p>
+                            <div className="flex justify-center space-x-3">
+                            <button onClick={() => setShowConfirm(false)} className="px-5 py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Hủy</button>
+                            <button onClick={() => { setShowConfirm(false); onSubmit(); }} className="px-5 py-2 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition">Đồng ý nộp</button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- STAGE 2: KẾT QUẢ ---
+        function Stage2Result({ answers, onGoToGame }) {
+            const [activeTab, setActiveTab] = useState(1);
+            const [showTranscript, setShowTranscript] = useState({});
+            const [activeTranslation, setActiveTranslation] = useState({});
+
+            const calculateScore = () => {
+                let correct = 0;
+                TEST_DATA.parts.forEach(part => {
+                part.questions.forEach(q => {
+                    if (answers[q.id] === q.correct) correct++;
+                });
+                });
+                return correct;
+            };
+
+            const correctCount = calculateScore();
+            const vstepScore = convertVstepScore(correctCount);
+
+            const toggleTranscript = (partId) => {
+                setShowTranscript(prev => ({...prev, [partId]: !prev[partId]}));
+            };
+
+            const toggleTranslation = (partId, label) => {
+                setActiveTranslation(prev => {
+                    const currentActive = prev[partId];
+                    if (currentActive === label) {
+                        return { ...prev, [partId]: null };
+                    }
+                    return { ...prev, [partId]: label };
+                });
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 pb-12 relative">
+                    <div className="max-w-5xl mx-auto mt-6 px-4">
+                        
+                        {/* Khu vực thông báo kết quả và nút chuyển qua Minigame */}
+                        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 shadow-md text-center flex flex-col items-center">
+                            <Award className="text-yellow-500 mb-2" size={40} />
+                            <h2 className="text-2xl font-bold text-green-700 mb-2">Đã Nộp Bài!</h2>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 w-full max-w-md">
+                                <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-green-200 flex-1">
+                                    <p className="text-sm text-gray-500 uppercase font-bold mb-1">Số câu đúng</p>
+                                    <p className="text-3xl font-bold text-gray-800">{correctCount}<span className="text-lg text-gray-500 font-normal">/35</span></p>
+                                </div>
+                                <div className="bg-white px-6 py-4 rounded-xl shadow-sm border-2 border-blue-400 relative overflow-hidden flex-1">
+                                    <div className="absolute top-0 left-0 right-0 bg-blue-500 h-1"></div>
+                                    <p className="text-sm text-blue-600 uppercase font-bold mb-1">Điểm VSTEP</p>
+                                    <p className="text-4xl font-black text-blue-700">{vstepScore.toFixed(1)}<span className="text-xl text-gray-400 font-bold">/10</span></p>
+                                </div>
+                            </div>
+                            
+                            {/* Banner Mời chơi Minigame */}
+                            <div className="bg-white p-4 rounded-lg border border-purple-200 shadow-sm mt-4 w-full max-w-2xl">
+                                <h3 className="text-lg font-bold text-purple-700 flex items-center justify-center mb-2">
+                                    <Gamepad2 size={24} className="mr-2"/> Bạn muốn nhớ từ vựng lâu hơn?
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">Hệ thống đã chắt lọc ra 10 từ vựng quan trọng nhất xuất hiện trong đề thi này. Chơi Minigame để khắc phục những từ bạn sai nhé!</p>
+                                <button onClick={onGoToGame} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition-transform hover:scale-105">
+                                    Học & Chơi Minigame Từ Vựng
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-white rounded-t-xl overflow-hidden shadow-sm border-b">
+                            {TEST_DATA.parts.map(part => (
+                                <button key={part.id} className={`flex-1 py-4 text-center font-bold text-sm uppercase transition-colors ${activeTab === part.id ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`} onClick={() => setActiveTab(part.id)}>
+                                Part {part.id}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-white shadow-md rounded-b-xl pb-8 relative">
+                            {TEST_DATA.parts.map(part => (
+                                <div key={part.id} className={activeTab === part.id ? 'block' : 'hidden'}>
+                                    
+                                    {/* THẺ AUDIO CỐ ĐỊNH PHÍA TRÊN */}
+                                    <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-blue-200 p-4 shadow-sm">
+                                        <h3 className="text-sm font-bold text-blue-800 mb-2 uppercase flex items-center"><Headphones size={18} className="mr-2"/> {part.title} Audio - Cho phép tua</h3>
+                                        <AudioPlayer 
+                                            src={part.audioSrc} 
+                                            audioId={`review-${part.id}`} 
+                                            isReviewMode={true} 
+                                            timestamps={part.audioTimestamps}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-8 p-4 md:p-8 mt-4">
+                                        {part.questions.map(q => {
+                                        const userAns = answers[q.id];
+                                        const isCorrect = userAns === q.correct;
+                                        const isUnanswered = !userAns;
+                                        
+                                        return (
+                                            <div key={q.id} className={`p-4 md:p-5 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50/30' : isUnanswered ? 'border-yellow-500 bg-yellow-50/30' : 'border-red-500 bg-red-50/30'}`}>
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="flex items-start">
+                                                        <span className={`px-2 py-1 rounded text-white font-bold text-xs md:text-sm mr-3 shrink-0 ${isCorrect ? 'bg-green-500' : isUnanswered ? 'bg-yellow-500' : 'bg-red-500'}`}>Câu {q.id}</span>
+                                                        <p className="font-bold text-gray-900 text-sm md:text-base">{q.text}</p>
+                                                    </div>
+                                                    {isCorrect ? <CheckCircle className="text-green-500 shrink-0 ml-2" size={24}/> : <XCircle className="text-red-500 shrink-0 ml-2" size={24}/>}
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 md:ml-12">
+                                                    {Object.entries(q.options).map(([key, value]) => {
+                                                    const isSelected = userAns === key;
+                                                    const isActualCorrect = key === q.correct;
+                                                    
+                                                    let btnClass = "text-left px-3 py-2 rounded-md border flex items-center ";
+                                                    if (isActualCorrect) btnClass += "border-green-500 bg-green-100 text-green-800 font-bold shadow-sm";
+                                                    else if (isSelected && !isActualCorrect) btnClass += "border-red-500 bg-red-100 text-red-800";
+                                                    else btnClass += "border-gray-200 bg-white opacity-60";
+
+                                                    return (
+                                                        <div key={key} className={btnClass}>
+                                                            <span className="font-bold mr-2">{key}.</span> <span>{value}</span>
+                                                            {isActualCorrect && <CheckCircle size={18} className="ml-auto text-green-600" />}
+                                                            {isSelected && !isActualCorrect && <XCircle size={18} className="ml-auto text-red-600" />}
+                                                        </div>
+                                                    );
+                                                    })}
+                                                </div>
+
+                                                <div className="md:ml-12 bg-white p-4 rounded-lg border shadow-sm mt-4">
+                                                    <h4 className="font-bold mb-2 text-blue-800 border-b pb-2 flex items-center"><BookOpen size={18} className="mr-2"/> Giải thích chi tiết</h4>
+                                                    
+                                                    <div className="mb-4 text-sm text-gray-700">
+                                                        <p className="mb-1 font-semibold italic text-gray-800">Dịch câu hỏi: {q.translation.question}</p>
+                                                        <ul className="mb-3 pl-4 list-disc text-gray-700 mt-2">
+                                                            {Object.entries(q.translation.options).map(([k, v]) => (<li key={k}><strong>{k}.</strong> {v}</li>))}
+                                                        </ul>
+                                                    </div>
+
+                                                    {/* Phần giải thích logic sai/đúng */}
+                                                    <div className="space-y-3 text-sm">
+                                                        {isUnanswered && (
+                                                            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+                                                                <strong>Bạn đã bỏ trống câu này!</strong> Hãy luôn thử dự đoán đáp án dù không nghe rõ nhé.
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {userAns && !isCorrect && (
+                                                            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800">
+                                                                <span className="font-bold uppercase mb-1 block">Tại sao bạn sai?</span>
+                                                                <strong>Bạn chọn {userAns}:</strong> {q.explanations[userAns]}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        <div className="p-3 bg-green-50 border border-green-200 rounded text-green-800">
+                                                            <span className="font-bold uppercase mb-1 block">Phân tích đáp án đúng</span>
+                                                            <strong>Đáp án {q.correct}:</strong> {q.explanations[q.correct]}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Trích đoạn Transcript Bôi đỏ */}
+                                                    <div className="mt-4 pt-4 border-t border-dashed">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center"><FileText size={14} className="mr-1"/> Đoạn Audio xuất hiện đáp án:</h5>
+                                                        </div>
+                                                        <p className="bg-gray-50 p-3 rounded text-gray-800 italic leading-relaxed" dangerouslySetInnerHTML={{ __html: q.transcriptSnippet }}></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                        })}
+                                    </div>
+
+                                    {/* NÚT ẨN/HIỆN TRANSCRIPT ĐẦY ĐỦ */}
+                                    <div className="mt-8 border-t-2 border-dashed pt-6 mb-4 px-4 md:px-8">
+                                        <button onClick={() => toggleTranscript(part.id)} className="flex items-center justify-center w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-lg transition-colors">
+                                            <FileText className="mr-2" size={20} />
+                                            {showTranscript[part.id] ? "Ẩn Transcript (Nội dung bài nghe đầy đủ)" : "Hiện Transcript (Nội dung bài nghe đầy đủ)"}
+                                        </button>
+
+                                        {/* PHẦN DỊCH TIẾNG VIỆT */}
+                                        {showTranscript[part.id] && part.transcriptTranslations && (
+                                            <div className="mt-4 p-4 bg-white border border-blue-200 rounded-lg shadow-sm">
+                                                <p className="text-sm font-bold text-blue-800 mb-3 uppercase flex items-center">
+                                                    <BookOpen size={16} className="mr-2" />
+                                                    Xem bản dịch tiếng Việt
+                                                </p>
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    {part.transcriptTranslations.map((trans, idx) => (
+                                                        <button 
+                                                            key={idx}
+                                                            onClick={() => toggleTranslation(part.id, trans.label)}
+                                                            className={`px-3 py-1.5 text-sm font-bold rounded shadow-sm transition-colors ${activeTranslation[part.id] === trans.label ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100'}`}
+                                                        >
+                                                            Dịch {trans.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                
+                                                {/* Khu vực hiển thị nội dung dịch */}
+                                                {activeTranslation[part.id] && (
+                                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line animate-fade-in border-l-4 border-l-blue-500">
+                                                        <h5 className="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-2">
+                                                            {activeTranslation[part.id]} (Tiếng Việt):
+                                                        </h5>
+                                                        {part.transcriptTranslations.find(t => t.label === activeTranslation[part.id])?.text}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {showTranscript[part.id] && (
+                                            <div className="mt-4 p-5 bg-yellow-50 border border-yellow-200 rounded-lg text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {part.transcript}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- STAGE 3: MINIGAME TỪ VỰNG ---
+        function Stage3VocabGame({ onBackToResult }) {
+            const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
+            const [playList, setPlayList] = useState(VOCAB_DATA); // List từ đang chơi
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [options, setOptions] = useState([]);
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [score, setScore] = useState(0);
+            const [playingWord, setPlayingWord] = useState(null);
+            
+            // Array lưu các từ làm sai
+            const [wrongVocabs, setWrongVocabs] = useState([]);
+
+            const loadQuestion = () => {
+                if (currentIndex >= playList.length) {
+                    setGamePhase('finish');
+                    return;
+                }
+                const currentVocab = playList[currentIndex];
+                
+                // Lấy 3 nghĩa sai ngẫu nhiên từ TỔNG DATA gốc để lúc nào cũng có đủ 3 options gây nhiễu
+                const incorrectOptions = VOCAB_DATA
+                    .filter(v => v.word !== currentVocab.word)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(v => v.meaning);
+                
+                const allOptions = shuffleArray([currentVocab.meaning, ...incorrectOptions]);
+                setOptions(allOptions);
+                setSelectedOption(null);
+                
+                // Trì hoãn một chút để UI render xong rồi mới phát âm thanh
+                setTimeout(() => playWordAudio(currentVocab.word), 500);
+            };
+
+            useEffect(() => {
+                if (gamePhase === 'play') {
+                    loadQuestion();
+                }
+            }, [currentIndex, gamePhase, playList]);
+
+            const playWordAudio = (word) => {
+                setPlayingWord(word);
+                const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
+                const audio = new Audio(audioUrl);
+                
+                audio.play().catch(err => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(word);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        utterance.onend = () => setPlayingWord(null);
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        setPlayingWord(null);
+                    }
+                });
+                audio.onended = () => setPlayingWord(null);
+            };
+
+            const handleSelect = (opt) => {
+                if (selectedOption !== null) return; 
+                setSelectedOption(opt);
+                
+                const currentVocab = playList[currentIndex];
+                if (opt === currentVocab.meaning) {
+                    setScore(prev => prev + 1);
+                } else {
+                    // Nếu chọn sai, thêm từ đó vào danh sách wrongVocabs (không add trùng)
+                    if (!wrongVocabs.find(w => w.word === currentVocab.word)) {
+                        setWrongVocabs(prev => [...prev, currentVocab]);
+                    }
+                }
+            };
+
+            const handleNext = () => {
+                if (currentIndex + 1 >= playList.length) {
+                    setGamePhase('finish');
+                } else {
+                    setCurrentIndex(prev => prev + 1);
+                }
+            };
+
+            // Chơi lại toàn bộ 10 từ
+            const handleRestartAll = () => {
+                setPlayList(VOCAB_DATA);
+                setWrongVocabs([]); // reset sai
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play'); 
+            };
+
+            // Chỉ chơi lại những câu đã sai
+            const handleReplayWrong = () => {
+                setPlayList(wrongVocabs);
+                setWrongVocabs([]); // reset để bắt lỗi lại cho lượt đánh này
+                setCurrentIndex(0);
+                setScore(0);
+                setGamePhase('play');
+            };
+
+            if (gamePhase === 'learn') {
+                return (
+                    <div className="max-w-4xl mx-auto mt-8 px-4 pb-12">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                            <div className="bg-blue-600 p-6 text-white text-center">
+                                <h2 className="text-2xl font-bold flex items-center justify-center">
+                                    <BookOpen className="mr-2" />
+                                    DANH SÁCH TỪ VỰNG QUAN TRỌNG
+                                </h2>
+                                <p className="mt-2 opacity-90">Hãy nghe và ghi nhớ các từ vựng này trước khi bước vào thử thách nhé!</p>
+                            </div>
+                            <div className="p-6 md:p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {VOCAB_DATA.map((item, idx) => (
+                                        <div key={idx} className={`flex items-center p-4 rounded-xl border transition-colors ${playingWord === item.word ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-blue-50'}`}>
+                                            <button 
+                                                onClick={() => playWordAudio(item.word)}
+                                                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 transition-all ${playingWord === item.word ? 'bg-blue-500 text-white shadow-md scale-110' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                            >
+                                                <Volume2 size={24} />
+                                            </button>
+                                            <div>
+                                                <p className="font-bold text-lg text-gray-800">{item.word}</p>
+                                                <p className="text-gray-600 text-sm">{item.meaning}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-10 text-center">
+                                    <button 
+                                        onClick={() => {
+                                            setPlayList(VOCAB_DATA);
+                                            setCurrentIndex(0);
+                                            setScore(0);
+                                            setWrongVocabs([]);
+                                            setGamePhase('play');
+                                        }}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:scale-105 inline-flex items-center text-lg"
+                                    >
+                                        <Gamepad2 className="mr-2" size={28} /> Đã Nhớ! Bắt Đầu Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gamePhase === 'finish') {
+                return (
+                    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-8 border-purple-500">
+                            <Award size={64} className="text-yellow-400 mx-auto mb-4" />
+                            <h2 className="text-3xl font-black text-gray-800 mb-2">Hoàn Thành!</h2>
+                            <p className="text-gray-600 mb-6">Bạn đã đối mặt với {playList.length} thử thách từ vựng.</p>
+                            
+                            <div className="text-5xl font-black text-purple-600 mb-8">
+                                {score} <span className="text-2xl text-gray-400">/ {playList.length}</span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {wrongVocabs.length > 0 && (
+                                    <button 
+                                        onClick={handleReplayWrong}
+                                        className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition flex items-center justify-center animate-pulse shadow-md"
+                                    >
+                                        <RefreshCw size={20} className="mr-2" /> Chơi Lại {wrongVocabs.length} Câu Sai
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleRestartAll}
+                                    className="w-full py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <RefreshCw size={20} className="mr-2" /> Chơi Lại Toàn Bộ Từ Đầu
+                                </button>
+                                <button 
+                                    onClick={() => setGamePhase('learn')}
+                                    className="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <BookOpen size={20} className="mr-2" /> Xem Lại Từ Vựng
+                                </button>
+                                <button 
+                                    onClick={onBackToResult}
+                                    className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl transition flex items-center justify-center"
+                                >
+                                    <FileText size={20} className="mr-2" /> Trở Về Bài Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentVocab = playList[currentIndex];
+            if (!currentVocab) return null; // Safety check
+
+            return (
+                <div className="max-w-3xl mx-auto mt-8 px-4 pb-12">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+                        {/* Header của Minigame */}
+                        <div className="bg-purple-600 p-4 text-white flex justify-between items-center">
+                            <div className="font-bold flex items-center">
+                                <Gamepad2 className="mr-2" />
+                                {playList.length < 10 ? 'LUYỆN TẬP CÂU SAI' : 'THỬ THÁCH NGHE TỪ VỰNG'}
+                            </div>
+                            <div className="bg-purple-800 px-3 py-1 rounded-full text-sm font-bold shadow-inner">
+                                Câu {currentIndex + 1} / {playList.length}
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-10 text-center">
+                            <p className="text-gray-600 mb-6 font-medium">Lắng nghe kỹ và chọn nghĩa tiếng Việt chính xác nhất cho cụm từ bạn vừa nghe thấy:</p>
+                            
+                            {/* Nút phát loa */}
+                            <button 
+                                onClick={() => playWordAudio(currentVocab.word)}
+                                className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-all shadow-lg mb-8 ${playingWord === currentVocab.word ? 'bg-purple-200 text-purple-600 scale-95 ring-4 ring-purple-300' : 'bg-purple-100 text-purple-500 hover:bg-purple-200 hover:scale-105'}`}
+                            >
+                                <Volume2 size={48} />
+                            </button>
+
+                            {/* Khu vực hiển thị từ tiếng Anh (chỉ hiện sau khi đã chọn đáp án) */}
+                            <div className="h-12 mb-6">
+                                {selectedOption !== null && (
+                                    <div className="animate-fade-in inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 px-6 py-2 rounded-xl text-xl font-bold tracking-wide shadow-sm">
+                                        {currentVocab.word}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Các lựa chọn đáp án */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {options.map((opt, idx) => {
+                                    let btnClass = "p-4 rounded-xl border-2 font-bold text-left transition-all ";
+                                    
+                                    if (selectedOption === null) {
+                                        btnClass += "border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50";
+                                    } else {
+                                        if (opt === currentVocab.meaning) {
+                                            btnClass += "border-green-500 bg-green-100 text-green-800"; // Đáp án đúng luôn hiện xanh
+                                        } else if (opt === selectedOption && selectedOption !== currentVocab.meaning) {
+                                            btnClass += "border-red-500 bg-red-100 text-red-800"; // Bấm sai thì hiện đỏ
+                                        } else {
+                                            btnClass += "border-gray-100 text-gray-400 opacity-50"; // Các ô khác mờ đi
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => handleSelect(opt)}
+                                            className={btnClass}
+                                            disabled={selectedOption !== null}
+                                        >
+                                            {opt}
+                                            {selectedOption !== null && opt === currentVocab.meaning && <CheckCircle className="inline float-right text-green-600" size={20} />}
+                                            {selectedOption !== null && opt === selectedOption && selectedOption !== currentVocab.meaning && <XCircle className="inline float-right text-red-600" size={20} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Nút Next */}
+                            <div className="mt-8 h-12">
+                                {selectedOption !== null && (
+                                    <button 
+                                        onClick={handleNext}
+                                        className="bg-gray-800 hover:bg-black text-white font-bold py-3 px-8 rounded-full shadow-md transition-transform hover:scale-105 animate-fade-in"
+                                    >
+                                        Câu Tiếp Theo &rarr;
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- MAIN APP ---
+        function App() {
+            const [stage, setStage] = useState(1); // 1: Test, 2: Result, 3: Vocab Game
+            const [answers, setAnswers] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(TEST_DATA.duration);
+
+            useEffect(() => {
+                if (isSubmitted) return;
+                if (timeLeft <= 0) {
+                    setIsSubmitted(true);
+                    setStage(2);
+                    return;
+                }
+                const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, isSubmitted]);
+
+            const handleSubmit = () => {
+                setIsSubmitted(true);
+                setStage(2);
+                window.scrollTo(0, 0);
+            };
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
+                    {/* Header cố định */}
+                    <header className="bg-white shadow-md sticky top-0 z-50 overflow-x-auto">
+                        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-row justify-between items-center gap-4 min-w-[700px]">
+                            {/* Tiêu đề bên trái */}
+                            <div className="font-black text-xl md:text-2xl text-blue-800 uppercase tracking-wide whitespace-nowrap flex-1 text-left">
+                                VSTEP LISTENING TEST 07
+                            </div>
+                            
+                            {/* Đồng hồ ở giữa */}
+                            <div className="flex-1 flex justify-center">
+                                <div className={`flex items-center space-x-2 font-mono text-xl px-4 py-1.5 rounded-md font-bold whitespace-nowrap ${timeLeft < 300 && !isSubmitted ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
+                                    <Clock size={20} />
+                                    <span>{formatTime(timeLeft)}</span>
+                                </div>
+                            </div>
+
+                            {/* Navigation Tabs ở rìa phải */}
+                            <div className="flex-1 flex justify-end">
+                                <div className="flex bg-gray-100 p-1 rounded-lg whitespace-nowrap">
+                                    <button 
+                                        onClick={() => setStage(1)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 1 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'}`}
+                                    >
+                                        Làm Bài
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(2)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors ${stage === 2 ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-blue-600'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        Kết Quả
+                                    </button>
+                                    <button 
+                                        onClick={() => isSubmitted && setStage(3)}
+                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-colors flex items-center ${stage === 3 ? 'bg-purple-500 text-white shadow-sm' : 'text-purple-600 hover:bg-purple-100'} ${!isSubmitted ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                        disabled={!isSubmitted}
+                                    >
+                                        <Gamepad2 size={16} className="mr-1" /> Minigame
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="h-auto min-h-[calc(100vh-64px)] pb-10">
+                        {stage === 1 && <Stage1Test answers={answers} setAnswers={setAnswers} onSubmit={handleSubmit} />}
+                        {stage === 2 && <Stage2Result answers={answers} onGoToGame={() => setStage(3)} />}
+                        {stage === 3 && <Stage3VocabGame onBackToResult={() => setStage(2)} />}
+                    </main>
+
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        .animate-fade-in {
+                            animation: fadeIn 0.3s ease-out forwards;
+                        }
+                    `}} />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
