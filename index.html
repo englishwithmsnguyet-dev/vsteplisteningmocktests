@@ -554,7 +554,7 @@
                                         {/* HTML Hidden Audio Element */}
                                         <audio 
                                             ref={el => audioRefs.current[part.id] = el}
-                                            src={Array.isArray(part.audioSrc) ? part.audioSrc[subAudioIndexes[part.id] || 0] : part.audioSrc}
+                                            src={Array.isArray(part.audioSrc) ? encodeURI(part.audioSrc[subAudioIndexes[part.id] || 0]) : encodeURI(part.audioSrc || '')}
                                             onPlay={() => setIsPlaying(true)}
                                             onPause={() => setIsPlaying(false)}
                                             onTimeUpdate={(e) => {
