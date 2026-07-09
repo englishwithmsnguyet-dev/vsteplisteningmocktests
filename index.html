@@ -259,6 +259,7 @@
             const [progress, setProgress] = useState(0);
             
             const [audioPlayedState, setAudioPlayedState] = useState({});
+            const [subAudioIndexes, setSubAudioIndexes] = useState({});
 
             const audioRefs = useRef({});
             const questionRefs = useRef({});
@@ -287,6 +288,14 @@
                     });
                 }
             }, [selectedPart]);
+
+            // Auto-play next sub-audio in the array
+            useEffect(() => {
+                if (isPlaying && audioRefs.current[selectedPart]) {
+                    const audio = audioRefs.current[selectedPart];
+                    audio.play().catch(e => console.error("Auto-play next audio failed:", e));
+                }
+            }, [subAudioIndexes]);
 
             // Handle speed adjustment
             const handleSpeedChange = (speed) => {
@@ -545,7 +554,7 @@
                                         {/* HTML Hidden Audio Element */}
                                         <audio 
                                             ref={el => audioRefs.current[part.id] = el}
-                                            src={part.audioSrc}
+                                            src={Array.isArray(part.audioSrc) ? part.audioSrc[subAudioIndexes[part.id] || 0] : part.audioSrc}
                                             onPlay={() => setIsPlaying(true)}
                                             onPause={() => setIsPlaying(false)}
                                             onTimeUpdate={(e) => {
@@ -559,7 +568,18 @@
                                                     setDuration(e.target.duration);
                                                 }
                                             }}
-                                            onEnded={() => setIsPlaying(false)}
+                                            onEnded={() => {
+                                                if (Array.isArray(part.audioSrc)) {
+                                                    const currentIndex = subAudioIndexes[part.id] || 0;
+                                                    if (currentIndex < part.audioSrc.length - 1) {
+                                                        setSubAudioIndexes(prev => ({...prev, [part.id]: currentIndex + 1}));
+                                                    } else {
+                                                        setIsPlaying(false);
+                                                    }
+                                                } else {
+                                                    setIsPlaying(false);
+                                                }
+                                            }}
                                             style={{ display: 'none' }}
                                         />
 
@@ -570,7 +590,11 @@
                                                     <i className={isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play"} style={{ fontSize: '16px' }}></i>
                                                 </button>
                                                 <div className="listening-player-info" style={{ marginLeft: '12px' }}>
-                                                    <div className="listening-player-title" style={{ fontWeight: 'bold', fontSize: '0.8rem', color: 'var(--text-dark)' }}>PART {part.id.toString().padStart(2, '0')} - TEST {test.id.toString().padStart(2, '0')}.MP3</div>
+                                                    <div className="listening-player-title" style={{ fontWeight: 'bold', fontSize: '0.8rem', color: 'var(--text-dark)' }}>
+                                                        PART {part.id.toString().padStart(2, '0')} 
+                                                        {Array.isArray(part.audioSrc) ? ` (${(subAudioIndexes[part.id] || 0) + 1}/${part.audioSrc.length})` : ''} 
+                                                        - TEST {test.id.toString().padStart(2, '0')}.MP3
+                                                    </div>
                                                     <div className="listening-player-timeline" onClick={handleTimelineClick} style={{ height: '6px', marginTop: '6px', background: 'var(--bg-slate)', borderRadius: '3px' }}>
                                                         <div className="listening-progress-bar" style={{ width: `${progress}%`, background: 'var(--color-violet)' }}></div>
                                                     </div>
@@ -610,11 +634,40 @@
                                             {part.questions.map(q => {
                                                 const selectedOption = answers[q.id];
                                                 
+                                                let groupHeader = null;
+                                                if (part.id === 2) {
+                                                    if (q.id === 9) groupHeader = "CONVERSATION 1: QUESTIONS 09-12";
+                                                    if (q.id === 13) groupHeader = "CONVERSATION 2: QUESTIONS 13-16";
+                                                    if (q.id === 17) groupHeader = "CONVERSATION 3: QUESTIONS 17-20";
+                                                } else if (part.id === 3) {
+                                                    if (q.id === 21) groupHeader = "TALK 1: QUESTIONS 21-25";
+                                                    if (q.id === 26) groupHeader = "TALK 2: QUESTIONS 26-30";
+                                                    if (q.id === 31) groupHeader = "TALK 3: QUESTIONS 31-35";
+                                                }
+                                                
                                                 return (
-                                                    <div 
-                                                        className="question-item-box" 
-                                                        key={q.id}
-                                                        ref={el => questionRefs.current[q.id] = el}
+                                                    <div key={q.id}>
+                                                        {groupHeader && (
+                                                            <div className="question-group-header" style={{
+                                                                background: 'linear-gradient(90deg, var(--color-violet), #8b5cf6)',
+                                                                color: '#fff',
+                                                                padding: '10px 16px',
+                                                                borderRadius: '8px',
+                                                                fontWeight: '700',
+                                                                marginBottom: '16px',
+                                                                marginTop: (q.id !== 9 && q.id !== 21) ? '32px' : '0',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '8px',
+                                                                boxShadow: '0 4px 6px rgba(124, 58, 237, 0.2)'
+                                                            }}>
+                                                                <i className="fa-solid fa-headphones"></i>
+                                                                {groupHeader}
+                                                            </div>
+                                                        )}
+                                                        <div 
+                                                            className="question-item-box" 
+                                                            ref={el => questionRefs.current[q.id] = el}
                                                     >
                                                         <p className="question-header-row">Câu {q.id}. {q.text}</p>
                                                         
@@ -708,6 +761,7 @@
                                                                 )}
                                                             </div>
                                                         )}
+                                                    </div>
                                                     </div>
                                                 );
                                             })}
