@@ -624,7 +624,7 @@ my group has been doing a project on how household waste is recycled in Britain.
             id: 1,
             title: "PART 1: Questions 1-8",
             instructions: "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
-            audioSrc: "AUDIO/TEST 02/PART 01 - TEST 02.mp3",
+            audioSrc: "https://files.catbox.moe/bfvvcn.mp3",
             audioTimestamps: [
                 { label: "Bài 1", time: 174 }, { label: "Bài 2", time: 202 }, { label: "Bài 3", time: 228 }, { label: "Bài 4", time: 261 }, { label: "Bài 5", time: 290 }, { label: "Bài 6", time: 324 }, { label: "Bài 7", time: 352 }, { label: "Bài 8", time: 383 }
             ],
@@ -795,11 +795,7 @@ Nữ 2: Ồ, tôi không biết nữa. Thực ra bản thân tôi thích tay tr�
             id: 2,
             title: "PART 2: Questions 9-20",
             instructions: "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-            audioSrc: [
-                "AUDIO/TEST 02/PART 02 - TEST 02 - CONVERSATION 01.mp3",
-                "AUDIO/TEST 02/PART 02 - TEST 02 - CONVERSATION 02.mp3",
-                "AUDIO/TEST 02/PART 02 - TEST 02 - CONVERSATION 03.mp3"
-            ],
+            audioSrc: "https://files.catbox.moe/3indfd.mp3",
             audioTimestamps: [
                 { label: "Hội thoại 1", time: 60 },
                 { label: "Hội thoại 2", time: 240 },
@@ -1026,11 +1022,7 @@ Sophie: Ồ, tôi nghĩ vậy. Các tiêu chuẩn chuyên môn hiện tại cao 
             id: 3,
             title: "PART 3: Questions 21-35",
             instructions: "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-            audioSrc: [
-                "AUDIO/TEST 02/PART 03 - TEST 02 - TALK 01.mp3",
-                "AUDIO/TEST 02/PART 03 - TEST 02 - TALK 02.mp3",
-                "AUDIO/TEST 02/PART 03 - TEST 02 - TALK 03.mp3"
-            ],
+            audioSrc: "https://files.catbox.moe/eygxlu.mp3",
             audioTimestamps: [
                 { label: "Bài giảng 1", time: 55 },
                 { label: "Bài giảng 2", time: 305 },
