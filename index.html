@@ -1466,9 +1466,38 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     return;
                 }
 
-                if (trimmedClass !== 'CB206') {
-                    setErrorMsg('Lớp không hợp lệ! Hệ thống chỉ chấp nhận lớp CB206.');
+                // Danh sách học viên lớp CB210 được phép truy cập
+                const cb210Students = [
+                    "Lê Huỳnh Thanh Duy",
+                    "Nguyễn Cao Kỳ Duyên",
+                    "Nguyễn Võ Thành Đạt",
+                    "Đào Ngọc Hân",
+                    "Trần Văn Hữu",
+                    "Trần Văn Kim Khoa",
+                    "Nguyễn Thanh Nâng",
+                    "Huỳnh Kỳ Nguyên",
+                    "Võ Thị Kim Nguyên",
+                    "Võ Hùng Sanh",
+                    "Trần Thị Thanh Thảo",
+                    "Đặng Thị Kim Thoa",
+                    "Trần Thị Tiên Tiên",
+                    "Lê Kim Tuyền"
+                ];
+
+                if (!['CB206', 'CB210'].includes(trimmedClass)) {
+                    setErrorMsg('Lớp không hợp lệ! Hệ thống chỉ chấp nhận lớp CB206 hoặc CB210.');
                     return;
+                }
+
+                if (trimmedClass === 'CB210') {
+                    const normalizeStr = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+                    const inputNormalized = normalizeStr(trimmedName);
+                    const matchedStudent = cb210Students.find(s => normalizeStr(s) === inputNormalized);
+
+                    if (!matchedStudent) {
+                        setErrorMsg('Họ và tên không thuộc danh sách học viên lớp CB210.');
+                        return;
+                    }
                 }
 
                 if (!trimmedPassword) {
@@ -1892,7 +1921,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 gap: '6px'
                             }}>
                                 <i className="fa-solid fa-user-graduate" style={{ color: 'var(--color-violet)' }}></i>
-                                Học viên lớp CB206
+                                Học viên lớp {currentUser.className || 'CB206'}
                             </div>
                             <div style={{
                                 fontSize: '0.92rem',
