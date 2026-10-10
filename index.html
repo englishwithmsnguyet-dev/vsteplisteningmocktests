@@ -1511,6 +1511,28 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     return;
                 }
 
+                // Gửi thông tin đăng nhập tự động về Google Form
+                try {
+                    const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdvqKCdfELTc7Jc-60zqM7qECu7se1ZmE29j7QnuaNATk6NPA/formResponse';
+                    const now = new Date();
+                    const timeString = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+                    const responseText = `${trimmedName} - ${trimmedClass} (Đăng nhập lúc: ${timeString})`;
+
+                    const formData = new URLSearchParams();
+                    formData.append('entry.388968236', responseText);
+
+                    fetch(formUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData.toString()
+                    }).catch(err => console.log('Tracking log:', err));
+                } catch (e) {
+                    console.log('Tracking error:', e);
+                }
+
                 // Successful login
                 const userSession = {
                     name: trimmedName,
