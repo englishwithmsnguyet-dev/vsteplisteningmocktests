@@ -44,9 +44,12 @@
     
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="flower_garden.css?v=20261103_v1">
     
     <!-- Extracted Test Data -->
     <script src="data.js"></script>
+    <script src="flower_definitions.js?v=20261103_v1"></script>
+    <script src="flower_garden.js?v=20261103_v1"></script>
 </head>
 <body>
     
@@ -1485,30 +1488,43 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     "Lê Kim Tuyền"
                 ];
 
-                if (!['CB206', 'CB210'].includes(trimmedClass)) {
-                    setErrorMsg('Lớp không hợp lệ! Hệ thống chỉ chấp nhận lớp CB206 hoặc CB210.');
-                    return;
-                }
+                const normName = trimmedName.toUpperCase();
+                const isTeacher = (normName === 'PTMN' && (trimmedClass === 'GV' || !trimmedClass)) || (normName === 'PTMN' && trimmedClass === 'GV');
+                let finalClass = trimmedClass;
 
-                if (trimmedClass === 'CB210') {
-                    const normalizeStr = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-                    const inputNormalized = normalizeStr(trimmedName);
-                    const matchedStudent = cb210Students.find(s => normalizeStr(s) === inputNormalized);
-
-                    if (!matchedStudent) {
-                        setErrorMsg('Họ và tên không thuộc danh sách học viên lớp CB210.');
+                if (isTeacher) {
+                    finalClass = 'GV';
+                } else {
+                    if (finalClass === 'GV') {
+                        setErrorMsg('Mã lớp GV chỉ dành riêng cho tài khoản Giáo viên (PTMN)!');
                         return;
                     }
-                }
 
-                if (!trimmedPassword) {
-                    setErrorMsg('Vui lòng nhập Mật khẩu truy cập.');
-                    return;
-                }
+                    if (!['CB206', 'CB210'].includes(finalClass)) {
+                        setErrorMsg('Lớp không hợp lệ! Hệ thống chỉ chấp nhận lớp CB206 hoặc CB210.');
+                        return;
+                    }
 
-                if (trimmedPassword !== 'PRACTICELISTENING') {
-                    setErrorMsg('Mật khẩu không chính xác! Vui lòng kiểm tra lại.');
-                    return;
+                    if (finalClass === 'CB210') {
+                        const normalizeStr = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+                        const inputNormalized = normalizeStr(trimmedName);
+                        const matchedStudent = cb210Students.find(s => normalizeStr(s) === inputNormalized);
+
+                        if (!matchedStudent) {
+                            setErrorMsg('Họ và tên không thuộc danh sách học viên lớp CB210.');
+                            return;
+                        }
+                    }
+
+                    if (!trimmedPassword) {
+                        setErrorMsg('Vui lòng nhập Mật khẩu truy cập.');
+                        return;
+                    }
+
+                    if (trimmedPassword !== 'PRACTICELISTENING' && trimmedPassword.toUpperCase() !== 'STUDYHARD') {
+                        setErrorMsg('Mật khẩu không chính xác! Vui lòng kiểm tra lại.');
+                        return;
+                    }
                 }
 
                 // Gửi thông tin đăng nhập tự động về Google Form
@@ -1535,8 +1551,9 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
 
                 // Successful login
                 const userSession = {
-                    name: trimmedName,
-                    className: trimmedClass,
+                    name: isTeacher ? 'PTMN' : trimmedName,
+                    className: finalClass,
+                    isTeacher: isTeacher,
                     loginTime: new Date().toISOString()
                 };
                 localStorage.setItem('vstep_user_session', JSON.stringify(userSession));
@@ -1871,6 +1888,13 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 
                 saveAttempt(selectedTest.id, selectedTest.title, score, answers);
                 localStorage.removeItem('vstep_saved_progress_' + selectedTest.id);
+                
+                // Reward water drops for completing full mock test
+                if (window.FlowerGarden) {
+                    const rewardDrops = Math.max(10, score);
+                    window.FlowerGarden.addWaterDrops(rewardDrops, 'Hoàn thành ' + selectedTest.title + ' (' + score + ' câu đúng)');
+                }
+                
                 setCurrentScreen('results');
                 window.scrollTo(0, 0);
             };
@@ -1943,8 +1967,17 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 alignItems: 'center',
                                 gap: '6px'
                             }}>
-                                <i className="fa-solid fa-user-graduate" style={{ color: 'var(--color-violet)' }}></i>
-                                Học viên lớp {currentUser.className || 'CB206'}
+                                {currentUser.isTeacher || (currentUser.name && currentUser.name.toUpperCase() === 'PTMN' && currentUser.className === 'GV') ? (
+                                    <>
+                                        <i className="fa-solid fa-chalkboard-user" style={{ color: '#eab308' }}></i>
+                                        <span style={{ color: '#ca8a04', fontWeight: 800 }}>Giáo viên ({currentUser.className || 'GV'})</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fa-solid fa-user-graduate" style={{ color: 'var(--color-violet)' }}></i>
+                                        Học viên lớp {currentUser.className || 'CB206'}
+                                    </>
+                                )}
                             </div>
                             <div style={{
                                 fontSize: '0.92rem',
@@ -2028,6 +2061,91 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
 
                         <main className="container" style={{paddingBottom: '40px', maxWidth: '1000px', flex: 1}}>
                         {currentScreen === 'dashboard' && (
+                        <div style={{ maxWidth: '650px', width: '92%', margin: '0 auto 24px auto' }}>
+                            {/* THONG DIEP HOM NAY */}
+                            <div className="daily-quote-card" id="daily-quote-card" style={{ marginBottom: '18px' }}>
+                                <div className="daily-quote-header">
+                                    <span className="daily-quote-badge">THÔNG ĐIỆP HÔM NAY</span>
+                                    <button className="daily-quote-refresh" id="btn-refresh-daily-quote" title="Đổi câu truyền cảm hứng khác">Đổi câu khác</button>
+                                </div>
+                                <div className="daily-quote-text" id="daily-quote-en">"A winner is a dreamer who never gives up."</div>
+                                <div className="daily-quote-vi" id="daily-quote-vi"><em>"Người chiến thắng là một kẻ mộng mơ không bao giờ từ bỏ."</em></div>
+                                <div className="daily-quote-signature">
+                                    From Miss Nguyet with LOVE <span className="heart-pulse">❤️</span>
+                                </div>
+                            </div>
+
+                            {/* CHAU CO 4 LA MAY MAN */}
+                            <div className="home-card garden-container" id="garden-container" style={{ margin: '0 auto' }}>
+                                <div className="garden-header-row">
+                                    <h3>🍀 Chậu Cỏ 4 Lá May Mắn Của Cô Nguyệt</h3>
+                                    <div className="garden-header-actions">
+                                        <div className="garden-water-pill" id="garden-water-pill" title="Giọt Nước Nỗ Lực (Tích lũy từ điểm danh & làm bài đúng)">
+                                            <span className="water-pill-icon">💧</span>
+                                            <span className="water-pill-count" id="garden-water-count">35</span>
+                                            <button className="water-pill-add-btn" id="btn-open-earn-water" title="Kiếm thêm nước tưới">+</button>
+                                        </div>
+                                        <button className="btn btn-secondary btn-small" id="btn-open-flower-basket" title="Xem giỏ cỏ 4 lá & kho thông điệp ôn thi">
+                                            🍀 <span id="garden-harvest-count">0</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p className="garden-subtitle" id="garden-subtitle">Tích lũy nước nỗ lực mỗi ngày để vun trồng Cỏ 4 Lá May Mắn & đón nhận thông điệp ôn thi! 🍀✨</p>
+
+                                <div className="garden-stage" id="garden-stage" title="Bấm vào cây để truyền yêu thương!">
+                                    <div className="garden-weather-glow" id="garden-weather-glow"></div>
+                                    <div className="garden-floating-particles" id="garden-floating-particles"></div>
+                                    <div className="garden-sun-rays" id="garden-sun-rays">☀️</div>
+                                    <div className="garden-watering-can" id="garden-watering-can">
+                                        <span className="watering-can-emoji">🪴</span>
+                                        <div className="water-drops"><span>💧</span><span>💧</span><span>💧</span></div>
+                                    </div>
+                                    <div className="garden-pot-wrapper" id="garden-pot-wrapper"></div>
+                                </div>
+
+                                <div className="garden-info-panel">
+                                    <div className="garden-flower-name-row">
+                                        <span className="garden-flower-name" id="garden-flower-name">🍀 Cỏ 4 Lá May Mắn</span>
+                                        <span className="garden-stage-badge" id="garden-stage-badge">🌱 Đang Nảy Mầm</span>
+                                    </div>
+                                    <div className="garden-progress-bar-wrap">
+                                        <div className="garden-progress-bar">
+                                            <div className="garden-progress-fill" id="garden-progress-fill" style={{ width: '30%' }}></div>
+                                        </div>
+                                        <span className="garden-progress-text" id="garden-progress-text">30%</span>
+                                    </div>
+                                    <div className="garden-stats-row">
+                                        <span className="garden-stat"><i className="fa-solid fa-faucet-drip" style={{ color: '#0284C7' }}></i> <b id="garden-water-drops-stat">35💧</b></span>
+                                        <span className="garden-stat"><i className="fa-solid fa-droplet" style={{ color: '#0284C7' }}></i> <b id="garden-moisture-val">75%</b></span>
+                                        <span className="garden-stat"><i className="fa-solid fa-sun" style={{ color: '#F59E0B' }}></i> <b id="garden-sunlight-val">80%</b></span>
+                                        <span className="garden-stat"><i className="fa-solid fa-trophy" style={{ color: '#10B981' }}></i> <b id="garden-harvest-val">0 cành</b></span>
+                                    </div>
+                                </div>
+
+                                <div className="garden-actions-container" id="garden-actions-container">
+                                    <div className="garden-care-row" id="garden-care-row">
+                                        <button className="btn btn-secondary btn-small garden-btn" id="btn-water-flower">
+                                            <span className="action-icon">💧</span> Tưới nước <span className="action-cost-tag">10💧</span>
+                                        </button>
+                                        <button className="btn btn-secondary btn-small garden-btn" id="btn-sun-flower">
+                                            <span className="action-icon">☀️</span> Tắm nắng <span className="action-gain-tag">+20%</span>
+                                        </button>
+                                    </div>
+                                    <div className="garden-harvest-row hidden" id="garden-harvest-row">
+                                        <button className="btn btn-primary garden-btn garden-btn-harvest-cta pulse-glow" id="btn-harvest-flower">
+                                            <span className="action-icon">🍀</span> THU HOẠCH & NHẬN THÔNG ĐIỆP VSTEP! ✨
+                                        </button>
+                                    </div>
+                                    <div className="garden-quiz-row" id="garden-quiz-row">
+                                        <button className="btn btn-secondary btn-small garden-btn garden-btn-quiz" id="btn-quiz-flower">
+                                            <span className="action-icon">🎯</span> Đố Vui Ôn Thi VSTEP <span className="action-gain-tag">+10💧 Nước</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {currentScreen === 'dashboard' && (
                             <Dashboard 
                                 tests={ALL_TESTS} 
                                 onStartTest={handleStartTest} 
