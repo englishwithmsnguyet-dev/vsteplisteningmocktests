@@ -441,6 +441,11 @@
       if (this.state && this.state.studentName && typeof this.state.studentName === 'string') {
         const s = this.cleanStudentName(this.state.studentName);
         if (s && s !== 'Bạn') return s;
+        // Clean legacy "Cô Nguyệt" stored in state
+        if (/cô nguyệt|co nguyet|ptmn/i.test(this.state.studentName)) {
+          this.state.studentName = '';
+          this.saveState();
+        }
       }
 
       // 2. Check localStorage / sessionStorage
@@ -489,12 +494,17 @@
     cleanStudentName(raw) {
       if (!raw || typeof raw !== 'string') return '';
       let s = raw.trim();
-      if (/^(học viên|hoc vien|học viên vstep|chưa nhập tên|chua nhap ten|ẩn danh|an danh|học viên ẩn danh)$/i.test(s)) return '';
-      
+      // Filter out generic placeholders and teacher identifiers
+      if (/^(học viên|hoc vien|học viên vstep|chưa nhập tên|chua nhap ten|ẩn danh|an danh|học viên ẩn danh|cô nguyệt|co nguyet|ptmn|giáo viên|giao vien|teacher|cô nguyệt \(ptmn\))$/i.test(s)) return '';
+
+      // Strip (PTMN) or (Giáo viên) suffixes if attached
+      s = s.replace(/\s*\((ptmn|giáo viên|teacher)\)/gi, '').trim();
+      if (/^(cô nguyệt|co nguyet|ptmn)$/i.test(s)) return '';
+
       // If name has format "CB206 - Nguyễn Văn A" or "Nguyễn Văn A - CB206"
       if (s.includes(' - ')) {
         const parts = s.split(' - ').map(p => p.trim());
-        const namePart = parts.find(p => !/^[A-Z0-9]{2,6}$/i.test(p) && p.length > 2);
+        const namePart = parts.find(p => !/^[A-Z0-9]{2,6}$/i.test(p) && p.length > 2 && !/cô nguyệt|ptmn/i.test(p));
         if (namePart) return namePart;
       }
       return s;
