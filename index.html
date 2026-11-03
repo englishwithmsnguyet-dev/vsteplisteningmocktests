@@ -1575,52 +1575,33 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     padding: '20px',
                     background: 'var(--bg-gradient)'
                 }}>
-                    <div style={{
+                    <div className="login-card-custom" style={{
                         width: '100%',
                         maxWidth: '460px',
                         background: 'var(--card-bg)',
-                        borderRadius: '24px',
-                        padding: '36px 32px',
-                        boxShadow: 'var(--shadow-lg)',
+                        borderRadius: '28px',
+                        padding: '2.5rem 2.2rem 2rem 2.2rem',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.35), 0 0 40px rgba(99, 102, 241, 0.2)',
                         border: '1px solid var(--border-color)',
                         position: 'relative',
-                        animation: 'fadeIn 0.4s ease'
+                        animation: 'fadeIn 0.4s ease',
+                        textAlign: 'center'
                     }}>
-                        {/* Header Badge */}
-                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                            <div style={{
-                                width: '64px',
-                                height: '64px',
-                                background: 'linear-gradient(135deg, var(--color-violet), #ec4899)',
-                                borderRadius: '20px',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#fff',
-                                fontSize: '28px',
-                                boxShadow: '0 8px 20px rgba(124, 58, 237, 0.35)',
-                                marginBottom: '16px'
-                            }}>
-                                <i className="fa-solid fa-lock"></i>
+                        {/* Miss Nguyet Avatar Brand Ring */}
+                        <div className="login-teacher-avatar-wrap">
+                            <div className="login-teacher-halo">
+                                <img src="miss_nguyet.jpg" alt="Miss Nguyet" className="login-teacher-avatar" />
                             </div>
-                            <h2 style={{
-                                fontSize: '1.45rem',
-                                fontWeight: 800,
-                                color: 'var(--text-dark)',
-                                letterSpacing: '0.5px',
-                                textTransform: 'uppercase',
-                                marginBottom: '6px'
-                            }}>
-                                ĐĂNG NHẬP HỆ THỐNG
-                            </h2>
-                            <p style={{
-                                fontSize: '0.85rem',
-                                color: 'var(--text-muted)',
-                                fontWeight: 500
-                            }}>
-                                VSTEP LISTENING MOCK TESTS • MISS NGUYET
-                            </p>
+                            <span className="login-teacher-badge">
+                                <i className="fa-solid fa-certificate"></i> LEAD INSTRUCTOR
+                            </span>
                         </div>
+
+                        <div className="login-brand-tag">
+                            <i className="fa-solid fa-graduation-cap"></i> Welcome to Miss Nguyet's Class!
+                        </div>
+                        <div className="login-course-title">VSTEP LISTENING MOCK TESTS</div>
+                        <h2 className="login-title-custom">NHẬP THÔNG TIN<br/>ĐỂ BẮT ĐẦU HỌC 🚀</h2>
 
                         {/* Error Notification */}
                         {errorMsg && (
@@ -1643,28 +1624,31 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         )}
 
                         {/* Form */}
-                        <form onSubmit={handleLogin} onKeyDown={handleKeyDown}>
+                        <form onSubmit={handleLogin} onKeyDown={handleKeyDown} style={{ textAlign: 'left' }}>
                             {/* Full Name */}
                             <div style={{ marginBottom: '18px' }}>
                                 <label style={{
-                                    display: 'block',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
                                     fontSize: '0.85rem',
                                     fontWeight: 700,
                                     color: 'var(--text-dark)',
-                                    marginBottom: '8px'
+                                    marginBottom: '8px',
+                                    textTransform: 'uppercase'
                                 }}>
-                                    <i className="fa-solid fa-user" style={{ color: 'var(--color-violet)', marginRight: '6px' }}></i>
-                                    HỌ VÀ TÊN
+                                    <i className="fa-solid fa-user-pen" style={{ color: '#6366f1' }}></i>
+                                    HỌ VÀ TÊN HỌC VIÊN:
                                 </label>
                                 <input 
                                     type="text"
-                                    placeholder=""
+                                    placeholder="Nhập họ và tên học viên..."
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     autoFocus
                                     style={{
                                         width: '100%',
-                                        padding: '13px 16px',
+                                        padding: '0.85rem 1.15rem',
                                         borderRadius: '12px',
                                         border: '1.5px solid var(--border-color)',
                                         background: 'var(--input-bg)',
@@ -1674,7 +1658,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                         transition: 'border-color 0.2s',
                                         fontFamily: 'inherit'
                                     }}
-                                    onFocus={(e) => e.target.style.borderColor = 'var(--color-violet)'}
+                                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
                                     onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                                 />
                             </div>
@@ -1682,23 +1666,26 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                             {/* Class Name */}
                             <div style={{ marginBottom: '18px' }}>
                                 <label style={{
-                                    display: 'block',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
                                     fontSize: '0.85rem',
                                     fontWeight: 700,
                                     color: 'var(--text-dark)',
-                                    marginBottom: '8px'
+                                    marginBottom: '8px',
+                                    textTransform: 'uppercase'
                                 }}>
-                                    <i className="fa-solid fa-graduation-cap" style={{ color: 'var(--color-violet)', marginRight: '6px' }}></i>
-                                    LỚP HỌC
+                                    <i className="fa-solid fa-chalkboard-user" style={{ color: '#06b6d4' }}></i>
+                                    MÃ LỚP HỌC:
                                 </label>
                                 <input 
                                     type="text"
-                                    placeholder=""
+                                    placeholder="Nhập mã lớp học..."
                                     value={className}
                                     onChange={(e) => setClassName(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '13px 16px',
+                                        padding: '0.85rem 1.15rem',
                                         borderRadius: '12px',
                                         border: '1.5px solid var(--border-color)',
                                         background: 'var(--input-bg)',
@@ -1709,32 +1696,35 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                         textTransform: 'uppercase',
                                         fontFamily: 'inherit'
                                     }}
-                                    onFocus={(e) => e.target.style.borderColor = 'var(--color-violet)'}
+                                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
                                     onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                                 />
                             </div>
 
                             {/* Password */}
-                            <div style={{ marginBottom: '26px' }}>
+                            <div style={{ marginBottom: '24px' }}>
                                 <label style={{
-                                    display: 'block',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
                                     fontSize: '0.85rem',
                                     fontWeight: 700,
                                     color: 'var(--text-dark)',
-                                    marginBottom: '8px'
+                                    marginBottom: '8px',
+                                    textTransform: 'uppercase'
                                 }}>
-                                    <i className="fa-solid fa-key" style={{ color: 'var(--color-violet)', marginRight: '6px' }}></i>
-                                    MẬT KHẨU
+                                    <i className="fa-solid fa-key" style={{ color: '#f59e0b' }}></i>
+                                    MẬT KHẨU TRUY CẬP:
                                 </label>
                                 <div style={{ position: 'relative' }}>
                                     <input 
                                         type={showPassword ? 'text' : 'password'}
-                                        placeholder=""
+                                        placeholder="Nhập mật khẩu..."
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         style={{
                                             width: '100%',
-                                            padding: '13px 44px 13px 16px',
+                                            padding: '0.85rem 2.85rem 0.85rem 1.15rem',
                                             borderRadius: '12px',
                                             border: '1.5px solid var(--border-color)',
                                             background: 'var(--input-bg)',
@@ -1744,7 +1734,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                             transition: 'border-color 0.2s',
                                             fontFamily: 'inherit'
                                         }}
-                                        onFocus={(e) => e.target.style.borderColor = 'var(--color-violet)'}
+                                        onFocus={(e) => e.target.style.borderColor = '#6366f1'}
                                         onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                                     />
                                     <button 
@@ -1753,12 +1743,12 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                         tabIndex="-1"
                                         style={{
                                             position: 'absolute',
-                                            right: '14px',
+                                            right: '12px',
                                             top: '50%',
                                             transform: 'translateY(-50%)',
                                             background: 'transparent',
                                             border: 'none',
-                                            color: 'var(--text-muted)',
+                                            color: '#64748b',
                                             cursor: 'pointer',
                                             fontSize: '1rem',
                                             padding: '4px',
@@ -1776,24 +1766,19 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                             {/* Submit Button */}
                             <button 
                                 type="submit"
-                                className="btn btn-primary btn-full ripple"
-                                style={{
-                                    padding: '14px',
-                                    fontSize: '1rem',
-                                    fontWeight: 800,
-                                    letterSpacing: '0.5px',
-                                    borderRadius: '14px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '10px',
-                                    boxShadow: '0 8px 20px rgba(124, 58, 237, 0.35)'
-                                }}
+                                className="btn-login-custom"
                             >
-                                <span>ĐĂNG NHẬP VÀO HỌC</span>
+                                <span>BẮT ĐẦU HỌC</span>
                                 <i className="fa-solid fa-arrow-right"></i>
                             </button>
                         </form>
+
+                        <div className="login-footer-signature">
+                            <a href="https://www.facebook.com/nguyetpham28" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                                <i className="fa-brands fa-facebook" style={{ color: '#1877f2', fontSize: '16px' }}></i>
+                                <span>ENGLISH WITH MISS NGUYET</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             );
