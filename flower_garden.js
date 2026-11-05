@@ -512,8 +512,11 @@
         </div>
       `;
 
-      if (!container.parentNode && targetParent) {
-        targetParent.appendChild(container);
+      if (!container.parentNode) {
+        const targetParent = gardenPane || document.querySelector('.garden-dedicated-view, #flower-garden, #view-flower-garden, .content-area, .app-main, main, #main-content, .main-content, #app');
+        if (targetParent) {
+          targetParent.appendChild(container);
+        }
       }
     },
 
