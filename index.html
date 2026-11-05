@@ -1444,9 +1444,20 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
         }
 
         // --- LOGIN COMPONENT ---
+        const VALID_CLASSES = ['CB201', 'CB202', 'CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'B220', 'GV'];
+        const VALID_PASSWORDS = ['STUDYHARD', 'VSTEPSEPTEMBER', 'PTMN2896', 'PTMN2412', 'PTMN2805', 'PRACTICELISTENING'];
+
         function LoginScreen({ onLoginSuccess }) {
-            const [fullName, setFullName] = useState('');
-            const [className, setClassName] = useState('');
+            const [fullName, setFullName] = useState(() => {
+                try {
+                    return sessionStorage.getItem('vstep_student_name') || localStorage.getItem('vstep_student_name') || '';
+                } catch(e) { return ''; }
+            });
+            const [className, setClassName] = useState(() => {
+                try {
+                    return sessionStorage.getItem('vstep_student_class') || localStorage.getItem('vstep_student_class') || '';
+                } catch(e) { return ''; }
+            });
             const [password, setPassword] = useState('');
             const [showPassword, setShowPassword] = useState(false);
             const [errorMsg, setErrorMsg] = useState('');
@@ -1469,25 +1480,6 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     return;
                 }
 
-                // Danh sách học viên lớp CB210 được phép truy cập
-                const cb210Students = [
-                    "Lê Huỳnh Thanh Duy",
-                    "Nguyễn Cao Kỳ Duyên",
-                    "Nguyễn Võ Thành Đạt",
-                    "Đào Ngọc Hân",
-                    "Trần Văn Hữu",
-                    "Trần Văn Kim Khoa",
-                    "Nguyễn Thanh Nâng",
-                    "Huỳnh Kỳ Nguyên",
-                    "Võ Thị Kim Nguyên",
-                    "Võ Hùng Sanh",
-                    "Trần Thị Thanh Thảo",
-                    "Tiền Thị Thanh Thảo",
-                    "Đặng Thị Kim Thoa",
-                    "Trần Thị Tiên Tiên",
-                    "Lê Kim Tuyền"
-                ];
-
                 const normName = trimmedName.toUpperCase();
                 const isTeacher = (normName === 'PTMN' && (trimmedClass === 'GV' || !trimmedClass)) || (normName === 'PTMN' && trimmedClass === 'GV');
                 let finalClass = trimmedClass;
@@ -1500,20 +1492,9 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         return;
                     }
 
-                    if (!['CB206', 'CB210'].includes(finalClass)) {
-                        setErrorMsg('Lớp không hợp lệ! Hệ thống chỉ chấp nhận lớp CB206 hoặc CB210.');
+                    if (!VALID_CLASSES.includes(finalClass)) {
+                        setErrorMsg(`Lớp không hợp lệ! Hệ thống chấp nhận các lớp: ${VALID_CLASSES.filter(c => c !== 'GV').join(', ')}.`);
                         return;
-                    }
-
-                    if (finalClass === 'CB210') {
-                        const normalizeStr = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-                        const inputNormalized = normalizeStr(trimmedName);
-                        const matchedStudent = cb210Students.find(s => normalizeStr(s) === inputNormalized);
-
-                        if (!matchedStudent) {
-                            setErrorMsg('Họ và tên không thuộc danh sách học viên lớp CB210.');
-                            return;
-                        }
                     }
 
                     if (!trimmedPassword) {
@@ -1521,7 +1502,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         return;
                     }
 
-                    if (trimmedPassword !== 'PRACTICELISTENING' && trimmedPassword.toUpperCase() !== 'STUDYHARD') {
+                    if (!VALID_PASSWORDS.includes(trimmedPassword.toUpperCase())) {
                         setErrorMsg('Mật khẩu không chính xác! Vui lòng kiểm tra lại.');
                         return;
                     }
@@ -1556,7 +1537,12 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     isTeacher: isTeacher,
                     loginTime: new Date().toISOString()
                 };
+                sessionStorage.setItem('vstep_user_session', JSON.stringify(userSession));
+                sessionStorage.setItem('vstep_student_name', trimmedName);
+                sessionStorage.setItem('vstep_student_class', finalClass);
                 localStorage.setItem('vstep_user_session', JSON.stringify(userSession));
+                localStorage.setItem('vstep_student_name', trimmedName);
+                localStorage.setItem('vstep_student_class', finalClass);
                 onLoginSuccess(userSession);
             };
 
@@ -1789,7 +1775,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             // User authentication state
             const [currentUser, setCurrentUser] = useState(() => {
                 try {
-                    const saved = localStorage.getItem('vstep_user_session');
+                    const saved = sessionStorage.getItem('vstep_user_session');
                     return saved ? JSON.parse(saved) : null;
                 } catch (e) {
                     return null;
@@ -1907,6 +1893,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
 
             const handleLogout = () => {
                 if (window.confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                    sessionStorage.removeItem('vstep_user_session');
                     localStorage.removeItem('vstep_user_session');
                     setCurrentUser(null);
                     setCurrentScreen('dashboard');
