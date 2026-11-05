@@ -1697,3 +1697,256 @@ body.dark-mode .btn-hide-menu:hover { background: var(--border-color); }
 .motivation-img-container img:hover {
     transform: scale(1.02);
 }
+
+/* ==========================================================================
+   Miss Nguyet Lead Instructor Login Modal Styles
+   ========================================================================== */
+.login-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 1.25rem;
+    opacity: 1;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.login-overlay.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    display: none !important;
+}
+
+.login-card-custom {
+    background: #ffffff;
+    max-width: 460px;
+    width: 92%;
+    margin: auto;
+    padding: 2.2rem 2.2rem 1.8rem 2.2rem;
+    border-radius: 26px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35), 0 0 40px rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+    animation: modalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@keyframes modalPopIn {
+    0% { transform: scale(0.92) translateY(12px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Avatar with Glow Halo */
+.login-teacher-avatar-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 1.15rem !important;
+    position: relative !important;
+}
+
+.login-teacher-halo {
+    position: relative !important;
+    width: 104px !important;
+    height: 104px !important;
+    min-width: 104px !important;
+    min-height: 104px !important;
+    max-width: 104px !important;
+    max-height: 104px !important;
+    border-radius: 50% !important;
+    padding: 4px !important;
+    background: linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #38bdf8 100%) !important;
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.45), 0 0 45px rgba(236, 72, 153, 0.25) !important;
+    animation: haloPulse 3.5s ease-in-out infinite alternate !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+@keyframes haloPulse {
+    0% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.35), 0 0 35px rgba(236, 72, 153, 0.2);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 32px rgba(99, 102, 241, 0.6), 0 0 55px rgba(236, 72, 153, 0.4);
+        transform: scale(1.025);
+    }
+}
+
+.login-teacher-avatar {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center 20% !important;
+    border: 3px solid #ffffff !important;
+    display: block !important;
+    background: #eef2ff !important;
+    box-sizing: border-box !important;
+}
+
+.login-teacher-badge {
+    margin-top: 0.6rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    padding: 0.25rem 0.85rem !important;
+    border-radius: 9999px !important;
+    background: rgba(99, 102, 241, 0.12) !important;
+    border: 1px solid rgba(99, 102, 241, 0.35) !important;
+    color: #5842e3 !important;
+}
+
+/* Titles */
+.login-brand-tag {
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    color: #6366f1 !important;
+    margin-bottom: 0.35rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+}
+
+.login-course-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #4f46e5 !important;
+    margin-bottom: 1rem !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+}
+
+.login-title-custom {
+    font-size: 1.65rem !important;
+    font-weight: 900 !important;
+    color: #0f172a !important;
+    margin-top: 0 !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.01em !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.btn-login-custom {
+    width: 100% !important;
+    padding: 0.95rem !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #5842e3 0%, #7c3aed 100%) !important;
+    color: #ffffff !important;
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.6rem !important;
+    margin-top: 0.4rem !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.btn-login-custom:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.45) !important;
+    filter: brightness(1.08) !important;
+}
+
+.btn-login-custom:active {
+    transform: translateY(0) !important;
+}
+
+.login-footer-signature {
+    margin-top: 1.35rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    color: #64748b !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    letter-spacing: 0.5px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.login-footer-signature a {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: color 0.2s ease;
+}
+
+.login-footer-signature a:hover {
+    color: #1877f2;
+}
+
+/* Dark Mode Adaptation for Login */
+[data-theme="dark"] .login-card-custom {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.25) !important;
+}
+
+[data-theme="dark"] .login-title-custom {
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .login-teacher-avatar {
+    border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .login-teacher-badge {
+    background: rgba(129, 140, 248, 0.18) !important;
+    color: #a5b4fc !important;
+    border-color: rgba(129, 140, 248, 0.35) !important;
+}
+
+[data-theme="dark"] .login-brand-tag {
+    color: #a5b4fc !important;
+}
+
+[data-theme="dark"] .login-course-title {
+    color: #818cf8 !important;
+}
+
+[data-theme="dark"] .login-footer-signature {
+    color: #94a3b8 !important;
+}
+
+@media (max-width: 540px) {
+    .login-card-custom {
+        padding: 1.8rem 1.35rem !important;
+    }
+    .login-title-custom {
+        font-size: 1.35rem !important;
+    }
+}
+

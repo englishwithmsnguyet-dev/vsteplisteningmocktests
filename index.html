@@ -37,19 +37,19 @@
     <!-- Font Awesome for premium icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts: Roboto Serif Light -->
+    <!-- Google Fonts: Roboto Serif Light & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="flower_garden.css?v=20261105_v18">
+    <link rel="stylesheet" href="style.css?v=20261105_v19">
+    <link rel="stylesheet" href="flower_garden.css?v=20261105_v19">
     
     <!-- Extracted Test Data -->
     <script src="data.js"></script>
-    <script src="flower_definitions.js?v=20261105_v18"></script>
-    <script src="flower_garden.js?v=20261105_v18"></script>
+    <script src="flower_definitions.js?v=20261105_v19"></script>
+    <script src="flower_garden.js?v=20261105_v19"></script>
 </head>
 <body>
     
@@ -1588,9 +1588,9 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         textAlign: 'center'
                     }}>
                         {/* Miss Nguyet Avatar Brand Ring */}
-                        <div className="login-teacher-avatar-wrap">
-                            <div className="login-teacher-halo">
-                                <img src="miss_nguyet.jpg" alt="Miss Nguyet" className="login-teacher-avatar" />
+                        <div className="login-teacher-avatar-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '1.15rem', position: 'relative' }}>
+                            <div className="login-teacher-halo" style={{ position: 'relative', width: '104px', height: '104px', minWidth: '104px', minHeight: '104px', maxWidth: '104px', maxHeight: '104px', borderRadius: '50%', padding: '4px', boxSizing: 'border-box', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src="miss_nguyet.jpg" alt="Miss Nguyet" className="login-teacher-avatar" style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 20%', border: '3px solid #ffffff', display: 'block', boxSizing: 'border-box' }} />
                             </div>
                             <span className="login-teacher-badge">
                                 <i className="fa-solid fa-certificate"></i> LEAD INSTRUCTOR
