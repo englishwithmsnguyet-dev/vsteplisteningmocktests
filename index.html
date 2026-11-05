@@ -1444,7 +1444,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
         }
 
         // --- LOGIN COMPONENT ---
-        const VALID_CLASSES = ['CB201', 'CB202', 'CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'B220', 'GV'];
+        const VALID_CLASSES = ['CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'GV'];
         const VALID_PASSWORDS = ['STUDYHARD', 'VSTEPSEPTEMBER', 'PTMN2896', 'PTMN2412', 'PTMN2805', 'PRACTICELISTENING'];
 
         function LoginScreen({ onLoginSuccess }) {
@@ -1489,6 +1489,11 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 } else {
                     if (finalClass === 'GV') {
                         setErrorMsg('Mã lớp GV chỉ dành riêng cho tài khoản Giáo viên (PTMN)!');
+                        return;
+                    }
+
+                    if (['CB201', 'CB202', 'B220'].includes(finalClass)) {
+                        setErrorMsg(`Lớp ${finalClass} đã kết thúc khóa học và không được phép đăng nhập!`);
                         return;
                     }
 
@@ -1776,7 +1781,15 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             const [currentUser, setCurrentUser] = useState(() => {
                 try {
                     const saved = sessionStorage.getItem('vstep_user_session');
-                    return saved ? JSON.parse(saved) : null;
+                    if (!saved) return null;
+                    const parsed = JSON.parse(saved);
+                    const banned = ['CB201', 'CB202', 'B220'];
+                    if (parsed && parsed.className && banned.includes(parsed.className.toUpperCase())) {
+                        sessionStorage.removeItem('vstep_user_session');
+                        localStorage.removeItem('vstep_user_session');
+                        return null;
+                    }
+                    return parsed;
                 } catch (e) {
                     return null;
                 }
