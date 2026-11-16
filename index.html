@@ -1444,7 +1444,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
         }
 
         // --- LOGIN COMPONENT ---
-        const VALID_CLASSES = ['CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'GV'];
+        const VALID_CLASSES = ['CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'B2', 'GV'];
         const VALID_PASSWORDS = ['STUDYHARD', 'VSTEPSEPTEMBER', 'PTMN2896', 'PTMN2412', 'PTMN2805', 'PRACTICELISTENING'];
 
         function LoginScreen({ onLoginSuccess }) {
@@ -1467,7 +1467,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 setErrorMsg('');
 
                 const trimmedName = fullName.trim();
-                const trimmedClass = className.trim().toUpperCase();
+                let trimmedClass = className.trim().toUpperCase().replace(/^(LỚP|LOP)\s*/i, '');
                 const trimmedPassword = password.trim();
 
                 if (!trimmedName) {
@@ -1480,7 +1480,15 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     return;
                 }
 
+                const removeVietnameseTones = (str) => {
+                    return str.normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+                        .toLowerCase();
+                };
                 const normName = trimmedName.toUpperCase();
+                const noToneName = removeVietnameseTones(trimmedName);
+                const isGiaTue = noToneName.includes('gia tue') || noToneName.replace(/\s+/g, '').includes('giatue');
                 const isTeacher = (normName === 'PTMN' && (trimmedClass === 'GV' || !trimmedClass)) || (normName === 'PTMN' && trimmedClass === 'GV');
                 let finalClass = trimmedClass;
 
@@ -1497,8 +1505,15 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         return;
                     }
 
+                    if (finalClass === 'B2') {
+                        if (!isGiaTue) {
+                            setErrorMsg('Mã lớp B2 hiện chỉ dành riêng cho học viên Gia Tuệ (B2)! Vui lòng kiểm tra lại Họ tên hoặc Mã lớp.');
+                            return;
+                        }
+                    }
+
                     if (!VALID_CLASSES.includes(finalClass)) {
-                        setErrorMsg(`Lớp không hợp lệ! Hệ thống chấp nhận các lớp: ${VALID_CLASSES.filter(c => c !== 'GV').join(', ')}.`);
+                        setErrorMsg(`Lớp không hợp lệ! Hệ thống chấp nhận các lớp: ${VALID_CLASSES.filter(c => c !== 'GV' && c !== 'B2').join(', ')} và Gia Tuệ (B2).`);
                         return;
                     }
 
