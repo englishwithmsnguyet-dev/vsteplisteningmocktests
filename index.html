@@ -47,7 +47,7 @@
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261116_v21"></script>
+    <script src="data.js?v=20261125_v25"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v22"></script>
 
@@ -140,7 +140,7 @@
                     <div className="dashboard-hero">
                         <div className="hero-content">
                             <h2>LUYỆN NGHE CÙNG MISS NGUYET</h2>
-                            <p>Hệ thống thi thử Listening VSTEP chuẩn hóa. Cung cấp 7 đề luyện nghe hoàn chỉnh với audio chất lượng cao, giải thích từ vựng chi tiết, bản dịch đề thi và minigame ôn tập tương tác sinh động.</p>
+                            <p>Hệ thống thi thử Listening VSTEP chuẩn hóa. Cung cấp 9 đề luyện nghe hoàn chỉnh với audio chất lượng cao, giải thích từ vựng chi tiết, bản dịch đề thi và minigame ôn tập tương tác sinh động.</p>
                         </div>
                         <button className="btn btn-primary" onClick={onOpenVocab}>
                             <i className="fa-solid fa-book-open"></i> Kho Từ Vựng ({allVocabCount} Từ)
@@ -1180,9 +1180,14 @@
                                 {test.test.parts.map(p => (
                                     <div key={p.id} className="panel-card">
                                         <h4 style={{color: 'var(--color-violet)', marginBottom: '10px', fontSize: '1.05rem', fontWeight: 800}}>{p.title}</h4>
-                                        <div className="transcript-card">
-                                            {p.transcript}
-                                        </div>
+                                        <div
+                                            className="transcript-card"
+                                            dangerouslySetInnerHTML={{
+                                                __html: String(p.transcript || '').includes('<br')
+                                                    ? p.transcript
+                                                    : String(p.transcript || '').replace(/\n/g, '<br/>')
+                                            }}
+                                        />
                                     </div>
                                 ))}
                             </div>
