@@ -891,7 +891,7 @@ const ALL_TESTS = [
           "id": 1,
           "title": "PART 1: Questions 1-8",
           "instructions": "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
-          "audioSrc": "https://files.catbox.moe/egofme.mp3",
+          "audioSrc": "AUDIO/TEST 01/PART 01 - TEST 01.mp3",
           "audioTimestamps": [
             {
               "label": "Bài 1",
@@ -1601,7 +1601,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://files.catbox.moe/ok0bib.mp3",
+          "audioSrc": [
+          "AUDIO/TEST 01/PART 02 - TEST 01 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 01/PART 02 - TEST 01 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 01/PART 02 - TEST 01 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -2557,7 +2561,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://files.catbox.moe/v0lhag.mp3",
+          "audioSrc": [
+          "AUDIO/TEST 01/PART 03 - TEST 01 - TALK 01.mp3",
+          "AUDIO/TEST 01/PART 03 - TEST 01 - TALK 02.mp3",
+          "AUDIO/TEST 01/PART 03 - TEST 01 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài giảng 1",
@@ -4743,7 +4751,7 @@ const ALL_TESTS = [
           "id": 1,
           "title": "PART 1: Questions 1-8",
           "instructions": "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
-          "audioSrc": "https://files.catbox.moe/bfvvcn.mp3",
+          "audioSrc": "AUDIO/TEST 02/PART 01 - TEST 02.mp3",
           "audioTimestamps": [
             {
               "label": "Bài 1",
@@ -5481,7 +5489,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://files.catbox.moe/3indfd.mp3",
+          "audioSrc": [
+          "AUDIO/TEST 02/PART 02 - TEST 02 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 02/PART 02 - TEST 02 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 02/PART 02 - TEST 02 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -6511,7 +6523,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://files.catbox.moe/eygxlu.mp3",
+          "audioSrc": [
+          "AUDIO/TEST 02/PART 03 - TEST 02 - TALK 01.mp3",
+          "AUDIO/TEST 02/PART 03 - TEST 02 - TALK 02.mp3",
+          "AUDIO/TEST 02/PART 03 - TEST 02 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài giảng 1",
@@ -8759,7 +8775,7 @@ const ALL_TESTS = [
           "id": 1,
           "title": "PART 1: Questions 1-8",
           "instructions": "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/p27pdpxel9x35h147tzxu/Part-1.mp3?rlkey=0wh6cmqh9zeff0j8yt1woejug&st=myaxp4zc&raw=1",
+          "audioSrc": "AUDIO/TEST 03/Part 01.mp3",
           "audioTimestamps": [
             {
               "label": "Bài 1",
@@ -9537,7 +9553,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/rclhib06uqu6nlgu6p3qh/Part-2.mp3?rlkey=i4dqwn53n8n0dbnt9rm9avl5j&st=ap9mw2hk&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 03/PART 02 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 03/PART 02 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 03/PART 02 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -10527,7 +10547,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/7htqu7slnd09fl9orvu5t/Part-3.mp3?rlkey=zqssbsn3wmaivs74kwv98xw3i&st=8y81g1yd&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 03/PART 03 - TALK 01.mp3",
+          "AUDIO/TEST 03/PART 03 - TALK 02.mp3",
+          "AUDIO/TEST 03/PART 03 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài giảng 1",
@@ -13523,7 +13547,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/k71es7plle4q0ni5fplnh/Part-2.mp3?rlkey=5n1xh4q4rqvnzl6eimdvyxx5b&st=jop5gxzv&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 04/PART 02 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 04/PART 02 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 04/PART 02 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -14535,7 +14563,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/438p7dxopmvwdw9ul3xdy/Part-3.mp3?rlkey=vlvlk3a2um1vo5lckrxt2jua1&st=gga7a5xo&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 04/PART 03 - TALK 01.mp3",
+          "AUDIO/TEST 04/PART 03 - TALK 02.mp3",
+          "AUDIO/TEST 04/PART 03 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài giảng 1",
@@ -17492,7 +17524,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/arpi74ecfbytpx32liwyl/Part-2.mp3?rlkey=j298ezuftxhnyio6mv0bo800a&st=ousgfg7e&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 05/PART 02 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 05/PART 02 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 05/PART 02 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -18564,7 +18600,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/dt61133oyfvgulqtikbid/Part-3.mp3?rlkey=jphidvsieexbt92qdtbnfnlkq&st=fclgbng4&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 05/PART 03 - TALK 01.mp3",
+          "AUDIO/TEST 05/PART 03 - TALK 02.mp3",
+          "AUDIO/TEST 05/PART 03 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài giảng 1",
@@ -21601,7 +21641,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/853dc0tgwabwpkfed5f3c/Part-2.mp3?rlkey=cif8sjnjf63q23pybqwn8iu2y&st=z96i69ja&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 06/PART 02 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 06/PART 02 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 06/PART 02 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -22659,7 +22703,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/8j9m8fn4mhmyflwlm4578/Part-3.mp3?rlkey=g9u7bw7k07x9iswjfq79ho516&st=7087781q&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 06/PART 03 - TALK 01.mp3",
+          "AUDIO/TEST 06/PART 03 - TALK 02.mp3",
+          "AUDIO/TEST 06/PART 03 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài giảng 1",
@@ -25609,7 +25657,11 @@ const ALL_TESTS = [
           "id": 2,
           "title": "PART 2: Questions 9-20",
           "instructions": "Directions: In this part, you will hear THREE conversations. The conversations will not be repeated. There are four questions for each conversation. For each question, choose the correct answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/j4ksmkez4tbr92x5u4pwn/Part-02.mp3?rlkey=508t52l7sy4y0azbe8f52chv8&st=10dv69s8&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 07/PART 02 - CONVERSATION 01.mp3",
+          "AUDIO/TEST 07/PART 02 - CONVERSATION 02.mp3",
+          "AUDIO/TEST 07/PART 02 - CONVERSATION 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Hội thoại 1",
@@ -26591,7 +26643,11 @@ const ALL_TESTS = [
           "id": 3,
           "title": "PART 3: Questions 21-35",
           "instructions": "Directions: In this part, you will hear THREE talks or lectures. The talks or lectures will not be repeated. There are five questions for each talk or lecture. For each question, choose the right answer A, B, C or D.",
-          "audioSrc": "https://www.dropbox.com/scl/fi/lmo24wvul6wmsljl4iyrg/Part-03.mp3?rlkey=zocano02bs3zgg6dymrez8ly8&st=8dpsrq0r&raw=1",
+          "audioSrc": [
+          "AUDIO/TEST 07/PART 03 - TALK 01.mp3",
+          "AUDIO/TEST 07/PART 03 - TALK 02.mp3",
+          "AUDIO/TEST 07/PART 03 - TALK 03.mp3"
+        ],
           "audioTimestamps": [
             {
               "label": "Bài nói 1",
