@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v39">
+    <link rel="stylesheet" href="style.css?v=20261125_v40">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261125_v39"></script>
+    <script src="data.js?v=20261125_v40"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v28"></script>
 
@@ -252,7 +252,7 @@
         };
 
         // Format Transcript HTML: bold speaker labels (Man:, Woman:, Nam:, Nữ:, Interviewer:, etc.)
-        const SPEAKER_LINE_REGEX = /(^|<br\s*\/?>)(\s*(?:\d+\.\s*)?)(Man(?:\s*\d)?|Woman(?:\s*\d)?|M|W|F|Boy|Girl|Interviewer|Interviewee|Interview|Speaker(?:\s*\d)?|Receptionist|Customer|Student|Tutor|Teacher|Officer|Adam|Angela|Carol|David|Jack|Jim|Michael|Peter|Rachel|Sam Hall|Simon|Sophie|Nam|Nữ(?:\s*\d)?|Người đàn ông(?:\s*\d)?|Người phụ nữ(?:\s*\d)?|Người phỏng vấn|Người được phỏng vấn|Người nói(?:\s*\d)?|Lễ tân|Nhân viên(?:\s+lễ tân)?|Khách hàng|Sinh viên|Giáo viên|Giảng viên|Tiến sĩ Miller)(\s*:)/gi;
+        const SPEAKER_LINE_REGEX = /(^|<br\s*\/?>)(\s*(?:\d+\.\s*)?)(Man(?:\s*\d)?|Woman(?:\s*\d)?|M|W|F|Boy|Girl|Interviewer|Interviewee|Interview|Speaker(?:\s*\d)?|Receptionist|Customer|Student|Tutor|Teacher|Lecturer|Officer|Administrator|Adam|Angela|Carol|David|Jack|Jim|Michael|Peter|Rachel|Sam Hall|Simon|Sophie|Nam|Nữ(?:\s*\d)?|Người đàn ông(?:\s*\d)?|Người phụ nữ(?:\s*\d)?|Người phỏng vấn|Người được phỏng vấn|Người nói(?:\s*\d)?|Lễ tân|Nhân viên(?:\s+lễ tân)?|Khách hàng|Sinh viên|Giáo viên|Giảng viên|Tiến sĩ Miller)(\s*:)/gi;
         const formatTranscriptHtml = (raw, stripLeadingNumber = false) => {
             if (!raw) return '';
             let normalized = String(raw).includes('<br') ? String(raw) : String(raw).replace(/\n/g, '<br/>');
@@ -449,6 +449,7 @@
             const [timeLeft, setTimeLeft] = useState(() => test && test.test ? test.test.duration : 0);
             const [showConfirmModal, setShowConfirmModal] = useState(false);
             const [isMenuVisible, setIsMenuVisible] = useState(false);
+            const [passageFtMode, setPassageFtMode] = useState('bilingual'); // 'bilingual', 'en', 'vi'
             
             // Audio state variables for multi-track custom players
             const [activeAudioKey, setActiveAudioKey] = useState(null);
@@ -643,9 +644,10 @@
                     targetPart = targetKeyOrPartId;
                     targetKey = targetPart === 1 ? '1' : targetPart === 2 ? '2_0' : '3_0';
                 } else if (typeof targetKeyOrPartId === 'string') {
-                    if (targetKeyOrPartId.startsWith('1')) targetPart = 1;
-                    else if (targetKeyOrPartId.startsWith('2')) targetPart = 2;
-                    else if (targetKeyOrPartId.startsWith('3')) targetPart = 3;
+                    const bare = targetKeyOrPartId.replace(/^ft_/, '');
+                    if (bare.startsWith('1')) targetPart = 1;
+                    else if (bare.startsWith('2')) targetPart = 2;
+                    else if (bare.startsWith('3')) targetPart = 3;
                 }
 
                 // Toggle pause if clicking the currently active snippet button
@@ -1284,7 +1286,10 @@
                                                                     const aKey = getAudioKeyForQuestion(q.id);
                                                                     let seekStart = 0;
                                                                     let seekEnd = null;
-                                                                    if (part.id === 1 && Array.isArray(part.audioTimestamps)) {
+                                                                    if (typeof q.audioStart === 'number' && typeof q.audioEnd === 'number' && q.audioEnd > q.audioStart) {
+                                                                        seekStart = q.audioStart;
+                                                                        seekEnd = q.audioEnd;
+                                                                    } else if (part.id === 1 && Array.isArray(part.audioTimestamps)) {
                                                                         const tStamp = part.audioTimestamps[q.id - 1] || part.audioTimestamps.find(ts => {
                                                                             const match = String(ts.label || '').match(/\d+/);
                                                                             return match && parseInt(match[0], 10) === q.id;
@@ -1303,7 +1308,12 @@
                                                                     return (
                                                                         <div className="snippet-block full-transcript-box">
                                                                             <div className="review-tag" style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px'}}>
-                                                                                <span><i className="fa-solid fa-file-lines" style={{marginRight: '6px'}}></i>Transcript đầy đủ &amp; Dẫn chứng từ audio:</span>
+                                                                                <span>
+                                                                                    <i className="fa-solid fa-file-lines" style={{marginRight: '6px'}}></i>
+                                                                                    {part.id === 1
+                                                                                        ? 'Transcript & Dẫn chứng từ audio:'
+                                                                                        : `Đoạn trích dẫn chứng từ audio (Câu ${q.id}):`}
+                                                                                </span>
                                                                                 <span className="transcript-highlight-legend">
                                                                                     <i className="fa-solid fa-highlighter"></i> Câu tô đỏ = Chứa đáp án Câu {q.id}
                                                                                 </span>
@@ -1328,7 +1338,7 @@
                                                                                 <i className={isThisClipPlaying ? "fa-solid fa-stop" : "fa-solid fa-volume-high"}></i>{' '}
                                                                                 {isThisClipPlaying
                                                                                     ? `Đang phát đoạn Câu ${q.id} — Bấm để dừng`
-                                                                                    : (part.id === 1 && seekEnd
+                                                                                    : (seekEnd != null
                                                                                         ? `Nghe lại đoạn này (${formatTimeStr(seekStart)} – ${formatTimeStr(seekEnd)})`
                                                                                         : 'Nghe lại đoạn này')}
                                                                             </button>
@@ -1390,6 +1400,85 @@
                                                             </div>
                                                         )}
                                                     </div>
+                                                    {isReview && (part.id === 2 || part.id === 3) && (() => {
+                                                        const endIds = part.id === 2 ? [12, 16, 20] : [25, 30, 35];
+                                                        const segIdx = endIds.indexOf(q.id);
+                                                        if (segIdx === -1) return null;
+                                                        const ft = Array.isArray(part.fullTranscripts) ? part.fullTranscripts[segIdx] : null;
+                                                        if (!ft || !ft.en) return null;
+                                                        const ftAudioKey = `ft_${part.id}_${segIdx}`;
+                                                        const ftAudioSrc = Array.isArray(part.audioSrc) ? part.audioSrc[segIdx] : part.audioSrc;
+                                                        const qRanges = part.id === 2
+                                                            ? ['09 - 12', '13 - 16', '17 - 20']
+                                                            : ['21 - 25', '26 - 30', '31 - 35'];
+                                                        const passageKind = part.id === 2 ? 'HỘI THOẠI' : 'BÀI NÓI';
+                                                        const hasVi = Boolean(ft.vi && ft.vi.trim().length > 10);
+                                                        const showEn = passageFtMode === 'bilingual' || passageFtMode === 'en' || !hasVi;
+                                                        const showVi = hasVi && (passageFtMode === 'bilingual' || passageFtMode === 'vi');
+                                                        const isTwoCol = showEn && showVi;
+                                                        return (
+                                                            <div className="passage-full-transcript-card">
+                                                                <div className="passage-ft-header">
+                                                                    <div className="passage-ft-title">
+                                                                        <i className={part.id === 2 ? "fa-solid fa-comments" : "fa-solid fa-chalkboard-user"}></i>
+                                                                        <span>FULL TRANSCRIPT — {passageKind} {segIdx + 1} (CÂU {qRanges[segIdx]}){ft.title ? `: ${ft.title}` : ''}</span>
+                                                                    </div>
+                                                                    <div className="passage-ft-pills">
+                                                                        <button
+                                                                            type="button"
+                                                                            className={`btn btn-sm ${passageFtMode === 'bilingual' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                                                            onClick={() => setPassageFtMode('bilingual')}
+                                                                        >
+                                                                            Song ngữ
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className={`btn btn-sm ${passageFtMode === 'en' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                                                            onClick={() => setPassageFtMode('en')}
+                                                                        >
+                                                                            Tiếng Anh
+                                                                        </button>
+                                                                        {hasVi && (
+                                                                            <button
+                                                                                type="button"
+                                                                                className={`btn btn-sm ${passageFtMode === 'vi' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                                                                onClick={() => setPassageFtMode('vi')}
+                                                                            >
+                                                                                Tiếng Việt
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                {ftAudioSrc && (
+                                                                    <div className="passage-ft-audio-wrap">
+                                                                        {renderAudioPlayerCard(
+                                                                            ftAudioKey,
+                                                                            `FULL AUDIO — ${passageKind} ${segIdx + 1} (CÂU ${qRanges[segIdx]})`,
+                                                                            ftAudioSrc
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                                <div className={`passage-ft-body ${isTwoCol ? '' : 'single-col'}`}>
+                                                                    {showEn && (
+                                                                        <div className="passage-ft-col">
+                                                                            <div className="transcript-col-header en" style={{marginBottom: '10px'}}>
+                                                                                <i className="fa-solid fa-headphones"></i> Bản gốc Tiếng Anh đầy đủ
+                                                                            </div>
+                                                                            <div className="full-transcript-content" dangerouslySetInnerHTML={{__html: formatTranscriptHtml(ft.en)}} />
+                                                                        </div>
+                                                                    )}
+                                                                    {showVi && (
+                                                                        <div className="passage-ft-col vi-col">
+                                                                            <div className="transcript-col-header vi" style={{marginBottom: '10px'}}>
+                                                                                <i className="fa-solid fa-language"></i> Bản dịch Tiếng Việt đầy đủ
+                                                                            </div>
+                                                                            <div className="transcript-vi-content" dangerouslySetInnerHTML={{__html: formatTranscriptHtml(ft.vi)}} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                     </div>
                                                 );
                                             })}
