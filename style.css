@@ -148,6 +148,25 @@ body {
     width: 100%;
 }
 
+/* Exam Focus Mode (Chế độ tập trung - Ẩn hoàn toàn sidebar khi vào thi) */
+.app-layout.exam-focus-mode .global-sidebar {
+    display: none !important;
+}
+
+.app-layout.exam-focus-mode .main-content-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.app-layout.exam-focus-mode main.container {
+    max-width: 1100px !important;
+    width: 95% !important;
+    margin: 0 auto !important;
+    padding-top: 18px !important;
+    padding-bottom: 120px !important;
+}
+
 .global-sidebar {
     width: 280px;
     height: 100vh;
@@ -1376,145 +1395,409 @@ body.dark-mode .listening-compliance-warning {
     margin-bottom: 0;
 }
 
-/* =====================================
-   VSTEP MOCK TEST BOTTOM NAVIGATION BAR
-   ===================================== */
+/* ===================================================
+   VSTEP EXAM TOP ACTION BAR & FOCUS HEADER
+   =================================================== */
+.exam-top-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    border-bottom: 1.5px solid var(--border-color);
+    padding-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.exam-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.exam-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.exam-test-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.exam-badge-focus {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 2px 8px;
+    border-radius: 9999px;
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.5px;
+}
+body.dark-mode .exam-badge-focus {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+}
+
+.exam-header-center-parts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--input-bg);
+    padding: 4px 6px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+}
+
+.exam-part-header-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.exam-part-header-tab:hover {
+    color: var(--text-dark);
+    background: rgba(0, 0, 0, 0.04);
+}
+body.dark-mode .exam-part-header-tab:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.exam-part-header-tab.active {
+    background: var(--color-violet);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.tab-part-count {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.08);
+}
+.exam-part-header-tab.active .tab-part-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+.tab-part-count.done {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.exam-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.exam-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+}
+
+/* ===================================================
+   VSTEP MOCK TEST BALANCED BOTTOM NAVIGATION BAR
+   =================================================== */
 .vstep-bottom-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 76px;
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
+    height: 78px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1.5px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 32px;
+    padding: 0 28px;
     z-index: 1000;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.07);
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 body.dark-mode .vstep-bottom-bar {
-    background: var(--card-bg);
-    border-top: 1px solid var(--border-color);
+    background: rgba(24, 24, 27, 0.98);
+    border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.vstep-nav-blocks {
+.vstep-bottom-left {
     display: flex;
-    gap: 32px;
-    height: 100%;
     align-items: center;
+    gap: 10px;
+    flex: 1 1 0;
+    justify-content: flex-start;
 }
 
-.vstep-nav-block {
+.vstep-bottom-center {
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    height: 100%;
+    flex: 0 0 auto;
+    margin: 0 auto;
+    text-align: center;
 }
 
-.vstep-nav-header {
-    font-size: 0.65rem;
+.vstep-center-nav-header {
+    font-size: 0.68rem;
     font-weight: 800;
-    color: #64748b;
-    margin-bottom: 6px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #64748b;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-body.dark-mode .vstep-nav-header {
+body.dark-mode .vstep-center-nav-header {
     color: #94a3b8;
+}
+
+.vstep-bottom-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 0;
+    justify-content: flex-end;
 }
 
 .vstep-nav-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    align-items: center;
 }
 
 .vstep-nav-btn {
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    color: #475569;
-    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    color: #334155;
+    padding: 7px 18px;
+    border-radius: 9999px;
+    font-size: 0.82rem;
     font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.vstep-nav-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
 }
 
 body.dark-mode .vstep-nav-btn {
-    background: var(--panel-bg);
-    border-color: var(--border-color);
-    color: #cbd5e1;
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+}
+
+body.dark-mode .vstep-nav-btn:hover {
+    background: #3f3f46;
 }
 
 .vstep-nav-btn.active {
-    background: #f59e0b;
-    border-color: #f59e0b;
-    color: #000000;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #d97706;
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    transform: translateY(-1px);
 }
 
-.vstep-nav-block.disabled-block .vstep-nav-btn {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #f8fafc;
+.vstep-part-num {
+    letter-spacing: 0.3px;
 }
 
-body.dark-mode .vstep-nav-block.disabled-block .vstep-nav-btn {
-    background: rgba(255,255,255,0.02);
+.vstep-part-badge {
+    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-weight: 800;
 }
 
-.vstep-action-buttons {
-    display: flex;
-    gap: 12px;
-    align-items: center;
+.vstep-nav-btn.active .vstep-part-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
 }
 
-.vstep-action-btn {
-    padding: 10px 24px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-    border: none;
-}
-
-.btn-hide-menu {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: #334155;
-}
-
-body.dark-mode .btn-hide-menu {
-    background: var(--panel-bg);
-    border-color: var(--border-color);
-    color: #cbd5e1;
-}
-
-.btn-save {
+.vstep-part-badge.done {
     background: #10b981;
     color: #ffffff;
 }
 
-.btn-continue {
-    background: #7c3aed;
+.vstep-nav-btn.active .vstep-part-badge.done {
+    background: #ffffff;
+    color: #059669;
+}
+
+.vstep-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-hide-menu {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    color: #334155;
+}
+
+.btn-hide-menu:hover, .btn-hide-menu.active-menu {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+body.dark-mode .btn-hide-menu {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+}
+
+body.dark-mode .btn-hide-menu:hover, body.dark-mode .btn-hide-menu.active-menu {
+    background: #3f3f46;
     color: #ffffff;
 }
 
-.btn-hide-menu:hover { background: #f1f5f9; }
-body.dark-mode .btn-hide-menu:hover { background: var(--border-color); }
-.btn-save:hover { background: #059669; }
-.btn-continue:hover { background: #6d28d9; }
+.btn-save-draft {
+    background: rgba(234, 179, 8, 0.12);
+    border: 1.5px solid rgba(234, 179, 8, 0.35);
+    color: #b45309;
+}
+
+.btn-save-draft:hover {
+    background: #eab308;
+    color: #ffffff;
+}
+
+body.dark-mode .btn-save-draft {
+    background: rgba(234, 179, 8, 0.18);
+    border-color: rgba(234, 179, 8, 0.4);
+    color: #fde047;
+}
+
+body.dark-mode .btn-save-draft:hover {
+    background: #ca8a04;
+    color: #ffffff;
+}
+
+.btn-continue {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+}
+
+.btn-continue:hover {
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.btn-exit {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.btn-exit:hover {
+    background: #dc2626;
+}
 
 /* Add spacing at bottom to prevent overlap with sticky footer */
 .test-workspace {
     margin-bottom: 100px;
+}
+
+@media (max-width: 860px) {
+    .vstep-bottom-bar {
+        height: auto;
+        padding: 10px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .vstep-bottom-left {
+        order: 2;
+        flex: 1;
+        justify-content: flex-start;
+    }
+    .vstep-bottom-center {
+        order: 1;
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    .vstep-bottom-right {
+        order: 3;
+        flex: 1;
+        justify-content: flex-end;
+    }
+    .vstep-nav-btn {
+        padding: 6px 12px;
+        font-size: 0.78rem;
+    }
+    .vstep-action-btn {
+        padding: 8px 12px;
+        font-size: 0.78rem;
+    }
+    .btn-label-desktop {
+        display: none;
+    }
+    .exam-header-center-parts {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 8px;
+    }
 }
 
 /* VOCAB GAME STYLES */

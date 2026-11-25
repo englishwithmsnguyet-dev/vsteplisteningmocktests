@@ -43,7 +43,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v26">
+    <link rel="stylesheet" href="style.css?v=20261125_v27">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
@@ -494,22 +494,55 @@
                 <>
                 <div className="animate-fade-in">
                     {/* Upper Action Bar */}
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px'}}>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                            <button className="btn btn-secondary-outline btn-sm" onClick={onBackToDashboard}>
+                    <div className="exam-top-action-bar">
+                        <div className="exam-header-left">
+                            <button className="btn btn-secondary-outline btn-sm" onClick={onBackToDashboard} title="Rời khỏi phòng thi về trang chủ">
                                 <i className="fa-solid fa-arrow-left"></i> Thoát
                             </button>
-                            <h2 style={{fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', textTransform: 'uppercase'}}>{test.title}</h2>
+                            <div className="exam-title-group">
+                                <h2 className="exam-test-title">{test.title}</h2>
+                                <span className="exam-badge-focus">
+                                    <i className="fa-solid fa-bullseye"></i> CHẾ ĐỘ TẬP TRUNG
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Center PART navigation tabs on top header */}
+                        <div className="exam-header-center-parts">
+                            {test.test.parts.map(part => {
+                                const isSelected = selectedPart === part.id;
+                                const partAnswered = part.questions.filter(q => answers[q.id]).length;
+                                const partTotal = part.questions.length;
+                                const isDone = partAnswered === partTotal && partTotal > 0;
+                                return (
+                                    <button
+                                        key={part.id}
+                                        className={`exam-part-header-tab ${isSelected ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setSelectedPart(part.id);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        title={`Chuyển tới ${part.title} (${partAnswered}/${partTotal} câu)`}
+                                    >
+                                        <span className="tab-part-name">PART {part.id}</span>
+                                        <span className={`tab-part-count ${isDone ? 'done' : ''}`}>
+                                            {isDone ? <i className="fa-solid fa-check" style={{fontSize: '9px', marginRight: '2px'}}></i> : null}
+                                            {partAnswered}/{partTotal}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
                         
                         {!isReview && (
-                            <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-                                <div className={`timer-hud ${timeLeft < 300 ? (timeLeft < 60 ? 'danger' : 'warning') : ''}`}>
+                            <div className="exam-header-right">
+                                <div className={`timer-hud ${timeLeft < 300 ? (timeLeft < 60 ? 'danger' : 'warning') : ''}`} title="Thời gian làm bài còn lại">
                                     <i className="fa-solid fa-clock"></i>
                                     <span>{formatTimeStr(timeLeft)}</span>
                                 </div>
-                                <button className="btn btn-primary" onClick={() => setShowConfirmModal(true)}>
-                                    Nộp Bài ({answeredCount}/{totalQuestionsCount})
+                                <button className="btn btn-primary exam-submit-btn" onClick={() => setShowConfirmModal(true)}>
+                                    <i className="fa-solid fa-paper-plane"></i>
+                                    <span>Nộp Bài ({answeredCount}/{totalQuestionsCount})</span>
                                 </button>
                             </div>
                         )}
@@ -937,45 +970,77 @@
 
                 {/* VSTEP Sticky Bottom Navigation Bar */}
                 <div className="vstep-bottom-bar">
-                    <div className="vstep-nav-blocks">
-                        <div className="vstep-nav-block">
-                            <div className="vstep-nav-header">LISTENING (47')</div>
-                            <div className="vstep-nav-buttons">
-                                {test && test.test && test.test.parts.map(part => (
+                    <div className="vstep-bottom-left">
+                        <button 
+                            className={`vstep-action-btn btn-hide-menu ${isMenuVisible ? 'active-menu' : ''}`} 
+                            onClick={() => setIsMenuVisible(!isMenuVisible)}
+                            title="Bật/Tắt bảng câu hỏi và mốc thời gian"
+                        >
+                            <i className={isMenuVisible ? "fa-solid fa-eye-slash" : "fa-solid fa-list-check"}></i> 
+                            <span>{isMenuVisible ? "ẨN MENU" : "BẢN ĐỒ CÂU"}</span>
+                        </button>
+                        {!isReview && (
+                            <button 
+                                className="vstep-action-btn btn-save-draft" 
+                                onClick={() => {
+                                    localStorage.setItem('vstep_saved_progress_' + test.id, JSON.stringify(answers));
+                                    alert('Tiến trình làm bài của bạn đã được lưu tạm thành công!');
+                                }} 
+                                title="Lưu tạm câu trả lời vào trình duyệt"
+                            >
+                                <i className="fa-solid fa-floppy-disk"></i>
+                                <span className="btn-label-desktop">LƯU TẠM</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Center Balanced PART Switcher */}
+                    <div className="vstep-bottom-center">
+                        <div className="vstep-center-nav-header">
+                            <i className="fa-solid fa-headphones"></i>
+                            <span>CHUYỂN PART • LISTENING (47')</span>
+                        </div>
+                        <div className="vstep-nav-buttons">
+                            {test && test.test && test.test.parts.map(part => {
+                                const isSelected = selectedPart === part.id;
+                                const partAnswered = part.questions.filter(q => answers[q.id]).length;
+                                const partTotal = part.questions.length;
+                                const isDone = partAnswered === partTotal && partTotal > 0;
+                                return (
                                     <button 
                                         key={part.id} 
-                                        className={`vstep-nav-btn ${selectedPart === part.id ? 'active' : ''}`}
-                                        onClick={() => setSelectedPart(part.id)}
+                                        className={`vstep-nav-btn ${isSelected ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setSelectedPart(part.id);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        title={`Chuyển sang Part ${part.id} (${partAnswered}/${partTotal} câu)`}
                                     >
-                                        PART {part.title.split(':')[0].replace(/Part /i, '')}
+                                        <span className="vstep-part-num">PART {part.id}</span>
+                                        <span className={`vstep-part-badge ${isDone ? 'done' : ''}`}>
+                                            {isDone ? <i className="fa-solid fa-check" style={{fontSize: '9px', marginRight: '2px'}}></i> : null}
+                                            {partAnswered}/{partTotal}
+                                        </span>
                                     </button>
-                                ))}
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
 
-                    <div className="vstep-action-buttons">
-                        <button className="vstep-action-btn btn-hide-menu" onClick={() => setIsMenuVisible(!isMenuVisible)}>
-                            <i className={isMenuVisible ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}></i> 
-                            {isMenuVisible ? "ẨN MENU" : "HIỆN MENU"}
-                        </button>
+                    <div className="vstep-bottom-right">
                         {isReview ? (
-                            <button className="vstep-action-btn btn-save" onClick={onBackToDashboard}>
+                            <button className="vstep-action-btn btn-exit" onClick={onBackToDashboard}>
                                 <i className="fa-solid fa-door-open"></i> THOÁT
                             </button>
                         ) : (
                             <>
-                                <button className="vstep-action-btn btn-save" onClick={() => {
-                                    localStorage.setItem('vstep_saved_progress_' + test.id, JSON.stringify(answers));
-                                    alert('Tiến trình làm bài của bạn đã được lưu tạm thành công!');
-                                }} style={{backgroundColor: '#eab308'}}>
-                                    <i className="fa-solid fa-floppy-disk"></i> LƯU TẠM
+                                <button className="vstep-action-btn btn-continue" onClick={handleContinue} title="Chuyển sang Part kế tiếp">
+                                    <span>TIẾP THEO</span>
+                                    <i className="fa-solid fa-arrow-right"></i>
                                 </button>
-                                <button className="vstep-action-btn btn-continue" onClick={handleContinue}>
-                                    TIẾP TỤC <i className="fa-solid fa-arrow-right"></i>
-                                </button>
-                                <button className="vstep-action-btn btn-save" onClick={() => setShowConfirmModal(true)}>
-                                    <i className="fa-solid fa-paper-plane"></i> NỘP BÀI
+                                <button className="vstep-action-btn btn-submit" onClick={() => setShowConfirmModal(true)} title="Nộp bài thi">
+                                    <i className="fa-solid fa-paper-plane"></i>
+                                    <span>NỘP BÀI</span>
                                 </button>
                             </>
                         )}
@@ -2591,21 +2656,23 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             };
 
             return (
-                <div className="app-layout">
-                    <GlobalSidebar />
+                <div className={`app-layout ${currentScreen === 'test' ? 'exam-focus-mode' : ''}`}>
+                    {currentScreen !== 'test' && <GlobalSidebar />}
                     
                     <div className="main-content-wrapper" style={{display: 'flex', flexDirection: 'column'}}>
-                        {/* Top Branding Section */}
-                        <div style={{width: '100%', textAlign: 'center', paddingTop: '16px'}}>
-                            <a href="https://www.facebook.com/englishwithmissnguyet" target="_blank" rel="noreferrer" className="galaxy-brand-badge">
-                                <i className="fa-brands fa-facebook"></i> ENGLISH WITH MISS NGUYET
-                            </a>
-                            <div className="motivation-img-container">
-                                <img src="never_give_up.jpg" alt="Never Give Up Motivation" />
+                        {/* Top Branding Section (Ẩn khi vào thi để tập trung tối đa) */}
+                        {currentScreen !== 'test' && (
+                            <div style={{width: '100%', textAlign: 'center', paddingTop: '16px'}}>
+                                <a href="https://www.facebook.com/englishwithmissnguyet" target="_blank" rel="noreferrer" className="galaxy-brand-badge">
+                                    <i className="fa-brands fa-facebook"></i> ENGLISH WITH MISS NGUYET
+                                </a>
+                                <div className="motivation-img-container">
+                                    <img src="never_give_up.jpg" alt="Never Give Up Motivation" />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
-                        <main className="container" style={{paddingBottom: '40px', maxWidth: '1000px', flex: 1}}>
+                        <main className="container" style={{paddingBottom: currentScreen === 'test' ? '120px' : '40px', maxWidth: currentScreen === 'test' ? '1100px' : '1000px', flex: 1}}>
                         {/* DEDICATED FLOWER GARDEN TAB */}
                         {currentScreen === 'garden' && (
                             <div className="garden-dedicated-view" style={{ maxWidth: '680px', width: '92%', margin: '0 auto 24px auto' }}>
@@ -2668,12 +2735,14 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         )}
                     </main>
 
-                    <footer className="footer">
-                        <div className="container">
-                            <p>© 2026 THI THỬ VSTEP LISTENING CÙNG MISS NGUYỆT. Thiết kế tối ưu cho học viên ôn thi B1 - B2 - C1.</p>
-                            <p style={{fontSize: '0.72rem', marginTop: '4px', opacity: 0.6}}>Hệ thống tự động lưu trữ kết quả và tiến trình thi thử trực tiếp trên trình duyệt của bạn (Local Storage).</p>
-                        </div>
-                    </footer>
+                    {currentScreen !== 'test' && (
+                        <footer className="footer">
+                            <div className="container">
+                                <p>© 2026 THI THỬ VSTEP LISTENING CÙNG MISS NGUYỆT. Thiết kế tối ưu cho học viên ôn thi B1 - B2 - C1.</p>
+                                <p style={{fontSize: '0.72rem', marginTop: '4px', opacity: 0.6}}>Hệ thống tự động lưu trữ kết quả và tiến trình thi thử trực tiếp trên trình duyệt của bạn (Local Storage).</p>
+                            </div>
+                        </footer>
+                    )}
                     </div>
                 </div>
             );
