@@ -54,9 +54,10 @@
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <!-- Room Proctoring -->
+    <!-- Room Proctoring & Official Result Report -->
     <script>window.VSTEP_ROOM_SKILL = 'listening';</script>
-    <script src="exam_room.js?v=20261118"></script>
+    <script src="result_report.js?v=20261125_v23"></script>
+    <script src="exam_room.js?v=20261125_v23"></script>
 </head>
 <body>
     
@@ -123,7 +124,7 @@
         };
 
         // --- DASHBOARD COMPONENT ---
-        function Dashboard({ tests, onStartTest, onOpenVocab, history, onClearHistory }) {
+        function Dashboard({ tests, onStartTest, onOpenVocab, history, onClearHistory, onOpenReport }) {
             const completedCount = history.length;
             const avgScore = completedCount > 0 
                 ? (history.reduce((sum, h) => sum + h.correctCount, 0) / completedCount).toFixed(1) 
@@ -239,9 +240,14 @@
                                             <span className="history-test-title">Đề thi {item.testId} - {item.testTitle}</span>
                                             <span className="history-date">Ngày làm: {item.date}</span>
                                         </div>
-                                        <div className="history-right">
+                                        <div className="history-right" style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px'}}>
                                             <span className="history-score-tag">Đúng: {item.correctCount}/35 câu ({item.vstepScore}đ)</span>
-                                            <button className="btn btn-primary btn-sm" onClick={() => onStartTest(tests.find(t => t.id === item.testId), item.answers)}>
+                                            {onOpenReport && (
+                                                <button className="btn btn-secondary-outline btn-sm" onClick={() => onOpenReport(item)} title="Xem Phiếu Báo Cáo Kết Quả">
+                                                    <i className="fa-solid fa-file-invoice"></i> Phiếu điểm
+                                                </button>
+                                            )}
+                                            <button className="btn btn-primary btn-sm" onClick={() => onStartTest(tests.find(t => t.id === item.testId), item.answers, item)}>
                                                 Xem lại bài làm
                                             </button>
                                         </div>
@@ -855,7 +861,7 @@
         }
 
         // --- RESULTS & REVIEW COMPONENT ---
-        function Results({ test, answers, onBackToDashboard }) {
+        function Results({ test, answers, onBackToDashboard, reportData }) {
             const [activeTab, setActiveTab] = useState('review'); // 'review', 'transcript', 'vocab', 'game'
             const [gamePhase, setGamePhase] = useState('learn'); // 'learn', 'play', 'finish'
             const [playList, setPlayList] = useState(() => test ? test.vocab : []); 
@@ -866,17 +872,52 @@
             const [playingWord, setPlayingWord] = useState(null);
             const [wrongVocabs, setWrongVocabs] = useState([]);
 
-            // Calculate correct score
+            // Calculate correct score & per-part breakdown
             let correctCount = 0;
+            let totalQuestions = 0;
+            let answeredCount = 0;
+            const partSubLabels = ['Thông báo ngắn', '3 đoạn Hội thoại', '3 bài Nói / Giảng'];
+            const computedPartScores = [];
             if (test && test.test) {
-                test.test.parts.forEach(part => {
+                test.test.parts.forEach((part, idx) => {
+                    let pCorrect = 0;
+                    const pTotal = part.questions.length;
                     part.questions.forEach(q => {
-                        if (answers[q.id] === q.correct) correctCount++;
+                        totalQuestions++;
+                        if (answers && answers[q.id]) answeredCount++;
+                        if (answers && answers[q.id] === q.correct) {
+                            correctCount++;
+                            pCorrect++;
+                        }
+                    });
+                    computedPartScores.push({
+                        id: part.id,
+                        name: `Part ${idx + 1} (${part.questions[0]?.id || 1}–${part.questions[pTotal - 1]?.id || pTotal})`,
+                        sub: partSubLabels[idx] || '',
+                        correct: pCorrect,
+                        total: pTotal
                     });
                 });
             }
 
             const vstepScore = test ? convertVstepScore(correctCount) : 0;
+
+            const handleOpenOfficialReport = () => {
+                if (typeof window.VstepResultReport === 'undefined') return;
+                const viol = window.VstepResultReport.getViolations(test.id);
+                const payload = reportData && reportData.testId === test.id ? reportData : {
+                    testId: test.id,
+                    testTitle: test.title,
+                    correctCount,
+                    totalQuestions: totalQuestions || 35,
+                    answeredCount,
+                    vstepScore,
+                    partScores: computedPartScores,
+                    elapsedSeconds: 0,
+                    tabSwitches: viol.tabSwitches
+                };
+                window.VstepResultReport.open(payload);
+            };
 
             // Circular progress variables
             const strokeMax = 2 * Math.PI * 60; // radius = 60
@@ -995,6 +1036,14 @@
                             </div>
                         </div>
 
+                        <div style={{display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', margin: '0 auto 16px'}}>
+                            {computedPartScores.map(p => (
+                                <span key={p.id} style={{background: 'var(--input-bg)', border: '1px solid var(--border-color)', borderRadius: '999px', padding: '5px 12px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dark)'}}>
+                                    {p.name}: <strong style={{color: 'var(--color-violet)'}}>{p.correct}/{p.total}</strong>
+                                </span>
+                            ))}
+                        </div>
+
                         <p style={{fontWeight: 600, maxWidth: '500px', margin: '0 auto 16px', fontSize: '0.95rem'}}>
                             {vstepScore >= 8.5 ? "Xuất sắc! Trình độ kỹ năng Nghe của bạn tương đương C1 trở lên." :
                              vstepScore >= 6.0 ? "Khá tốt! Bạn đang đạt mốc trình độ B2 bền vững." :
@@ -1002,9 +1051,14 @@
                              "Mục tiêu dưới B1. Hãy xem lại giải thích đáp án và ôn tập từ vựng."}
                         </p>
 
-                        <button className="btn btn-secondary-outline" onClick={onBackToDashboard}>
-                            <i className="fa-solid fa-arrow-left"></i> Quay Về Trang Chủ
-                        </button>
+                        <div style={{display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap'}}>
+                            <button className="btn btn-primary" onClick={handleOpenOfficialReport}>
+                                <i className="fa-solid fa-file-invoice"></i> Xem Phiếu Báo Cáo Kết Quả
+                            </button>
+                            <button className="btn btn-secondary-outline" onClick={onBackToDashboard}>
+                                <i className="fa-solid fa-arrow-left"></i> Quay Về Trang Chủ
+                            </button>
+                        </div>
                     </div>
 
                     {/* Section tabs header */}
@@ -1820,6 +1874,8 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             const [currentScreen, setCurrentScreen] = useState('dashboard'); // 'dashboard', 'test', 'results', 'vocab'
             const [selectedTest, setSelectedTest] = useState(null);
             const [answers, setAnswers] = useState({});
+            const [latestReportData, setLatestReportData] = useState(null);
+            const examStartTimeRef = useRef(null);
             
             // Saved history state
             const [history, setHistory] = useState(() => {
@@ -1852,8 +1908,29 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 localStorage.setItem('vstep_listening_dark_mode', darkMode);
             }, [darkMode]);
 
+            // Track tab switches / leaving exam window while taking a test
+            useEffect(() => {
+                if (currentScreen !== 'test' || !selectedTest) return;
+                const onVisibilityChange = () => {
+                    if (document.hidden && typeof window.VstepResultReport !== 'undefined') {
+                        window.VstepResultReport.recordViolation(selectedTest.id, 'tab');
+                    }
+                };
+                const onWindowBlur = () => {
+                    if (typeof window.VstepResultReport !== 'undefined') {
+                        window.VstepResultReport.recordViolation(selectedTest.id, 'tab');
+                    }
+                };
+                document.addEventListener('visibilitychange', onVisibilityChange);
+                window.addEventListener('blur', onWindowBlur);
+                return () => {
+                    document.removeEventListener('visibilitychange', onVisibilityChange);
+                    window.removeEventListener('blur', onWindowBlur);
+                };
+            }, [currentScreen, selectedTest]);
+
             // Save history helper
-            const saveAttempt = (testId, testTitle, correctCount, finalAnswers) => {
+            const saveAttempt = (testId, testTitle, correctCount, finalAnswers, extraMeta = {}) => {
                 const now = new Date();
                 const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()} lúc ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
                 
@@ -1863,7 +1940,13 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     correctCount,
                     vstepScore: convertVstepScore(correctCount),
                     answers: finalAnswers,
-                    date: formattedDate
+                    date: formattedDate,
+                    elapsedSeconds: extraMeta.elapsedSeconds || 0,
+                    answeredCount: extraMeta.answeredCount != null ? extraMeta.answeredCount : correctCount,
+                    totalQuestions: extraMeta.totalQuestions || 35,
+                    partScores: extraMeta.partScores || [],
+                    tabSwitches: extraMeta.tabSwitches || 0,
+                    submittedAt: extraMeta.submittedAt || formattedDate
                 };
 
                 const updatedHistory = [newAttempt, ...history];
@@ -1884,16 +1967,116 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 setAnswers({});
             };
 
+            const handleOpenHistoryReport = (item) => {
+                if (!item || typeof window.VstepResultReport === 'undefined') return;
+                const matchedTest = ALL_TESTS.find(t => t.id === item.testId);
+                let partScores = item.partScores;
+                if ((!partScores || partScores.length === 0) && matchedTest && matchedTest.test) {
+                    const partSubLabels = ['Thông báo ngắn', '3 đoạn Hội thoại', '3 bài Nói / Giảng'];
+                    partScores = matchedTest.test.parts.map((part, idx) => {
+                        let pCorrect = 0;
+                        part.questions.forEach(q => {
+                            if (item.answers && item.answers[q.id] === q.correct) pCorrect++;
+                        });
+                        return {
+                            id: part.id,
+                            name: `Part ${idx + 1} (${part.questions[0]?.id || 1}–${part.questions[part.questions.length - 1]?.id || part.questions.length})`,
+                            sub: partSubLabels[idx] || '',
+                            correct: pCorrect,
+                            total: part.questions.length
+                        };
+                    });
+                }
+                const viol = window.VstepResultReport.getViolations(item.testId);
+                const payload = {
+                    testId: item.testId,
+                    testTitle: item.testTitle,
+                    studentName: currentUser ? currentUser.name : undefined,
+                    studentClass: currentUser ? currentUser.className : undefined,
+                    correctCount: item.correctCount,
+                    totalQuestions: item.totalQuestions || 35,
+                    answeredCount: item.answeredCount != null ? item.answeredCount : Object.keys(item.answers || {}).length,
+                    vstepScore: item.vstepScore != null ? item.vstepScore : convertVstepScore(item.correctCount),
+                    partScores: partScores || [],
+                    elapsedSeconds: item.elapsedSeconds || 0,
+                    submittedAt: item.submittedAt || item.date,
+                    tabSwitches: typeof item.tabSwitches === 'number' ? item.tabSwitches : viol.tabSwitches
+                };
+                window.VstepResultReport.open(payload);
+            };
+
             const handleFinishTest = () => {
+                if (!selectedTest || !selectedTest.test) return;
                 let score = 0;
-                selectedTest.test.parts.forEach(part => {
+                let totalQuestions = 0;
+                let answeredCount = 0;
+                const partSubLabels = ['Thông báo ngắn', '3 đoạn Hội thoại', '3 bài Nói / Giảng'];
+                const partScores = [];
+
+                selectedTest.test.parts.forEach((part, idx) => {
+                    let pCorrect = 0;
+                    const pTotal = part.questions.length;
                     part.questions.forEach(q => {
-                        if (answers[q.id] === q.correct) score++;
+                        totalQuestions++;
+                        if (answers[q.id]) answeredCount++;
+                        if (answers[q.id] === q.correct) {
+                            score++;
+                            pCorrect++;
+                        }
+                    });
+                    partScores.push({
+                        id: part.id,
+                        name: `Part ${idx + 1} (${part.questions[0]?.id || 1}–${part.questions[pTotal - 1]?.id || pTotal})`,
+                        sub: partSubLabels[idx] || '',
+                        correct: pCorrect,
+                        total: pTotal
                     });
                 });
+
+                const vstepScore = convertVstepScore(score);
+                const elapsedSeconds = examStartTimeRef.current
+                    ? Math.max(1, Math.floor((Date.now() - examStartTimeRef.current) / 1000))
+                    : 0;
+                const submittedAt = new Date().toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+                const viol = (typeof window.VstepResultReport !== 'undefined')
+                    ? window.VstepResultReport.getViolations(selectedTest.id)
+                    : { tabSwitches: 0 };
+
+                const reportPayload = {
+                    testId: selectedTest.id,
+                    testTitle: selectedTest.title,
+                    studentName: currentUser ? currentUser.name : undefined,
+                    studentClass: currentUser ? currentUser.className : undefined,
+                    correctCount: score,
+                    totalQuestions: totalQuestions || 35,
+                    answeredCount,
+                    vstepScore,
+                    partScores,
+                    elapsedSeconds,
+                    submittedAt,
+                    tabSwitches: viol.tabSwitches
+                };
                 
-                saveAttempt(selectedTest.id, selectedTest.title, score, answers);
+                saveAttempt(selectedTest.id, selectedTest.title, score, answers, reportPayload);
+                setLatestReportData(reportPayload);
                 localStorage.removeItem('vstep_saved_progress_' + selectedTest.id);
+
+                // Sync score & completion to Firebase RTDB + Google Sheet via VstepExamRoom
+                if (typeof window.VstepExamRoom !== 'undefined' && typeof window.VstepExamRoom.recordTestCompletion === 'function') {
+                    const partSummary = partScores.map((p, i) => `P${i + 1}: ${p.correct}/${p.total}`).join(' | ');
+                    const durText = (typeof window.VstepResultReport !== 'undefined')
+                        ? window.VstepResultReport.formatDuration(elapsedSeconds).text
+                        : `${Math.floor(elapsedSeconds / 60)}p ${elapsedSeconds % 60}s`;
+                    window.VstepExamRoom.recordTestCompletion('listening', selectedTest.id, {
+                        details: `${vstepScore.toFixed(1)}/10 (${score}/${totalQuestions || 35} câu) | ${partSummary} | ⏱️ ${durText} | Tab: ${viol.tabSwitches}`,
+                        correctCount: score,
+                        totalQuestions: totalQuestions || 35,
+                        vstepScore: vstepScore,
+                        partSummary: partSummary,
+                        durationText: durText,
+                        tabSwitches: viol.tabSwitches
+                    });
+                }
                 
                 // Reward water drops for completing full mock test
                 if (window.FlowerGarden) {
@@ -1903,23 +2086,59 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 
                 setCurrentScreen('results');
                 window.scrollTo(0, 0);
+
+                // Open Official Result Report Card Modal automatically
+                if (typeof window.VstepResultReport !== 'undefined') {
+                    window.VstepResultReport.open(reportPayload);
+                }
             };
 
             useEffect(() => {
                 window.VSTEP_SUBMIT_LISTENING = handleFinishTest;
                 window.VSTEP_IS_LISTENING_RUNNING = () => currentScreen === 'test';
-            }, [currentScreen, selectedTest, answers]);
+            }, [currentScreen, selectedTest, answers, currentUser]);
 
-            const handleStartTest = (test, reviewAnswers = null) => {
-                if (!reviewAnswers && typeof VstepExamRoom !== 'undefined' && !VstepExamRoom.canStudentStartExam('listening')) {
-                    alert("⛔ PHÒNG THI NGHE (LISTENING) HIỆN ĐANG ĐÓNG!\n\nVui lòng chờ Giáo viên (Cô Nguyệt) mở phòng để vào làm bài.");
-                    return;
+            const handleStartTest = (test, reviewAnswers = null, historyItem = null) => {
+                if (!reviewAnswers && typeof VstepExamRoom !== 'undefined') {
+                    if (typeof VstepExamRoom.canAccessTest === 'function') {
+                        const access = VstepExamRoom.canAccessTest(test.id, 'listening');
+                        if (!access.allowed) {
+                            alert("⛔ " + (access.reason || "PHÒNG THI NGHE (LISTENING) HIỆN ĐANG ĐÓNG!\n\nVui lòng chờ Giáo viên (Cô Nguyệt) mở phòng để vào làm bài."));
+                            return;
+                        }
+                    } else if (!VstepExamRoom.canStudentStartExam('listening')) {
+                        alert("⛔ PHÒNG THI NGHE (LISTENING) HIỆN ĐANG ĐÓNG!\n\nVui lòng chờ Giáo viên (Cô Nguyệt) mở phòng để vào làm bài.");
+                        return;
+                    }
                 }
                 setSelectedTest(test);
                 if (reviewAnswers) {
                     setAnswers(reviewAnswers);
+                    if (historyItem) {
+                        const viol = (typeof window.VstepResultReport !== 'undefined')
+                            ? window.VstepResultReport.getViolations(historyItem.testId)
+                            : { tabSwitches: 0 };
+                        setLatestReportData({
+                            testId: historyItem.testId,
+                            testTitle: historyItem.testTitle,
+                            studentName: currentUser ? currentUser.name : undefined,
+                            studentClass: currentUser ? currentUser.className : undefined,
+                            correctCount: historyItem.correctCount,
+                            totalQuestions: historyItem.totalQuestions || 35,
+                            answeredCount: historyItem.answeredCount != null ? historyItem.answeredCount : Object.keys(reviewAnswers || {}).length,
+                            vstepScore: historyItem.vstepScore != null ? historyItem.vstepScore : convertVstepScore(historyItem.correctCount),
+                            partScores: historyItem.partScores || [],
+                            elapsedSeconds: historyItem.elapsedSeconds || 0,
+                            submittedAt: historyItem.submittedAt || historyItem.date,
+                            tabSwitches: typeof historyItem.tabSwitches === 'number' ? historyItem.tabSwitches : viol.tabSwitches
+                        });
+                    } else {
+                        setLatestReportData(null);
+                    }
                     setCurrentScreen('results');
                 } else {
+                    examStartTimeRef.current = Date.now();
+                    setLatestReportData(null);
                     const savedProgress = localStorage.getItem('vstep_saved_progress_' + test.id);
                     if (savedProgress) {
                         try {
@@ -2120,6 +2339,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 onOpenVocab={() => setCurrentScreen('vocab')} 
                                 history={history}
                                 onClearHistory={handleClearHistory}
+                                onOpenReport={handleOpenHistoryReport}
                             />
                         )}
                         {currentScreen === 'test' && (
@@ -2139,6 +2359,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 test={selectedTest} 
                                 answers={answers} 
                                 onBackToDashboard={handleBackToDashboard}
+                                reportData={latestReportData}
                             />
                         )}
                         {currentScreen === 'vocab' && (
