@@ -1008,14 +1008,102 @@ body.dark-mode .listening-compliance-warning {
 }
 .snippet-block {
     background: var(--card-bg);
-    padding: 12px;
+    padding: 16px 18px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
-    font-style: italic;
-    color: var(--text-muted);
+    font-style: normal;
+    color: var(--text-dark);
+    line-height: 1.8;
+    font-size: 0.92rem;
 }
-.snippet-block span {
-    font-weight: bold;
+.snippet-block .full-transcript-content {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.85;
+    color: var(--text-dark);
+}
+/* Tô đỏ và Highlight vàng nổi bật cho câu chứa đáp án trong Transcript */
+.text-red-600,
+.answer-hl,
+.snippet-block .text-red-600,
+.transcript-card .text-red-600 {
+    color: #dc2626 !important;
+    font-weight: 700 !important;
+    font-style: normal !important;
+}
+.bg-yellow-100,
+.answer-hl,
+.snippet-block .bg-yellow-100,
+.transcript-card .bg-yellow-100 {
+    background-color: #fef08a !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    border-bottom: 2px solid #eab308 !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+.px-1 {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+.mx-1 {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+.rounded {
+    border-radius: 4px;
+}
+.font-bold {
+    font-weight: 700;
+}
+body.dark-mode .text-red-600,
+body.dark-mode .answer-hl,
+body.dark-mode .snippet-block .text-red-600,
+body.dark-mode .transcript-card .text-red-600 {
+    color: #ff6b6b !important;
+}
+body.dark-mode .bg-yellow-100,
+body.dark-mode .answer-hl,
+body.dark-mode .snippet-block .bg-yellow-100,
+body.dark-mode .transcript-card .bg-yellow-100 {
+    background-color: rgba(250, 204, 21, 0.25) !important;
+    border-bottom: 2px solid #facc15 !important;
+}
+.vstep-q-badge {
+    display: inline-block;
+    background: #dc2626;
+    color: #ffffff !important;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 999px;
+    margin-right: 5px;
+    vertical-align: middle;
+    letter-spacing: 0.3px;
+    font-style: normal !important;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+}
+body.dark-mode .vstep-q-badge {
+    background: #ef4444;
+    color: #ffffff !important;
+}
+.transcript-highlight-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #dc2626;
+    background: #fef08a;
+    padding: 2px 9px;
+    border-radius: 6px;
+    border: 1px solid #facc15;
+    font-style: normal;
+}
+body.dark-mode .transcript-highlight-legend {
+    color: #ff6b6b;
+    background: rgba(250, 204, 21, 0.22);
+    border-color: rgba(250, 204, 21, 0.5);
 }
 .audio-seek-btn {
     align-self: flex-start;
@@ -1388,10 +1476,10 @@ body.dark-mode .listening-compliance-warning {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 20px;
-    font-size: 0.9rem;
-    line-height: 1.7;
-    max-height: 450px;
-    overflow-y: auto;
+    font-size: 0.92rem;
+    line-height: 1.8;
+    max-height: none;
+    overflow-y: visible;
     white-space: pre-line;
     color: var(--text-primary);
 }

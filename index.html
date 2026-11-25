@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v30">
+    <link rel="stylesheet" href="style.css?v=20261125_v31">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261125_v30"></script>
+    <script src="data.js?v=20261125_v31"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v28"></script>
 
@@ -1013,9 +1013,14 @@
                                                                     </div>
                                                                 )}
                                                                 {q.transcriptSnippet && (
-                                                                    <div className="snippet-block">
-                                                                        <div className="review-tag" style={{marginBottom: '4px'}}>Dẫn chứng từ audio:</div>
-                                                                        <p dangerouslySetInnerHTML={{__html: q.transcriptSnippet}} />
+                                                                    <div className="snippet-block full-transcript-box">
+                                                                        <div className="review-tag" style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px'}}>
+                                                                            <span><i className="fa-solid fa-file-lines" style={{marginRight: '6px'}}></i>Transcript đầy đủ &amp; Dẫn chứng từ audio:</span>
+                                                                            <span className="transcript-highlight-legend">
+                                                                                <i className="fa-solid fa-highlighter"></i> Câu tô đỏ = Chứa đáp án Câu {q.id}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="full-transcript-content" dangerouslySetInnerHTML={{__html: q.transcriptSnippet}} />
                                                                         
                                                                         <button 
                                                                             className="btn btn-secondary-outline btn-sm audio-seek-btn" 
@@ -1474,8 +1479,11 @@
                                             <div className={`bilingual-transcript-grid ${isTwoCol ? '' : 'single-col'}`}>
                                                 {showEn && (
                                                     <div>
-                                                        <div className="transcript-col-header en">
-                                                            <i className="fa-solid fa-headphones"></i> Bản gốc Tiếng Anh (Transcript)
+                                                        <div className="transcript-col-header en" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px'}}>
+                                                            <span><i className="fa-solid fa-headphones"></i> Bản gốc Tiếng Anh (Transcript đầy đủ)</span>
+                                                            <span className="transcript-highlight-legend">
+                                                                <i className="fa-solid fa-highlighter"></i> Tô đỏ &amp; Highlight = Câu chứa đáp án
+                                                            </span>
                                                         </div>
                                                         <div
                                                             className="transcript-card"
