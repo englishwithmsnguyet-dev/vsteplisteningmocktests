@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v37">
+    <link rel="stylesheet" href="style.css?v=20261125_v38">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261125_v37"></script>
+    <script src="data.js?v=20261125_v38"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v28"></script>
 
@@ -108,19 +108,147 @@
             return arr;
         };
 
-        // TTS Pronunciation function
-        const playTts = (word) => {
-            const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
-            const audio = new Audio(audioUrl);
-            audio.play().catch(() => {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(word);
-                    utterance.lang = 'en-US';
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
+        // --- NATURAL HUMAN & NEURAL PRONUNCIATION ENGINE (LOẠI BỎ TRIỆT ĐỂ GIỌNG MÁY MÓC) ---
+        const HUMAN_DICT_AUDIO_CACHE = new Map();
+        let activeTtsAudio = null;
+        let cachedNaturalVoice = null;
+
+        const ROBOTIC_VOICE_BLACKLIST = /\b(albert|bad news|bahh|bells|boing|bubbles|cellos|eddy|flo|fred|good news|grandma|grandpa|jester|junior|kathy|organ|ralph|reed|rocko|sandy|shelley|superstar|trinoids|whisper|wobble|zarvox|espeak|festival|compact|microsoft david|microsoft zira|microsoft mark|microsoft george|microsoft hazel|microsoft susan)\b/i;
+
+        const pickNaturalEnglishVoice = () => {
+            if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+            const voices = window.speechSynthesis.getVoices() || [];
+            if (!voices.length) return null;
+            const enVoices = voices.filter(v =>
+                /^en[-_](US|GB|AU|CA|IE|NZ)/i.test(v.lang || '') &&
+                !ROBOTIC_VOICE_BLACKLIST.test(v.name || '')
+            );
+            if (!enVoices.length) return null;
+
+            const tiers = [
+                v => /microsoft.*(online|natural|neural)/i.test(v.name) && /(jenny|aria|sonia|libby|ava|emma|guy|ryan|andrew|brian)/i.test(v.name),
+                v => /microsoft.*(online|natural|neural)/i.test(v.name),
+                v => /^google us english$/i.test(v.name.trim()),
+                v => /^google uk english (female|male)$/i.test(v.name.trim()),
+                v => /\b(premium|enhanced|siri)\b/i.test(v.name),
+                v => /\b(samantha|daniel|karen|serena|moira|tessa|ava|allison|kate|oliver|nicky|aaron)\b/i.test(v.name),
+                v => !v.localService && /^en[-_](US|GB)/i.test(v.lang),
+                v => /^en[-_](US|GB|AU)/i.test(v.lang)
+            ];
+            for (const matchFn of tiers) {
+                const found = enVoices.find(matchFn);
+                if (found) return found;
+            }
+            return enVoices[0];
+        };
+
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            cachedNaturalVoice = pickNaturalEnglishVoice();
+            if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    cachedNaturalVoice = pickNaturalEnglishVoice();
+                };
+            }
+        }
+
+        const normalizeWordForSpeech = (raw) => {
+            if (!raw) return '';
+            let s = String(raw)
+                .replace(/\([^)]*\)/g, ' ')
+                .replace(/\[[^\]]*\]/g, ' ')
+                .replace(/\bsb's\b/gi, "somebody's")
+                .replace(/\bsb\b/gi, 'somebody')
+                .replace(/\bsth\b/gi, 'something')
+                .replace(/\bo\.s\.\b/gi, 'oneself')
+                .replace(/\s*\/\s*[^\s,.;]+/g, '')
+                .replace(/[…]+|\.{2,}/g, ' ')
+                .replace(/[“”"']/g, m => m === "'" ? "'" : '')
+                .replace(/\s+/g, ' ')
+                .trim();
+            return s;
+        };
+
+        const speakWithNaturalVoice = (text) => {
+            if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const voice = cachedNaturalVoice || pickNaturalEnglishVoice();
+            if (voice) cachedNaturalVoice = voice;
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (voice) {
+                utterance.voice = voice;
+                utterance.lang = voice.lang;
+            } else {
+                utterance.lang = 'en-US';
+            }
+            utterance.rate = 0.94;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        };
+
+        const fetchHumanDictAudio = async (singleWord) => {
+            const key = singleWord.toLowerCase();
+            if (HUMAN_DICT_AUDIO_CACHE.has(key)) return HUMAN_DICT_AUDIO_CACHE.get(key);
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 1800);
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(key)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                if (!res.ok) {
+                    HUMAN_DICT_AUDIO_CACHE.set(key, null);
+                    return null;
                 }
-            });
+                const data = await res.json();
+                const audios = [];
+                if (Array.isArray(data)) {
+                    data.forEach(entry => {
+                        (entry.phonetics || []).forEach(p => {
+                            if (p && p.audio && p.audio.startsWith('http')) audios.push(p.audio);
+                        });
+                    });
+                }
+                const best = audios.find(u => /-us\.mp3$/i.test(u))
+                    || audios.find(u => /-uk\.mp3$/i.test(u))
+                    || audios[0]
+                    || null;
+                HUMAN_DICT_AUDIO_CACHE.set(key, best);
+                return best;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const playTts = async (word) => {
+            const spoken = normalizeWordForSpeech(word);
+            if (!spoken) return;
+
+            // Stop any previous pronunciation cleanly
+            if (activeTtsAudio) {
+                try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (e) {}
+                activeTtsAudio = null;
+            }
+            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
+            // Tier 1: Real human studio pronunciation for single English words (Oxford/Wiktionary)
+            if (/^[a-zA-Z]+(?:-[a-zA-Z]+)?$/.test(spoken)) {
+                const humanUrl = await fetchHumanDictAudio(spoken);
+                if (humanUrl) {
+                    try {
+                        const audio = new Audio(humanUrl);
+                        activeTtsAudio = audio;
+                        await audio.play();
+                        return;
+                    } catch (e) {
+                        activeTtsAudio = null;
+                    }
+                }
+            }
+
+            // Tier 2: Natural Neural / Human-sampled browser voice (strictly blacklisting robotic voices)
+            speakWithNaturalVoice(spoken);
         };
 
         // Format Transcript HTML: bold speaker labels (Man:, Woman:, Nam:, Nữ:, Interviewer:, etc.)
