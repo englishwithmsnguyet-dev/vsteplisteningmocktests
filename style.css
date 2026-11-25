@@ -2368,6 +2368,15 @@ body.dark-mode .btn-save-draft:hover {
     color: var(--text-dark, #1e293b);
 }
 
+.speaker-label {
+    font-weight: 800;
+    color: #0f172a;
+}
+
+body.dark-mode .speaker-label {
+    color: #f8fafc;
+}
+
 body.dark-mode .transcript-vi-box {
     background: rgba(16, 185, 129, 0.1);
     border-color: rgba(16, 185, 129, 0.35);
