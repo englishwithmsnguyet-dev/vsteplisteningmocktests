@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v35">
+    <link rel="stylesheet" href="style.css?v=20261125_v36">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261125_v35"></script>
+    <script src="data.js?v=20261125_v36"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v28"></script>
 
@@ -311,10 +311,12 @@
             
             // Audio state variables for multi-track custom players
             const [activeAudioKey, setActiveAudioKey] = useState(null);
+            const [activeClipQId, setActiveClipQId] = useState(null);
             const [audioProgressMap, setAudioProgressMap] = useState({});
             const [audioPlayedState, setAudioPlayedState] = useState({});
 
             const audioRefs = useRef({});
+            const clipEndRef = useRef(null);
             const questionRefs = useRef({});
             const timerRef = useRef(null);
             const lastAudioTickRef = useRef({});
@@ -328,7 +330,9 @@
                 partListenedSecRef.current = { 1: 0, 2: 0, 3: 0 };
                 recentClicksRef.current = [];
                 lastNoAudioWarnRef.current = 0;
+                clipEndRef.current = null;
                 setActiveAudioKey(null);
+                setActiveClipQId(null);
                 setAudioProgressMap({});
                 setAudioPlayedState({});
                 if (listeningMetricsRef && listeningMetricsRef.current) {
@@ -415,7 +419,9 @@
                 Object.values(audioRefs.current).forEach(a => {
                     if (a && typeof a.pause === 'function') a.pause();
                 });
+                clipEndRef.current = null;
                 setActiveAudioKey(null);
+                setActiveClipQId(null);
             }, [selectedPart]);
 
             // Handle speed adjustment
@@ -443,6 +449,8 @@
                             audioRefs.current[k].pause();
                         }
                     });
+                    clipEndRef.current = null;
+                    setActiveClipQId(null);
                     audio.playbackRate = playbackSpeed;
                     audio.play().then(() => {
                         setActiveAudioKey(key);
@@ -471,6 +479,8 @@
                     const rect = e.currentTarget.getBoundingClientRect();
                     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
                     const newTime = ratio * dur;
+                    clipEndRef.current = null;
+                    setActiveClipQId(null);
                     audio.currentTime = newTime;
                     setAudioProgressMap(prev => ({
                         ...prev,
@@ -484,7 +494,7 @@
                 }
             };
 
-            const jumpToAudio = (targetKeyOrPartId, seconds = 0) => {
+            const jumpToAudio = (targetKeyOrPartId, seconds = 0, endSeconds = null, clipQId = null) => {
                 if (!isUnrestricted) return;
                 let targetKey = targetKeyOrPartId;
                 let targetPart = selectedPart;
@@ -496,22 +506,61 @@
                     else if (targetKeyOrPartId.startsWith('2')) targetPart = 2;
                     else if (targetKeyOrPartId.startsWith('3')) targetPart = 3;
                 }
-                setSelectedPart(targetPart);
-                setTimeout(() => {
+
+                // Toggle pause if clicking the currently active snippet button
+                if (clipQId != null && activeClipQId === clipQId) {
+                    const curAudio = audioRefs.current[targetKey];
+                    if (curAudio && !curAudio.paused) {
+                        curAudio.pause();
+                        clipEndRef.current = null;
+                        setActiveClipQId(null);
+                        setActiveAudioKey(null);
+                        return;
+                    }
+                }
+
+                const needsPartSwitch = targetPart !== selectedPart;
+                if (needsPartSwitch) setSelectedPart(targetPart);
+
+                const triggerSeekAndPlay = () => {
                     Object.keys(audioRefs.current).forEach(k => {
                         if (k !== targetKey && audioRefs.current[k]) {
                             audioRefs.current[k].pause();
                         }
                     });
                     const audio = audioRefs.current[targetKey];
-                    if (audio) {
-                        audio.currentTime = seconds || 0;
+                    if (!audio) return;
+
+                    const startAt = Math.max(0, Number(seconds) || 0);
+                    clipEndRef.current = (typeof endSeconds === 'number' && endSeconds > startAt)
+                        ? { key: targetKey, end: endSeconds, qId: clipQId }
+                        : null;
+                    setActiveClipQId(clipQId);
+
+                    const seekAndPlay = () => {
+                        try {
+                            audio.currentTime = startAt;
+                        } catch (e) {}
                         audio.playbackRate = playbackSpeed;
                         audio.play().then(() => {
                             setActiveAudioKey(targetKey);
+                            setActiveClipQId(clipQId);
                         }).catch(e => console.log("Seek play failed:", e));
+                    };
+
+                    if (audio.readyState >= 1) {
+                        seekAndPlay();
+                    } else {
+                        const onMetaReady = () => {
+                            audio.removeEventListener('loadedmetadata', onMetaReady);
+                            seekAndPlay();
+                        };
+                        audio.addEventListener('loadedmetadata', onMetaReady);
+                        audio.load();
                     }
-                }, 150);
+                };
+
+                setTimeout(triggerSeekAndPlay, needsPartSwitch ? 180 : 30);
             };
 
             // Timers for exam taking (Tài khoản Giáo viên PTMN không bị giới hạn thời gian hay tự động nộp)
@@ -570,7 +619,7 @@
                 const prog = audioProgressMap[audioKey] || { currentTime: 0, duration: 0, progress: 0 };
                 const isCurrentActive = activeAudioKey === audioKey;
                 const hasBeenPlayed = Boolean(audioPlayedState[audioKey]);
-                const cleanSrc = audioSrc && audioSrc.startsWith('http') ? encodeURI(audioSrc) : encodeURI(audioSrc || '') + '?v=20261125_v35';
+                const cleanSrc = audioSrc && audioSrc.startsWith('http') ? encodeURI(audioSrc) : encodeURI(audioSrc || '') + '?v=20261125_v36';
 
                 return (
                     <div className={`vstep-audio-player-card ${isCurrentActive ? 'active-playing' : ''}`} key={audioKey}>
@@ -581,6 +630,12 @@
                             onTimeUpdate={(e) => {
                                 const ct = e.target.currentTime;
                                 const dur = e.target.duration || 1;
+                                if (clipEndRef.current && clipEndRef.current.key === audioKey && ct >= clipEndRef.current.end) {
+                                    e.target.pause();
+                                    clipEndRef.current = null;
+                                    setActiveClipQId(null);
+                                    setActiveAudioKey(null);
+                                }
                                 setAudioProgressMap(prev => ({
                                     ...prev,
                                     [audioKey]: {
@@ -619,9 +674,17 @@
                             }}
                             onPause={() => {
                                 if (activeAudioKey === audioKey) setActiveAudioKey(null);
+                                if (clipEndRef.current && clipEndRef.current.key === audioKey) {
+                                    clipEndRef.current = null;
+                                    setActiveClipQId(null);
+                                }
                             }}
                             onEnded={() => {
                                 if (activeAudioKey === audioKey) setActiveAudioKey(null);
+                                if (clipEndRef.current && clipEndRef.current.key === audioKey) {
+                                    clipEndRef.current = null;
+                                    setActiveClipQId(null);
+                                }
                             }}
                             style={{ display: 'none' }}
                         />
@@ -1076,37 +1139,61 @@
                                                                         </div>
                                                                     </div>
                                                                 )}
-                                                                {q.transcriptSnippet && (
-                                                                    <div className="snippet-block full-transcript-box">
-                                                                        <div className="review-tag" style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px'}}>
-                                                                            <span><i className="fa-solid fa-file-lines" style={{marginRight: '6px'}}></i>Transcript đầy đủ &amp; Dẫn chứng từ audio:</span>
-                                                                            <span className="transcript-highlight-legend">
-                                                                                <i className="fa-solid fa-highlighter"></i> Câu tô đỏ = Chứa đáp án Câu {q.id}
-                                                                            </span>
+                                                                {q.transcriptSnippet && (() => {
+                                                                    const aKey = getAudioKeyForQuestion(q.id);
+                                                                    let seekStart = 0;
+                                                                    let seekEnd = null;
+                                                                    if (part.id === 1 && Array.isArray(part.audioTimestamps)) {
+                                                                        const tStamp = part.audioTimestamps[q.id - 1] || part.audioTimestamps.find(ts => {
+                                                                            const match = String(ts.label || '').match(/\d+/);
+                                                                            return match && parseInt(match[0], 10) === q.id;
+                                                                        });
+                                                                        if (tStamp) {
+                                                                            seekStart = tStamp.time || 0;
+                                                                            seekEnd = typeof tStamp.end === 'number' ? tStamp.end : null;
+                                                                        }
+                                                                    } else {
+                                                                        const segIdx = aKey.includes('_') ? parseInt(aKey.split('_')[1], 10) : 0;
+                                                                        if (Array.isArray(part.segmentSpeechStarts) && typeof part.segmentSpeechStarts[segIdx] === 'number') {
+                                                                            seekStart = part.segmentSpeechStarts[segIdx];
+                                                                        }
+                                                                    }
+                                                                    const isThisClipPlaying = activeClipQId === q.id && activeAudioKey === aKey;
+                                                                    return (
+                                                                        <div className="snippet-block full-transcript-box">
+                                                                            <div className="review-tag" style={{marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px'}}>
+                                                                                <span><i className="fa-solid fa-file-lines" style={{marginRight: '6px'}}></i>Transcript đầy đủ &amp; Dẫn chứng từ audio:</span>
+                                                                                <span className="transcript-highlight-legend">
+                                                                                    <i className="fa-solid fa-highlighter"></i> Câu tô đỏ = Chứa đáp án Câu {q.id}
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="full-transcript-content" dangerouslySetInnerHTML={{__html: q.transcriptSnippet}} />
+
+                                                                            {q.transcriptSnippetVi && (
+                                                                                <div className="transcript-vi-box">
+                                                                                    <div className="transcript-vi-header">
+                                                                                        <i className="fa-solid fa-language"></i>
+                                                                                        <span>Bản dịch Tiếng Việt:</span>
+                                                                                    </div>
+                                                                                    <div className="transcript-vi-content" dangerouslySetInnerHTML={{__html: q.transcriptSnippetVi}} />
+                                                                                </div>
+                                                                            )}
+                                                                            
+                                                                            <button 
+                                                                                className={`btn btn-secondary-outline btn-sm audio-seek-btn ${isThisClipPlaying ? 'playing-clip' : ''}`}
+                                                                                style={{marginTop: '10px'}}
+                                                                                onClick={() => jumpToAudio(aKey, seekStart, seekEnd, q.id)}
+                                                                            >
+                                                                                <i className={isThisClipPlaying ? "fa-solid fa-stop" : "fa-solid fa-volume-high"}></i>{' '}
+                                                                                {isThisClipPlaying
+                                                                                    ? `Đang phát đoạn Câu ${q.id} — Bấm để dừng`
+                                                                                    : (part.id === 1 && seekEnd
+                                                                                        ? `Nghe lại đoạn này (${formatTimeStr(seekStart)} – ${formatTimeStr(seekEnd)})`
+                                                                                        : 'Nghe lại đoạn này')}
+                                                                            </button>
                                                                         </div>
-                                                                        <div className="full-transcript-content" dangerouslySetInnerHTML={{__html: q.transcriptSnippet}} />
-                                                                        
-                                                                        <button 
-                                                                            className="btn btn-secondary-outline btn-sm audio-seek-btn" 
-                                                                            style={{marginTop: '8px'}}
-                                                                            onClick={() => {
-                                                                                const aKey = getAudioKeyForQuestion(q.id);
-                                                                                if (part.id === 1) {
-                                                                                    const getBound = (lbl) => {
-                                                                                        const match = lbl.match(/\d+/);
-                                                                                        return match ? parseInt(match[0]) : 0;
-                                                                                    };
-                                                                                    const tStamp = part.audioTimestamps && part.audioTimestamps.find(ts => q.id <= getBound(ts.label));
-                                                                                    jumpToAudio('1', tStamp ? tStamp.time : 0);
-                                                                                } else {
-                                                                                    jumpToAudio(aKey, 0);
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <i className="fa-solid fa-volume-high"></i> Nghe lại đoạn này
-                                                                        </button>
-                                                                    </div>
-                                                                )}
+                                                                    );
+                                                                })()}
                                                                 {q.explanations && Object.keys(q.explanations).length > 0 && (
                                                                     <div className="explanation-block">
                                                                         <div className="review-tag">Giải thích đáp án:</div>
@@ -1120,12 +1207,16 @@
                                                                 )}
                                                                 {Array.isArray(q.vocab) && q.vocab.length > 0 && (
                                                                     <div className="q-vocab-block">
-                                                                        <div className="review-tag" style={{color: '#4338ca'}}>
-                                                                            <i className="fa-solid fa-book-bookmark"></i> Từ vựng &amp; Paraphrase hữu ích (Câu {q.id})
+                                                                        <div className="q-vocab-header">
+                                                                            <div className="review-tag" style={{color: '#4338ca', marginBottom: 0}}>
+                                                                                <i className="fa-solid fa-book-bookmark"></i> Từ vựng &amp; Paraphrase hữu ích (Câu {q.id})
+                                                                            </div>
+                                                                            <span className="q-vocab-count-pill">{q.vocab.length} từ / cụm từ</span>
                                                                         </div>
-                                                                        <div className="q-vocab-grid">
+                                                                        <div className="vocab-list">
                                                                             {q.vocab.map((v, vIdx) => (
-                                                                                <div className="q-vocab-item" key={vIdx}>
+                                                                                <div className="vocab-list-row" key={vIdx}>
+                                                                                    <span className="vocab-list-num">{String(vIdx + 1).padStart(2, '0')}</span>
                                                                                     <button
                                                                                         type="button"
                                                                                         className="q-vocab-speak-btn"
@@ -1134,18 +1225,19 @@
                                                                                     >
                                                                                         <i className="fa-solid fa-volume-high" style={{fontSize: '11px'}}></i>
                                                                                     </button>
-                                                                                    <div style={{flex: 1, minWidth: 0}}>
-                                                                                        <div style={{fontWeight: 800, fontSize: '0.86rem', color: 'var(--text-dark)', lineHeight: 1.3}}>
-                                                                                            {v.word}
+                                                                                    <div className="vocab-list-body">
+                                                                                        <div className="vocab-list-top">
+                                                                                            <span className="vocab-list-word">{v.word}</span>
                                                                                             {v.pos && <span className="vocab-pos-badge">{v.pos}</span>}
-                                                                                        </div>
-                                                                                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.35}}>
-                                                                                            {v.meaning}
+                                                                                            <span className="vocab-list-sep">—</span>
+                                                                                            <span className="vocab-list-meaning">{v.meaning}</span>
                                                                                         </div>
                                                                                         {v.paraphrase && (
-                                                                                            <div className="vocab-para-tag">
-                                                                                                <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
-                                                                                                {v.paraphrase}
+                                                                                            <div>
+                                                                                                <span className="vocab-para-tag">
+                                                                                                    <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
+                                                                                                    {v.paraphrase}
+                                                                                                </span>
                                                                                             </div>
                                                                                         )}
                                                                                     </div>
@@ -1284,6 +1376,7 @@
             const [wrongVocabs, setWrongVocabs] = useState([]);
             const [transcriptMode, setTranscriptMode] = useState('bilingual'); // 'bilingual', 'en', 'vi'
             const [vocabPartFilter, setVocabPartFilter] = useState('all'); // 'all', 1, 2, 3
+            const [vocabViewMode, setVocabViewMode] = useState('list'); // 'list', 'flashcard'
 
             // Calculate correct score & per-part breakdown
             let correctCount = 0;
@@ -1578,13 +1671,17 @@
 
                                             {partVocab.length > 0 && (
                                                 <div className="part-vocab-strip">
-                                                    <div style={{fontWeight: 800, fontSize: '0.92rem', color: '#4338ca', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'}}>
-                                                        <i className="fa-solid fa-sparkles"></i>
-                                                        Từ vựng &amp; Paraphrase hữu ích — {p.title} ({partVocab.length} từ/cụm từ)
+                                                    <div className="q-vocab-header">
+                                                        <div style={{fontWeight: 800, fontSize: '0.94rem', color: '#4338ca', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                                            <i className="fa-solid fa-sparkles"></i>
+                                                            Từ vựng &amp; Paraphrase hữu ích — {p.title}
+                                                        </div>
+                                                        <span className="q-vocab-count-pill">{partVocab.length} từ / cụm từ</span>
                                                     </div>
-                                                    <div className="q-vocab-grid">
+                                                    <div className="vocab-list">
                                                         {partVocab.map((v, vIdx) => (
-                                                            <div className="q-vocab-item" key={vIdx}>
+                                                            <div className="vocab-list-row" key={vIdx}>
+                                                                <span className="vocab-list-num">{String(vIdx + 1).padStart(2, '0')}</span>
                                                                 <button
                                                                     type="button"
                                                                     className="q-vocab-speak-btn"
@@ -1593,18 +1690,19 @@
                                                                 >
                                                                     <i className="fa-solid fa-volume-high" style={{fontSize: '11px'}}></i>
                                                                 </button>
-                                                                <div style={{flex: 1, minWidth: 0}}>
-                                                                    <div style={{fontWeight: 800, fontSize: '0.86rem', color: 'var(--text-dark)', lineHeight: 1.3}}>
-                                                                        {v.word}
+                                                                <div className="vocab-list-body">
+                                                                    <div className="vocab-list-top">
+                                                                        <span className="vocab-list-word">{v.word}</span>
                                                                         {v.pos && <span className="vocab-pos-badge">{v.pos}</span>}
-                                                                    </div>
-                                                                    <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.35}}>
-                                                                        {v.meaning}
+                                                                        <span className="vocab-list-sep">—</span>
+                                                                        <span className="vocab-list-meaning">{v.meaning}</span>
                                                                     </div>
                                                                     {v.paraphrase && (
-                                                                        <div className="vocab-para-tag">
-                                                                            <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
-                                                                            {v.paraphrase}
+                                                                        <div>
+                                                                            <span className="vocab-para-tag">
+                                                                                <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
+                                                                                {v.paraphrase}
+                                                                            </span>
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -1653,40 +1751,89 @@
                                                 </button>
                                             );
                                         })}
+                                        <span style={{width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px', alignSelf: 'center'}}></span>
+                                        <button
+                                            className={`btn btn-sm ${vocabViewMode === 'list' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                            onClick={() => setVocabViewMode('list')}
+                                        >
+                                            <i className="fa-solid fa-list-ul"></i> Dạng danh sách
+                                        </button>
+                                        <button
+                                            className={`btn btn-sm ${vocabViewMode === 'flashcard' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                            onClick={() => setVocabViewMode('flashcard')}
+                                        >
+                                            <i className="fa-solid fa-clone"></i> Thẻ lật
+                                        </button>
                                     </div>
-                                    <div className="flashcards-grid">
-                                        {filteredVocab.map((item, idx) => (
-                                            <div className="flashcard-container" key={idx}>
-                                                <div className="flashcard">
-                                                    <div className="card-front">
-                                                        <span className="flashcard-word">
-                                                            {item.word}
-                                                            {item.pos && <span className="vocab-pos-badge" style={{display: 'block', width: 'fit-content', margin: '4px auto 0'}}>{item.pos}</span>}
-                                                        </span>
-                                                        <button 
-                                                            className={`btn btn-round btn-outline ${playingWord === item.word ? 'animate-pulse-glow' : ''}`} 
-                                                            style={{width: '32px', height: '32px'}}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                playWordSpeech(item.word);
-                                                            }}
+                                    {vocabViewMode === 'list' ? (
+                                        <div className="panel-card" style={{padding: '14px 16px'}}>
+                                            <div className="vocab-list">
+                                                {filteredVocab.map((item, idx) => (
+                                                    <div className="vocab-list-row" key={idx}>
+                                                        <span className="vocab-list-num">{String(idx + 1).padStart(2, '0')}</span>
+                                                        <button
+                                                            type="button"
+                                                            className={`q-vocab-speak-btn ${playingWord === item.word ? 'animate-pulse-glow' : ''}`}
+                                                            onClick={() => playWordSpeech(item.word)}
+                                                            title="Nghe phát âm"
                                                         >
-                                                            <i className="fa-solid fa-volume-high" style={{fontSize: '13px'}}></i>
+                                                            <i className="fa-solid fa-volume-high" style={{fontSize: '11px'}}></i>
                                                         </button>
-                                                        <span className="card-hint">Lướt qua hoặc nhấp để lật</span>
+                                                        <div className="vocab-list-body">
+                                                            <div className="vocab-list-top">
+                                                                <span className="vocab-list-word">{item.word}</span>
+                                                                {item.pos && <span className="vocab-pos-badge">{item.pos}</span>}
+                                                                <span className="vocab-list-sep">—</span>
+                                                                <span className="vocab-list-meaning">{item.meaning}</span>
+                                                            </div>
+                                                            {item.paraphrase && (
+                                                                <div>
+                                                                    <span className="vocab-para-tag">
+                                                                        <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
+                                                                        {item.paraphrase}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="card-back">
-                                                        <span className="flashcard-meaning">{item.meaning}</span>
-                                                        {item.paraphrase && (
-                                                            <span style={{fontSize: '0.75rem', marginTop: '6px', opacity: 0.9, fontWeight: 700}}>
-                                                                🔁 {item.paraphrase}
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flashcards-grid">
+                                            {filteredVocab.map((item, idx) => (
+                                                <div className="flashcard-container" key={idx}>
+                                                    <div className="flashcard">
+                                                        <div className="card-front">
+                                                            <span className="flashcard-word">
+                                                                {item.word}
+                                                                {item.pos && <span className="vocab-pos-badge" style={{display: 'block', width: 'fit-content', margin: '4px auto 0'}}>{item.pos}</span>}
                                                             </span>
-                                                        )}
+                                                            <button 
+                                                                className={`btn btn-round btn-outline ${playingWord === item.word ? 'animate-pulse-glow' : ''}`} 
+                                                                style={{width: '32px', height: '32px'}}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    playWordSpeech(item.word);
+                                                                }}
+                                                            >
+                                                                <i className="fa-solid fa-volume-high" style={{fontSize: '13px'}}></i>
+                                                            </button>
+                                                            <span className="card-hint">Lướt qua hoặc nhấp để lật</span>
+                                                        </div>
+                                                        <div className="card-back">
+                                                            <span className="flashcard-meaning">{item.meaning}</span>
+                                                            {item.paraphrase && (
+                                                                <span style={{fontSize: '0.75rem', marginTop: '6px', opacity: 0.9, fontWeight: 700}}>
+                                                                    🔁 {item.paraphrase}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })()}

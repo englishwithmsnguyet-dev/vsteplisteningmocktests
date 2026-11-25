@@ -2341,12 +2341,179 @@ body.dark-mode .btn-save-draft:hover {
 /* ==========================================================================
    Bilingual Transcript & Per-Question / Per-Part Useful Vocabulary Styles
    ========================================================================== */
-.q-vocab-block {
+.transcript-vi-box {
     margin-top: 12px;
     padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-left: 4px solid #10b981;
+}
+
+.transcript-vi-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #047857;
+    margin-bottom: 6px;
+}
+
+.transcript-vi-content {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text-dark, #1e293b);
+}
+
+body.dark-mode .transcript-vi-box {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+body.dark-mode .transcript-vi-header {
+    color: #6ee7b7;
+}
+
+.audio-seek-btn.playing-clip {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+}
+
+.q-vocab-block {
+    margin-top: 14px;
+    padding: 14px 16px;
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(16, 185, 129, 0.05) 100%);
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.05) 0%, rgba(255, 255, 255, 0.9) 100%);
     border: 1px solid rgba(99, 102, 241, 0.22);
+}
+
+.q-vocab-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.q-vocab-count-pill {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(79, 70, 229, 0.12);
+    color: #4338ca;
+}
+
+/* Clean Vertical List Layout for Useful Vocabulary */
+.vocab-list {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--card-bg, #ffffff);
+    overflow: hidden;
+}
+
+.vocab-list-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color, #eef2f7);
+    transition: background-color 0.15s ease;
+}
+
+.vocab-list-row:last-child {
+    border-bottom: none;
+}
+
+.vocab-list-row:nth-child(even) {
+    background: rgba(248, 250, 252, 0.65);
+}
+
+.vocab-list-row:hover {
+    background: rgba(99, 102, 241, 0.055);
+}
+
+.vocab-list-num {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94a3b8;
+    min-width: 22px;
+    padding-top: 5px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.vocab-list-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.vocab-list-top {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    line-height: 1.45;
+}
+
+.vocab-list-word {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--text-dark, #0f172a);
+}
+
+.vocab-list-sep {
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.vocab-list-meaning {
+    font-size: 0.88rem;
+    color: #334155;
+    font-weight: 500;
+}
+
+body.dark-mode .q-vocab-block {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(129, 140, 248, 0.25);
+}
+
+body.dark-mode .vocab-list {
+    background: rgba(15, 23, 42, 0.55);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark-mode .vocab-list-row {
+    border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+body.dark-mode .vocab-list-row:nth-child(even) {
+    background: rgba(30, 41, 59, 0.45);
+}
+
+body.dark-mode .vocab-list-row:hover {
+    background: rgba(99, 102, 241, 0.14);
+}
+
+body.dark-mode .vocab-list-meaning {
+    color: #cbd5e1;
+}
+
+body.dark-mode .q-vocab-count-pill {
+    background: rgba(129, 140, 248, 0.2);
+    color: #c7d2fe;
 }
 
 .q-vocab-grid {
