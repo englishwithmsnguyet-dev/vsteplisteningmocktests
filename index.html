@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261116_v21">
+    <link rel="stylesheet" href="style.css?v=20261125_v26">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261125_v25"></script>
+    <script src="data.js?v=20261125_v26"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v22"></script>
 
@@ -853,7 +853,7 @@
                                                                         </button>
                                                                     </div>
                                                                 )}
-                                                                {q.explanations && (
+                                                                {q.explanations && Object.keys(q.explanations).length > 0 && (
                                                                     <div className="explanation-block">
                                                                         <div className="review-tag">Giải thích đáp án:</div>
                                                                         <p style={{fontWeight: 700, color: 'var(--color-emerald)', marginTop: '4px'}}>Đáp án đúng: {q.correct}</p>
@@ -862,6 +862,42 @@
                                                                                 <li key={k} style={{color: k === q.correct ? 'var(--text-dark)' : 'var(--text-muted)'}}><strong style={{color: k === q.correct ? 'var(--color-emerald)' : 'var(--text-primary)'}}>{k}:</strong> {v}</li>
                                                                             ))}
                                                                         </ul>
+                                                                    </div>
+                                                                )}
+                                                                {Array.isArray(q.vocab) && q.vocab.length > 0 && (
+                                                                    <div className="q-vocab-block">
+                                                                        <div className="review-tag" style={{color: '#4338ca'}}>
+                                                                            <i className="fa-solid fa-book-bookmark"></i> Từ vựng &amp; Paraphrase hữu ích (Câu {q.id})
+                                                                        </div>
+                                                                        <div className="q-vocab-grid">
+                                                                            {q.vocab.map((v, vIdx) => (
+                                                                                <div className="q-vocab-item" key={vIdx}>
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className="q-vocab-speak-btn"
+                                                                                        onClick={() => playTts(v.word)}
+                                                                                        title="Nghe phát âm"
+                                                                                    >
+                                                                                        <i className="fa-solid fa-volume-high" style={{fontSize: '11px'}}></i>
+                                                                                    </button>
+                                                                                    <div style={{flex: 1, minWidth: 0}}>
+                                                                                        <div style={{fontWeight: 800, fontSize: '0.86rem', color: 'var(--text-dark)', lineHeight: 1.3}}>
+                                                                                            {v.word}
+                                                                                            {v.pos && <span className="vocab-pos-badge">{v.pos}</span>}
+                                                                                        </div>
+                                                                                        <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.35}}>
+                                                                                            {v.meaning}
+                                                                                        </div>
+                                                                                        {v.paraphrase && (
+                                                                                            <div className="vocab-para-tag">
+                                                                                                <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
+                                                                                                {v.paraphrase}
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -960,6 +996,8 @@
             const [gameScore, setGameScore] = useState(0);
             const [playingWord, setPlayingWord] = useState(null);
             const [wrongVocabs, setWrongVocabs] = useState([]);
+            const [transcriptMode, setTranscriptMode] = useState('bilingual'); // 'bilingual', 'en', 'vi'
+            const [vocabPartFilter, setVocabPartFilter] = useState('all'); // 'all', 1, 2, 3
 
             // Calculate correct score & per-part breakdown
             let correctCount = 0;
@@ -1174,55 +1212,195 @@
                             </div>
                         )}
 
-                        {/* Tab 2: Full transcript script */}
+                        {/* Tab 2: Full bilingual transcript script + Per-Part Vocabulary */}
                         {activeTab === 'transcript' && (
                             <div className="animate-fade-in" style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
-                                {test.test.parts.map(p => (
-                                    <div key={p.id} className="panel-card">
-                                        <h4 style={{color: 'var(--color-violet)', marginBottom: '10px', fontSize: '1.05rem', fontWeight: 800}}>{p.title}</h4>
-                                        <div
-                                            className="transcript-card"
-                                            dangerouslySetInnerHTML={{
-                                                __html: String(p.transcript || '').includes('<br')
-                                                    ? p.transcript
-                                                    : String(p.transcript || '').replace(/\n/g, '<br/>')
-                                            }}
-                                        />
+                                <div className="transcript-mode-bar">
+                                    <span style={{fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-dark)'}}>
+                                        <i className="fa-solid fa-language" style={{color: 'var(--color-violet)', marginRight: '6px'}}></i>
+                                        Chế độ hiển thị Transcript:
+                                    </span>
+                                    <div className="transcript-mode-pills">
+                                        <button
+                                            className={`btn btn-sm ${transcriptMode === 'bilingual' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                            onClick={() => setTranscriptMode('bilingual')}
+                                        >
+                                            <i className="fa-solid fa-columns"></i> Song ngữ Anh – Việt
+                                        </button>
+                                        <button
+                                            className={`btn btn-sm ${transcriptMode === 'en' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                            onClick={() => setTranscriptMode('en')}
+                                        >
+                                            Chỉ Tiếng Anh
+                                        </button>
+                                        <button
+                                            className={`btn btn-sm ${transcriptMode === 'vi' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                            onClick={() => setTranscriptMode('vi')}
+                                        >
+                                            Chỉ Bản dịch Việt
+                                        </button>
                                     </div>
-                                ))}
+                                </div>
+
+                                {test.test.parts.map(p => {
+                                    const hasVi = Boolean(p.translatedTranscript && p.translatedTranscript.trim().length > 10);
+                                    const showEn = transcriptMode === 'bilingual' || transcriptMode === 'en' || !hasVi;
+                                    const showVi = hasVi && (transcriptMode === 'bilingual' || transcriptMode === 'vi');
+                                    const isTwoCol = showEn && showVi;
+                                    const partVocab = Array.isArray(p.vocab) && p.vocab.length > 0
+                                        ? p.vocab
+                                        : (p.questions || []).flatMap(q => Array.isArray(q.vocab) ? q.vocab : []);
+
+                                    return (
+                                        <div key={p.id} className="panel-card">
+                                            <h4 style={{color: 'var(--color-violet)', marginBottom: '12px', fontSize: '1.08rem', fontWeight: 800}}>{p.title}</h4>
+                                            <div className={`bilingual-transcript-grid ${isTwoCol ? '' : 'single-col'}`}>
+                                                {showEn && (
+                                                    <div>
+                                                        <div className="transcript-col-header en">
+                                                            <i className="fa-solid fa-headphones"></i> Bản gốc Tiếng Anh (Transcript)
+                                                        </div>
+                                                        <div
+                                                            className="transcript-card"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: String(p.transcript || '').includes('<br')
+                                                                    ? p.transcript
+                                                                    : String(p.transcript || '').replace(/\n/g, '<br/>')
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {showVi && (
+                                                    <div>
+                                                        <div className="transcript-col-header vi">
+                                                            <i className="fa-solid fa-language"></i> Bản dịch Tiếng Việt chuẩn
+                                                        </div>
+                                                        <div
+                                                            className="transcript-card"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: String(p.translatedTranscript || '').includes('<br')
+                                                                    ? p.translatedTranscript
+                                                                    : String(p.translatedTranscript || '').replace(/\n/g, '<br/>')
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {partVocab.length > 0 && (
+                                                <div className="part-vocab-strip">
+                                                    <div style={{fontWeight: 800, fontSize: '0.92rem', color: '#4338ca', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                                        <i className="fa-solid fa-sparkles"></i>
+                                                        Từ vựng &amp; Paraphrase hữu ích — {p.title} ({partVocab.length} từ/cụm từ)
+                                                    </div>
+                                                    <div className="q-vocab-grid">
+                                                        {partVocab.map((v, vIdx) => (
+                                                            <div className="q-vocab-item" key={vIdx}>
+                                                                <button
+                                                                    type="button"
+                                                                    className="q-vocab-speak-btn"
+                                                                    onClick={() => playWordSpeech(v.word)}
+                                                                    title="Nghe phát âm"
+                                                                >
+                                                                    <i className="fa-solid fa-volume-high" style={{fontSize: '11px'}}></i>
+                                                                </button>
+                                                                <div style={{flex: 1, minWidth: 0}}>
+                                                                    <div style={{fontWeight: 800, fontSize: '0.86rem', color: 'var(--text-dark)', lineHeight: 1.3}}>
+                                                                        {v.word}
+                                                                        {v.pos && <span className="vocab-pos-badge">{v.pos}</span>}
+                                                                    </div>
+                                                                    <div style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px', lineHeight: 1.35}}>
+                                                                        {v.meaning}
+                                                                    </div>
+                                                                    {v.paraphrase && (
+                                                                        <div className="vocab-para-tag">
+                                                                            <i className="fa-solid fa-arrows-rotate" style={{fontSize: '10px', marginRight: '4px'}}></i>
+                                                                            {v.paraphrase}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 
-                        {/* Tab 3: Vocabulary lists */}
-                        {activeTab === 'vocab' && (
-                            <div className="animate-fade-in">
-                                <div className="flashcards-grid">
-                                    {test.vocab.map((item, idx) => (
-                                        <div className="flashcard-container" key={idx}>
-                                            <div className="flashcard">
-                                                <div className="card-front">
-                                                    <span className="flashcard-word">{item.word}</span>
-                                                    <button 
-                                                        className={`btn btn-round btn-outline ${playingWord === item.word ? 'animate-pulse-glow' : ''}`} 
-                                                        style={{width: '32px', height: '32px'}}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            playWordSpeech(item.word);
-                                                        }}
-                                                    >
-                                                        <i className="fa-solid fa-volume-high" style={{fontSize: '13px'}}></i>
-                                                    </button>
-                                                    <span className="card-hint">Lướt qua hoặc nhấp để lật</span>
-                                                </div>
-                                                <div className="card-back">
-                                                    <span className="flashcard-meaning">{item.meaning}</span>
+                        {/* Tab 3: Vocabulary lists with Part filter */}
+                        {activeTab === 'vocab' && (() => {
+                            const filteredVocab = vocabPartFilter === 'all'
+                                ? test.vocab
+                                : (() => {
+                                    const pObj = test.test.parts.find(pp => pp.id === vocabPartFilter);
+                                    if (!pObj) return test.vocab;
+                                    if (Array.isArray(pObj.vocab) && pObj.vocab.length > 0) return pObj.vocab;
+                                    return (pObj.questions || []).flatMap(q => Array.isArray(q.vocab) ? q.vocab : []);
+                                })();
+                            return (
+                                <div className="animate-fade-in">
+                                    <div className="vocab-filter-bar">
+                                        <button
+                                            className={`btn btn-sm ${vocabPartFilter === 'all' ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                            onClick={() => setVocabPartFilter('all')}
+                                        >
+                                            Tất cả ({test.vocab.length})
+                                        </button>
+                                        {test.test.parts.map(pp => {
+                                            const cnt = Array.isArray(pp.vocab) && pp.vocab.length > 0
+                                                ? pp.vocab.length
+                                                : (pp.questions || []).reduce((s, q) => s + (Array.isArray(q.vocab) ? q.vocab.length : 0), 0);
+                                            if (cnt === 0) return null;
+                                            return (
+                                                <button
+                                                    key={pp.id}
+                                                    className={`btn btn-sm ${vocabPartFilter === pp.id ? 'btn-primary' : 'btn-secondary-outline'}`}
+                                                    onClick={() => setVocabPartFilter(pp.id)}
+                                                >
+                                                    Part {pp.id} ({cnt})
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="flashcards-grid">
+                                        {filteredVocab.map((item, idx) => (
+                                            <div className="flashcard-container" key={idx}>
+                                                <div className="flashcard">
+                                                    <div className="card-front">
+                                                        <span className="flashcard-word">
+                                                            {item.word}
+                                                            {item.pos && <span className="vocab-pos-badge" style={{display: 'block', width: 'fit-content', margin: '4px auto 0'}}>{item.pos}</span>}
+                                                        </span>
+                                                        <button 
+                                                            className={`btn btn-round btn-outline ${playingWord === item.word ? 'animate-pulse-glow' : ''}`} 
+                                                            style={{width: '32px', height: '32px'}}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                playWordSpeech(item.word);
+                                                            }}
+                                                        >
+                                                            <i className="fa-solid fa-volume-high" style={{fontSize: '13px'}}></i>
+                                                        </button>
+                                                        <span className="card-hint">Lướt qua hoặc nhấp để lật</span>
+                                                    </div>
+                                                    <div className="card-back">
+                                                        <span className="flashcard-meaning">{item.meaning}</span>
+                                                        {item.paraphrase && (
+                                                            <span style={{fontSize: '0.75rem', marginTop: '6px', opacity: 0.9, fontWeight: 700}}>
+                                                                🔁 {item.paraphrase}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Tab 4: Interactive game */}
                         {activeTab === 'game' && (

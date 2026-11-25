@@ -1950,3 +1950,172 @@ body.dark-mode .btn-hide-menu:hover { background: var(--border-color); }
     }
 }
 
+/* ==========================================================================
+   Bilingual Transcript & Per-Question / Per-Part Useful Vocabulary Styles
+   ========================================================================== */
+.q-vocab-block {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(16, 185, 129, 0.05) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.22);
+}
+
+.q-vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.q-vocab-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.q-vocab-item:hover {
+    border-color: #6366f1;
+    transform: translateY(-1px);
+}
+
+.q-vocab-speak-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s ease;
+}
+
+.q-vocab-speak-btn:hover {
+    background: #4f46e5;
+    color: #ffffff;
+}
+
+.vocab-pos-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.14);
+    color: #4f46e5;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.vocab-para-tag {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #059669;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 1px 7px;
+    border-radius: 6px;
+}
+
+.transcript-mode-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    margin-bottom: 4px;
+}
+
+.transcript-mode-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.bilingual-transcript-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.bilingual-transcript-grid.single-col {
+    grid-template-columns: 1fr;
+}
+
+@media (max-width: 860px) {
+    .bilingual-transcript-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.transcript-col-header {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.transcript-col-header.en {
+    background: rgba(79, 70, 229, 0.12);
+    color: #4338ca;
+}
+
+.transcript-col-header.vi {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+}
+
+.part-vocab-strip {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1.5px dashed var(--border-color, #e2e8f0);
+}
+
+.vocab-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+}
+
+body.dark-mode .q-vocab-speak-btn {
+    color: #a5b4fc;
+    background: rgba(129, 140, 248, 0.18);
+}
+
+body.dark-mode .vocab-pos-badge {
+    color: #a5b4fc;
+    background: rgba(129, 140, 248, 0.2);
+}
+
+body.dark-mode .transcript-col-header.en {
+    color: #a5b4fc;
+}
+
+body.dark-mode .transcript-col-header.vi {
+    color: #6ee7b7;
+}
+
+
