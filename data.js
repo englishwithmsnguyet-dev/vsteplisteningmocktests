@@ -891,39 +891,39 @@ const ALL_TESTS = [
           "id": 1,
           "title": "PART 1: Questions 1-8",
           "instructions": "Directions: In this part, you will hear EIGHT short announcements or instructions. There is one question for each announcement or instruction. For each question, choose the right answer A, B, C or D. The recording will be played ONCE only.",
-          "audioSrc": "https://files.catbox.moe/egofme.mp3",
+          "audioSrc": "AUDIO/REAL_TEST_01/PART 01.mp3",
           "audioTimestamps": [
             {
               "label": "Bài 1",
-              "time": 175
+              "time": 127
             },
             {
               "label": "Bài 2",
-              "time": 221
+              "time": 173
             },
             {
               "label": "Bài 3",
-              "time": 278
+              "time": 230
             },
             {
               "label": "Bài 4",
-              "time": 340
+              "time": 292
             },
             {
               "label": "Bài 5",
-              "time": 420
+              "time": 372
             },
             {
               "label": "Bài 6",
-              "time": 478
+              "time": 430
             },
             {
               "label": "Bài 7",
-              "time": 496
+              "time": 448
             },
             {
               "label": "Bài 8",
-              "time": 521
+              "time": 473
             }
           ],
           "transcript": "1. Bruin Design announces a new line of products for the discriminating traveler. All are beautifully designed, long-lasting, and ultra-lightweight. These include handsome briefcases, travel alarm clocks, electric travel irons, and powerful portable shortwave radios for the world traveller. <span class=\"vstep-q-badge\">Câu 1</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">Bruin Design products are available at fine stores throughout Europe, North America, and Asia.</span><br/><br/>2. Everyone knows that by the time you read something in a monthly or weekly business magazine, it is already old news. International business situations change from day to day. <span class=\"vstep-q-badge\">Câu 2</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">Now, Business Day, the only major daily business magazine, helps you stay current with the unfolding world of business every day, Monday through Friday.</span> Today, we will send you our new international restaurant guide at no additional charge...<br/><br/>3. This is Don Beeson of Beeson and Sitwell Architectural Associates. It's now 2:30 p.m. I will be out of the office for the rest of the afternoon... <span class=\"vstep-q-badge\">Câu 3</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">If you have an urgent problem, you can call my partner, Robin Sitwell, at 320-1631.</span><br/><br/>4. Welcome to radio station WKYO's show, Garden Spot. This is your host, Peter Brooks. This time of year, is a good time to talk about harvesting your garden vegetables... And a little later, Professor Gail Mueller, an expert on plant parasites, will be dropping by the studio to chat with us. <span class=\"vstep-q-badge\">Câu 4</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">But first, this commercial message from our sponsor, the Colony Seed Company.</span><br/><br/>5. And now, ladies and gentlemen, I'd like to present the award for employee of the month to Elizabeth Bryce... <span class=\"vstep-q-badge\">Câu 5</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">She not only received top evaluations from her supervisor.</span> She also submitted a suggestion that could save the company thousands of dollars...<br/><br/>6. Man 1: <span class=\"vstep-q-badge\">Câu 6</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">When I got to work this morning, the security system had been turned off.</span> <br/>Man 2: Really? <span class=\"vstep-q-badge\">Câu 6</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">That's strange.</span> <br/>Man 1: <span class=\"vstep-q-badge\">Câu 6</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">That's what I thought, too.</span><br/><br/>7. Man 1: <span class=\"vstep-q-badge\">Câu 7</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">It's going to be another warm day.</span> <br/>Man 2: Of course. <span class=\"vstep-q-badge\">Câu 7</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">You know, I miss living somewhere that has four seasons.</span> <br/>Man 1: Me too. I especially miss those cool, brisk autumn mornings.<br/><br/>8. Woman: I'm sorry. Ms. Bauer is at a sales meeting. <br/>Man: I see. Will it last much longer? <br/>Woman: Probably not. <span class=\"vstep-q-badge\">Câu 8</span><span class=\"text-red-600 font-bold bg-yellow-100 px-1 rounded mx-1 answer-hl\">Why don't you get yourself some coffee or tea and have a seat over there?</span>",
