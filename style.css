@@ -167,6 +167,23 @@ body {
     padding-bottom: 120px !important;
 }
 
+/* Phần trồng hoa CHỈ hiện ở CHĂM HOA CHĂM HỌC (.garden-dedicated-view), KHÔNG hiện ở các bài TEST */
+#flower-garden:not(.garden-dedicated-view #flower-garden),
+#garden-container:not(.garden-dedicated-view #garden-container),
+.garden-container:not(.garden-dedicated-view .garden-container) {
+    display: none !important;
+}
+
+.app-layout.exam-focus-mode #flower-garden,
+.app-layout.exam-focus-mode .garden-dedicated-view,
+.app-layout.exam-focus-mode #garden-container,
+.app-layout.exam-focus-mode .garden-container,
+.test-part-card ~ #garden-container,
+.test-workspace ~ #garden-container,
+.test-workspace #garden-container {
+    display: none !important;
+}
+
 .global-sidebar {
     width: 280px;
     height: 100vh;

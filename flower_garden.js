@@ -385,41 +385,45 @@
     },
 
     ensureGardenContainerDom() {
-      if (typeof document === 'undefined') return;
+      if (typeof document === 'undefined') return false;
 
-      // 1. Ensure dedicated "CHĂM HOA CHĂM HỌC" tab pane exists
-      let gardenPane = document.getElementById('flower-garden') || document.getElementById('view-flower-garden') || document.getElementById('sec-flower-garden');
-      if (!gardenPane) {
-        const contentArea = document.querySelector('.content-area, .app-main, main, #main-content, .main-content, #app');
-        if (contentArea) {
-          gardenPane = document.createElement('section');
-          gardenPane.id = 'flower-garden';
-          gardenPane.className = 'tab-pane view-panel fade-in garden-dedicated-view';
-          if (contentArea.firstElementChild) {
-            contentArea.insertBefore(gardenPane, contentArea.firstElementChild);
-          } else {
-            contentArea.appendChild(gardenPane);
-          }
+      // 1. Dọn dẹp bất kỳ container hoa nào bị chèn nhầm bên ngoài tab .garden-dedicated-view
+      const roguePanes = document.querySelectorAll('#flower-garden, main > #garden-container, main > .garden-container, .main-content-wrapper > #garden-container');
+      roguePanes.forEach(el => {
+        if (!el.closest('.garden-dedicated-view')) {
+          el.remove();
+        }
+      });
+
+      // 2. Kiểm tra nếu đang trong React App và màn hình hiện tại KHÔNG PHẢI là 'garden'
+      if (typeof window !== 'undefined' && typeof window.VSTEP_CURRENT_SCREEN === 'function') {
+        if (window.VSTEP_CURRENT_SCREEN() !== 'garden') {
+          // Tuyệt đối không chèn DOM hoặc render trong các bài TEST hay trang khác
+          return false;
         }
       }
 
-      // 2. Ensure sidebar item exists at the very top of sidebar
+      // 3. Đảm bảo có đúng thẻ vùng hiển thị chuyên biệt cho vườn hoa
+      const dedicatedView = document.querySelector('.garden-dedicated-view');
+      if (!dedicatedView) {
+        return false;
+      }
+
+      // 4. Ensure sidebar item exists at the very top of sidebar
       this.ensureSidebarNavItem();
 
-      // 3. Ensure container is mounted inside gardenPane
+      // 5. Ensure container is mounted inside dedicatedView
       let container = document.getElementById('garden-container');
       if (!container) {
         container = document.createElement('div');
         container.id = 'garden-container';
-      }
-
-      const targetParent = gardenPane || document.querySelector('.garden-dedicated-view, #flower-garden, #view-flower-garden, .content-area, .app-main, main, #main-content, .main-content, #app');
-      if (!container.parentNode && targetParent) {
-        targetParent.appendChild(container);
+        dedicatedView.appendChild(container);
+      } else if (!dedicatedView.contains(container)) {
+        dedicatedView.appendChild(container);
       }
 
       if (container.querySelector('#garden-pot-wrapper')) {
-        return; // Đã có đầy đủ cấu trúc
+        return true; // Đã có đầy đủ cấu trúc
       }
 
       container.className = 'home-card garden-container';
@@ -510,9 +514,7 @@
         </div>
       `;
 
-      if (!container.parentNode && targetParent) {
-        targetParent.appendChild(container);
-      }
+      return true;
     },
 
     ensureSidebarNavItem() {
@@ -596,6 +598,11 @@
 
     openGardenTab() {
       if (this._switchingGardenTab) return;
+      if (typeof window.VSTEP_OPEN_GARDEN === 'function') {
+        window.VSTEP_OPEN_GARDEN();
+        setTimeout(() => this.render(), 100);
+        return;
+      }
       if (typeof window.switchTab === 'function') {
         this._switchingGardenTab = true;
         try {
@@ -3579,9 +3586,22 @@
     // VISUAL RENDERING
     // ==========================================
     render() {
+      // 1. Chỉ thực hiện render khi đang ở trong màn hình CHĂM HOA CHĂM HỌC
+      if (typeof window !== 'undefined' && typeof window.VSTEP_CURRENT_SCREEN === 'function') {
+        if (window.VSTEP_CURRENT_SCREEN() !== 'garden') {
+          return;
+        }
+      }
+
+      const dedicatedView = document.querySelector('.garden-dedicated-view');
+      if (!dedicatedView) {
+        return;
+      }
+
       // Self-heal: Ensure container DOM and initialization are guaranteed
       if (!this._hasRunInit || !document.getElementById('garden-pot-wrapper')) {
-        this.ensureGardenContainerDom();
+        const ok = this.ensureGardenContainerDom();
+        if (!ok) return;
         if (!this._hasRunInit) {
           this.init();
           return;

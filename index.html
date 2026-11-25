@@ -43,13 +43,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v27">
+    <link rel="stylesheet" href="style.css?v=20261125_v28">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
     <script src="data.js?v=20261125_v26"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
-    <script src="flower_garden.js?v=20261125_v22"></script>
+    <script src="flower_garden.js?v=20261125_v28"></script>
 
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -2208,7 +2208,9 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 }
             });
 
-            const [currentScreen, setCurrentScreen] = useState('dashboard'); // 'dashboard', 'test', 'results', 'vocab'
+            const [currentScreen, setCurrentScreen] = useState('dashboard'); // 'dashboard', 'test', 'results', 'vocab', 'garden'
+            window.VSTEP_CURRENT_SCREEN = () => currentScreen;
+            window.VSTEP_OPEN_GARDEN = () => setCurrentScreen('garden');
             const [selectedTest, setSelectedTest] = useState(null);
             const [answers, setAnswers] = useState({});
             const [latestReportData, setLatestReportData] = useState(null);
@@ -2453,6 +2455,8 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             useEffect(() => {
                 window.VSTEP_SUBMIT_LISTENING = handleFinishTest;
                 window.VSTEP_IS_LISTENING_RUNNING = () => currentScreen === 'test';
+                window.VSTEP_CURRENT_SCREEN = () => currentScreen;
+                window.VSTEP_OPEN_GARDEN = () => setCurrentScreen('garden');
             }, [currentScreen, selectedTest, answers, currentUser]);
 
             const handleStartTest = (test, reviewAnswers = null, historyItem = null) => {
