@@ -72,32 +72,111 @@
         const map = readViolationMap();
         const rec = map[key] || {};
         return {
-            tabSwitches: parseInt(rec.tabSwitches || 0, 10) || 0
+            tabSwitches: parseInt(rec.tabSwitches || 0, 10) || 0,
+            rapidClicks: parseInt(rec.rapidClicks || 0, 10) || 0,
+            noAudioClicks: parseInt(rec.noAudioClicks || 0, 10) || 0
         };
     }
 
-    let lastViolationTs = 0;
+    const lastViolationByType = { tab: 0, rapid_click: 0, no_audio: 0 };
     function recordViolation(testId, type) {
+        const t = type || 'tab';
         const now = Date.now();
-        // Debounce 2s so visibilitychange + blur don't double count one tab switch
-        if (now - lastViolationTs < 2000) {
+        const cooldown = t === 'tab' ? 2000 : (t === 'rapid_click' ? 4000 : 6000);
+        if (now - (lastViolationByType[t] || 0) < cooldown) {
             return getViolations(testId);
         }
-        lastViolationTs = now;
+        lastViolationByType[t] = now;
 
         const key = getViolationKey(testId);
         const map = readViolationMap();
         if (!map[key]) {
-            map[key] = { tabSwitches: 0, updatedAt: now };
+            map[key] = { tabSwitches: 0, rapidClicks: 0, noAudioClicks: 0, updatedAt: now };
         }
-        if (type === 'tab' || !type) {
+        if (t === 'tab') {
             map[key].tabSwitches = (parseInt(map[key].tabSwitches || 0, 10) || 0) + 1;
+        } else if (t === 'rapid_click') {
+            map[key].rapidClicks = (parseInt(map[key].rapidClicks || 0, 10) || 0) + 1;
+        } else if (t === 'no_audio') {
+            map[key].noAudioClicks = (parseInt(map[key].noAudioClicks || 0, 10) || 0) + 1;
         }
         map[key].updatedAt = now;
         writeViolationMap(map);
         return {
-            tabSwitches: map[key].tabSwitches
+            tabSwitches: parseInt(map[key].tabSwitches || 0, 10) || 0,
+            rapidClicks: parseInt(map[key].rapidClicks || 0, 10) || 0,
+            noAudioClicks: parseInt(map[key].noAudioClicks || 0, 10) || 0
         };
+    }
+
+    function formatShortTime(sec) {
+        const s = Math.max(0, Math.floor(Number(sec) || 0));
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return `${m}p${r < 10 ? '0' + r : r}s`;
+    }
+
+    function showLiveWarning(opts) {
+        injectStyles();
+        const existing = document.getElementById('vstep-live-warning-overlay');
+        if (existing) existing.remove();
+
+        const isRapid = opts && opts.type === 'rapid_click';
+        const title = (opts && opts.title) || (isRapid ? 'CẢNH BÁO CLICK ĐÁP ÁN LIÊN TỤC!' : 'CẢNH BÁO CHƯA NGHE AUDIO!');
+        const message = (opts && opts.message) || 'Vui lòng bật file Audio và nghe kỹ trước khi chọn đáp án.';
+        const subNote = (opts && opts.subNote) || 'Hành vi này đã được hệ thống tự động ghi nhận vào Phiếu Báo Cáo Kết Quả và gửi về Bảng Điểm của Cô Nguyệt.';
+
+        const overlay = document.createElement('div');
+        overlay.id = 'vstep-live-warning-overlay';
+        overlay.className = 'vrr-overlay';
+        overlay.style.zIndex = '1000000';
+
+        const card = document.createElement('div');
+        card.className = 'vrr-modal';
+        card.style.maxWidth = '480px';
+        card.style.border = '2px solid #fca5a5';
+        card.innerHTML = `
+            <div class="vrr-header" style="background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%); padding: 18px 22px;">
+                <div>
+                    <div class="vrr-brand" style="color: #fecaca;">🛡️ HỆ THỐNG GIÁM SÁT PHÒNG THI NGHE</div>
+                    <h3 class="vrr-title" style="font-size: 17px;"><i class="fa-solid ${isRapid ? 'fa-bolt' : 'fa-volume-xmark'}"></i> ${escHtml(title)}</h3>
+                </div>
+                <button type="button" class="vrr-close-btn" id="vrr-warn-x" title="Đóng">&times;</button>
+            </div>
+            <div class="vrr-body" style="padding: 18px 22px; gap: 12px;">
+                <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; line-height: 1.55;">
+                    ${escHtml(message)}
+                </div>
+                <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 10px 13px; font-size: 12.5px; color: #9f1239; font-weight: 600; line-height: 1.5;">
+                    <i class="fa-solid fa-circle-exclamation"></i> ${escHtml(subNote)}
+                </div>
+            </div>
+            <div class="vrr-footer" style="padding: 12px 22px 16px;">
+                ${opts && typeof opts.onPlayAudio === 'function'
+                    ? `<button type="button" class="vrr-btn vrr-btn-print" id="vrr-warn-play"><i class="fa-solid fa-play"></i> Bật Audio ngay</button>`
+                    : ''}
+                <button type="button" class="vrr-btn vrr-btn-close" id="vrr-warn-ok" style="background:#dc2626;color:#fff;">Tôi đã hiểu</button>
+            </div>
+        `;
+
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+
+        const dismiss = () => {
+            if (overlay.parentNode) overlay.remove();
+        };
+        overlay.onclick = (e) => { if (e.target === overlay) dismiss(); };
+        const xBtn = document.getElementById('vrr-warn-x');
+        if (xBtn) xBtn.onclick = dismiss;
+        const okBtn = document.getElementById('vrr-warn-ok');
+        if (okBtn) okBtn.onclick = dismiss;
+        const playBtn = document.getElementById('vrr-warn-play');
+        if (playBtn && opts && typeof opts.onPlayAudio === 'function') {
+            playBtn.onclick = () => {
+                dismiss();
+                opts.onPlayAudio();
+            };
+        }
     }
 
     function formatDuration(totalSeconds) {
@@ -548,7 +627,12 @@
         const vstepScore = Number(data.vstepScore || 0);
 
         const tabCount = parseInt(data.tabSwitches || 0, 10) || 0;
-        const hasViolation = tabCount > 0;
+        const rapidCount = parseInt(data.rapidClicks || 0, 10) || 0;
+        const noAudioCount = parseInt(data.noAudioClicks || 0, 10) || 0;
+        const totalListenedSec = Math.max(0, Math.floor(Number(data.totalListenedSeconds || 0)));
+        const partListened = data.partListenedSeconds || {};
+        const lowAudioWarning = answeredCount >= 10 && totalListenedSec < 180;
+        const hasViolation = tabCount > 0 || rapidCount > 0 || noAudioCount > 0 || lowAudioWarning;
 
         const parts = Array.isArray(data.partScores) && data.partScores.length > 0
             ? data.partScores
@@ -559,22 +643,41 @@
             ];
 
         const cert = getCertificationStatus(vstepScore, answeredCount);
+        const listenedDur = formatDuration(totalListenedSec);
+        const partListenDetail = [1, 2, 3].map(pid => `P${pid}: ${formatShortTime(partListened[pid] || 0)}`).join(' • ');
 
         let integrityHtml = '';
         if (!hasViolation) {
             integrityHtml = `
                 <div class="vrr-integrity-box clean">
-                    <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#15803d;">🛡️ Cảnh báo gian lận</div>
+                    <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#15803d;">🛡️ Giám sát trung thực &amp; Thời lượng nghe Audio</div>
                     <div style="font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;">
-                        <span>✅ Làm bài trung thực (0 lần chuyển tab)</span>
+                        <span>✅ Làm bài trung thực (0 chuyển tab • 0 click lụi)</span>
+                    </div>
+                    <div style="font-size:12.5px;color:#166534;font-weight:600;">
+                        🎧 Thời gian nghe Audio thực tế: <strong>${escHtml(listenedDur.text)}</strong> (${escHtml(partListenDetail)})
                     </div>
                 </div>`;
         } else {
+            const warnLines = [];
+            if (tabCount > 0) {
+                warnLines.push(`<div style="font-size:14.5px;font-weight:800;">⚠️ Phát hiện chuyển tab / rời phòng thi: <strong>${tabCount} lần</strong></div>`);
+            }
+            if (rapidCount > 0) {
+                warnLines.push(`<div style="font-size:14.5px;font-weight:800;">⚡ Phát hiện click đáp án liên tục (nghi vấn đánh lụi): <strong>${rapidCount} lần</strong></div>`);
+            }
+            if (noAudioCount > 0) {
+                warnLines.push(`<div style="font-size:14.5px;font-weight:800;">🔇 Chọn đáp án khi chưa mở / chưa nghe đủ Audio: <strong>${noAudioCount} lần</strong></div>`);
+            }
+            if (lowAudioWarning) {
+                warnLines.push(`<div style="font-size:14px;font-weight:800;">🚨 Thời lượng nghe Audio thực tế quá thấp (<strong>${escHtml(listenedDur.text)}</strong>) so với ${answeredCount} câu đã làm!</div>`);
+            }
             integrityHtml = `
                 <div class="vrr-integrity-box warn">
-                    <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#b91c1c;">🛡️ Cảnh báo gian lận</div>
-                    <div style="font-size:15px;font-weight:800;">
-                        ⚠️ Phát hiện chuyển tab / rời phòng thi: <strong>${tabCount} lần</strong>
+                    <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#b91c1c;">🛡️ Cảnh báo gian lận &amp; Nghi vấn không nghe Audio</div>
+                    ${warnLines.join('')}
+                    <div style="font-size:12.5px;color:#7f1d1d;font-weight:700;margin-top:2px;">
+                        🎧 Thời gian nghe Audio thực tế: <strong>${escHtml(listenedDur.text)}</strong> (${escHtml(partListenDetail)})
                     </div>
                     <div style="font-size:12px;color:#7f1d1d;opacity:0.9;">
                         (Số lần vi phạm được lưu cố định theo bài thi, không bị xóa khi làm lại bài)
@@ -681,7 +784,11 @@
             answeredCount: parseInt(data.answeredCount != null ? data.answeredCount : (data.correctCount || 0), 10) || 0,
             vstepScore: Number(data.vstepScore || 0),
             partScores: Array.isArray(data.partScores) ? data.partScores : [],
-            tabSwitches: typeof data.tabSwitches === 'number' ? data.tabSwitches : viol.tabSwitches
+            tabSwitches: typeof data.tabSwitches === 'number' ? data.tabSwitches : viol.tabSwitches,
+            rapidClicks: typeof data.rapidClicks === 'number' ? data.rapidClicks : viol.rapidClicks,
+            noAudioClicks: typeof data.noAudioClicks === 'number' ? data.noAudioClicks : viol.noAudioClicks,
+            totalListenedSeconds: Number(data.totalListenedSeconds || 0),
+            partListenedSeconds: data.partListenedSeconds || {}
         };
         rerenderIfOpen();
         return currentReportState;
@@ -736,14 +843,15 @@
         const dur = formatDuration(d.elapsedSeconds);
         const cert = getCertificationStatus(d.vstepScore, d.answeredCount);
         const partText = (d.partScores || []).map(p => `${p.name}: ${p.correct}/${p.total}`).join(' | ');
+        const listenedDur = formatDuration(d.totalListenedSeconds || 0);
         const text = [
             `🎧 BÁO CÁO KẾT QUẢ VSTEP LISTENING MOCK TEST ${testPad}`,
             `👤 Học viên: ${d.studentName} — Lớp: ${d.studentClass}`,
-            `📅 Nộp lúc: ${d.submittedAt} | ⏱️ Thời gian: ${dur.text}`,
+            `📅 Nộp lúc: ${d.submittedAt} | ⏱️ Thời gian: ${dur.text} | 🔊 Đã nghe Audio: ${listenedDur.text}`,
             `🎯 Điểm: ${d.vstepScore.toFixed(1)}/10 (${d.correctCount}/${d.totalQuestions} câu đúng)`,
             partText ? `📊 Chi tiết: ${partText}` : '',
             `🏅 Đánh giá: ${cert.badge}`,
-            `🛡️ Chuyển tab: ${d.tabSwitches} lần`
+            `🛡️ Trung thực: Chuyển tab ${d.tabSwitches || 0} • Click lụi ${d.rapidClicks || 0} • Không nghe Audio ${d.noAudioClicks || 0}`
         ].filter(Boolean).join('\n');
 
         const markCopied = () => {
@@ -841,7 +949,10 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
                     vstepScore,
                     partSummary: rec.partSummary || '',
                     durationText: rec.durationText || '',
+                    listenedText: rec.listenedText || '',
                     tabSwitches: typeof rec.tabSwitches === 'number' ? rec.tabSwitches : null,
+                    rapidClicks: typeof rec.rapidClicks === 'number' ? rec.rapidClicks : null,
+                    noAudioClicks: typeof rec.noAudioClicks === 'number' ? rec.noAudioClicks : null,
                     details: det,
                     updatedAt: Number(rec.updatedAt || 0)
                 });
@@ -903,9 +1014,19 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
                 else bandPill = '<span class="vrr-pill vrr-pill-fail">Dưới B1</span>';
             }
 
-            let tabPill = '<span class="vrr-pill vrr-pill-clean">0 lần</span>';
-            if (r.tabSwitches === null) tabPill = '<span style="color:#94a3b8;">—</span>';
-            else if (r.tabSwitches > 0) tabPill = `<span class="vrr-pill vrr-pill-warn">⚠️ ${r.tabSwitches} lần</span>`;
+            const integrityPills = [];
+            if (r.tabSwitches && r.tabSwitches > 0) {
+                integrityPills.push(`<span class="vrr-pill vrr-pill-warn">⚠️ Tab: ${r.tabSwitches}</span>`);
+            }
+            if (r.rapidClicks && r.rapidClicks > 0) {
+                integrityPills.push(`<span class="vrr-pill vrr-pill-warn">⚡ Lụi: ${r.rapidClicks}</span>`);
+            }
+            if (r.noAudioClicks && r.noAudioClicks > 0) {
+                integrityPills.push(`<span class="vrr-pill vrr-pill-warn">🔇 Không nghe: ${r.noAudioClicks}</span>`);
+            }
+            const tabPill = integrityPills.length > 0
+                ? `<div style="display:flex;flex-wrap:wrap;gap:4px;">${integrityPills.join('')}</div>`
+                : (r.tabSwitches === null ? '<span style="color:#94a3b8;">—</span>' : '<span class="vrr-pill vrr-pill-clean">✅ Trung thực</span>');
 
             return `
                 <tr>
@@ -915,7 +1036,7 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
                     <td><strong>Test ${pad}</strong></td>
                     <td>${scoreStr} <span style="color:#64748b;font-size:12px;">(${corrStr})</span></td>
                     <td>${bandPill}</td>
-                    <td style="font-size:12px;color:#475569;">${escHtml(r.partSummary || r.details || '—')}${r.durationText ? `<div style="color:#64748b;margin-top:2px;">⏱️ ${escHtml(r.durationText)}</div>` : ''}</td>
+                    <td style="font-size:12px;color:#475569;">${escHtml(r.partSummary || r.details || '—')}${r.durationText ? `<div style="color:#64748b;margin-top:2px;">⏱️ ${escHtml(r.durationText)}${r.listenedText ? ` • 🔊 Nghe: ${escHtml(r.listenedText)}` : ''}</div>` : ''}</td>
                     <td>${tabPill}<div style="font-size:11px;color:#64748b;margin-top:3px;">${escHtml(timeStr)}</div></td>
                 </tr>
             `;
@@ -927,7 +1048,7 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
             alert('Chưa có dữ liệu để xuất file Excel/CSV.');
             return;
         }
-        const headers = ['STT', 'Họ và tên', 'Lớp', 'Đề thi', 'Số câu đúng', 'Điểm VSTEP', 'Xếp loại', 'Chi tiết Part', 'Thời gian làm', 'Chuyển tab', 'Thời điểm nộp'];
+        const headers = ['STT', 'Họ và tên', 'Lớp', 'Đề thi', 'Số câu đúng', 'Điểm VSTEP', 'Xếp loại', 'Chi tiết Part', 'Thời gian làm', 'Thời gian nghe Audio', 'Chuyển tab', 'Click lụi', 'Không nghe Audio', 'Thời điểm nộp'];
         const csvRows = [headers.join(',')];
         cachedBoardRows.forEach((r, i) => {
             const band = typeof r.vstepScore === 'number'
@@ -944,7 +1065,10 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
                 band,
                 r.partSummary || r.details || '',
                 r.durationText || '',
+                r.listenedText || '',
                 r.tabSwitches != null ? r.tabSwitches : '',
+                r.rapidClicks != null ? r.rapidClicks : '',
+                r.noAudioClicks != null ? r.noAudioClicks : '',
                 timeStr
             ].map(v => `"${String(v).replace(/"/g, '""')}"`);
             csvRows.push(cols.join(','));
@@ -1067,7 +1191,9 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
         getLoggedInStudent,
         getViolations,
         recordViolation,
+        showLiveWarning,
         formatDuration,
+        formatShortTime,
         getCertificationStatus,
         setReportData,
         getCurrentState: () => currentReportState,

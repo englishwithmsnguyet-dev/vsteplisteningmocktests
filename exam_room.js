@@ -310,7 +310,10 @@
                 vstepScore: typeof meta.vstepScore === "number" ? meta.vstepScore : undefined,
                 partSummary: meta.partSummary || undefined,
                 durationText: meta.durationText || undefined,
-                tabSwitches: typeof meta.tabSwitches === "number" ? meta.tabSwitches : undefined
+                listenedText: meta.listenedText || undefined,
+                tabSwitches: typeof meta.tabSwitches === "number" ? meta.tabSwitches : undefined,
+                rapidClicks: typeof meta.rapidClicks === "number" ? meta.rapidClicks : undefined,
+                noAudioClicks: typeof meta.noAudioClicks === "number" ? meta.noAudioClicks : undefined
             } : {});
             Object.keys(payload).forEach(k => { if (payload[k] === undefined) delete payload[k]; });
             if (rtdb) {

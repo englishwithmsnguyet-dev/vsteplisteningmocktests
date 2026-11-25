@@ -56,8 +56,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <!-- Room Proctoring & Official Result Report -->
     <script>window.VSTEP_ROOM_SKILL = 'listening';</script>
-    <script src="result_report.js?v=20261125_v23"></script>
-    <script src="exam_room.js?v=20261125_v23"></script>
+    <script src="result_report.js?v=20261125_v24"></script>
+    <script src="exam_room.js?v=20261125_v24"></script>
 </head>
 <body>
     
@@ -261,7 +261,7 @@
         }
 
         // --- TEST PLAYER COMPONENT ---
-        function TestPlayer({ test, allTests, onStartTest, answers, setAnswers, onSubmit, onBackToDashboard, isReview = false, onSubmitDirectly }) {
+        function TestPlayer({ test, allTests, onStartTest, answers, setAnswers, onSubmit, onBackToDashboard, isReview = false, onSubmitDirectly, listeningMetricsRef }) {
             const [selectedPart, setSelectedPart] = useState(() => test && test.test && test.test.parts && test.test.parts[0] ? test.test.parts[0].id : null);
             const [playbackSpeed, setPlaybackSpeed] = useState(1);
             const [timeLeft, setTimeLeft] = useState(() => test && test.test ? test.test.duration : 0);
@@ -280,6 +280,69 @@
             const audioRefs = useRef({});
             const questionRefs = useRef({});
             const timerRef = useRef(null);
+            const lastAudioTickRef = useRef({});
+            const partListenedSecRef = useRef({ 1: 0, 2: 0, 3: 0 });
+            const recentClicksRef = useRef([]);
+            const lastNoAudioWarnRef = useRef(0);
+
+            // Reset local audio tracking when switching to a different test
+            useEffect(() => {
+                lastAudioTickRef.current = {};
+                partListenedSecRef.current = { 1: 0, 2: 0, 3: 0 };
+                recentClicksRef.current = [];
+                lastNoAudioWarnRef.current = 0;
+                if (listeningMetricsRef && listeningMetricsRef.current) {
+                    listeningMetricsRef.current = { totalSeconds: 0, byPart: { 1: 0, 2: 0, 3: 0 } };
+                }
+            }, [test && test.id]);
+
+            // Anti-guessing & audio-listening verification on option click
+            const handleSelectOption = (part, qId, key) => {
+                if (isReview) return;
+                const nextAnswers = { ...answers, [qId]: key };
+                setAnswers(nextAnswers);
+
+                if (typeof window.VstepResultReport === 'undefined' || !test) return;
+
+                const now = Date.now();
+                const partId = part.id;
+                const hasStartedPartAudio = Boolean(audioPlayedState[partId]);
+                const listenedPartSec = partListenedSecRef.current[partId] || 0;
+                const answeredInThisPart = part.questions.filter(q => nextAnswers[q.id]).length;
+
+                // 1. Check Rapid Clicking (4+ distinct questions answered within 6 seconds)
+                recentClicksRef.current = recentClicksRef.current.filter(item => now - item.ts <= 6000);
+                recentClicksRef.current.push({ qId, ts: now });
+                const uniqueRecentQs = new Set(recentClicksRef.current.map(item => item.qId));
+
+                if (uniqueRecentQs.size >= 4) {
+                    recentClicksRef.current = [];
+                    const viol = window.VstepResultReport.recordViolation(test.id, 'rapid_click');
+                    window.VstepResultReport.showLiveWarning({
+                        type: 'rapid_click',
+                        title: 'CẢNH BÁO CLICK ĐÁP ÁN LIÊN TỤC!',
+                        message: `Hệ thống phát hiện bạn vừa bấm chọn liên tiếp ${uniqueRecentQs.size} câu chỉ trong vài giây mà không kịp nghe bài (Lần cảnh báo thứ ${viol.rapidClicks}). Hãy nghe kỹ file Audio trước khi chọn đáp án!`,
+                        onPlayAudio: !hasStartedPartAudio ? () => handleTogglePlay() : null
+                    });
+                    return;
+                }
+
+                // 2. Check Answering Without Playing / Listening Enough Audio
+                const isNoAudioBreach = !hasStartedPartAudio || (listenedPartSec < 12 && answeredInThisPart >= 2);
+                if (isNoAudioBreach && (now - lastNoAudioWarnRef.current >= 6000)) {
+                    lastNoAudioWarnRef.current = now;
+                    const viol = window.VstepResultReport.recordViolation(test.id, 'no_audio');
+                    const msg = !hasStartedPartAudio
+                        ? `Bạn chưa nhấn nút Play để nghe Audio của Part ${partId} mà đã bấm chọn đáp án (Cảnh báo lần ${viol.noAudioClicks})! Hãy bật file nghe để làm bài trung thực.`
+                        : `Bạn mới nghe Audio của Part ${partId} được ${Math.floor(listenedPartSec)} giây nhưng đã chọn ${answeredInThisPart} đáp án (Cảnh báo lần ${viol.noAudioClicks})! Hãy nghe kỹ nội dung trước khi chọn.`;
+                    window.VstepResultReport.showLiveWarning({
+                        type: 'no_audio',
+                        title: 'CẢNH BÁO CHƯA NGHE AUDIO!',
+                        message: msg,
+                        onPlayAudio: !hasStartedPartAudio ? () => handleTogglePlay() : null
+                    });
+                }
+            };
 
             // Sync audio state when changing selected part
             useEffect(() => {
@@ -571,9 +634,35 @@
                                         <audio 
                                             ref={el => audioRefs.current[part.id] = el}
                                             src={Array.isArray(part.audioSrc) ? encodeURI(part.audioSrc[subAudioIndexes[part.id] || 0]) : encodeURI(part.audioSrc || '')}
-                                            onPlay={() => setIsPlaying(true)}
-                                            onPause={() => setIsPlaying(false)}
+                                            onPlay={() => {
+                                                setIsPlaying(true);
+                                                lastAudioTickRef.current[part.id] = Date.now();
+                                            }}
+                                            onPause={() => {
+                                                setIsPlaying(false);
+                                                lastAudioTickRef.current[part.id] = null;
+                                            }}
                                             onTimeUpdate={(e) => {
+                                                if (!isReview && !e.target.paused) {
+                                                    const nowTick = Date.now();
+                                                    const prevTick = lastAudioTickRef.current[part.id];
+                                                    if (prevTick) {
+                                                        const deltaSec = Math.min(1.5, Math.max(0, (nowTick - prevTick) / 1000));
+                                                        partListenedSecRef.current[part.id] = (partListenedSecRef.current[part.id] || 0) + deltaSec;
+                                                        if (listeningMetricsRef && listeningMetricsRef.current) {
+                                                            const byPart = {
+                                                                1: Math.floor(partListenedSecRef.current[1] || 0),
+                                                                2: Math.floor(partListenedSecRef.current[2] || 0),
+                                                                3: Math.floor(partListenedSecRef.current[3] || 0)
+                                                            };
+                                                            listeningMetricsRef.current = {
+                                                                totalSeconds: byPart[1] + byPart[2] + byPart[3],
+                                                                byPart
+                                                            };
+                                                        }
+                                                    }
+                                                    lastAudioTickRef.current[part.id] = nowTick;
+                                                }
                                                 if (selectedPart === part.id) {
                                                     setCurrentTime(e.target.currentTime);
                                                     setProgress(e.target.duration ? (e.target.currentTime / e.target.duration) * 100 : 0);
@@ -710,7 +799,7 @@
                                                                         className={optClass}
                                                                         onClick={() => {
                                                                             if (isReview) return;
-                                                                            setAnswers(prev => ({ ...prev, [q.id]: key }));
+                                                                            handleSelectOption(part, q.id, key);
                                                                         }}
                                                                     >
                                                                         <input 
@@ -1876,6 +1965,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             const [answers, setAnswers] = useState({});
             const [latestReportData, setLatestReportData] = useState(null);
             const examStartTimeRef = useRef(null);
+            const listeningMetricsRef = useRef({ totalSeconds: 0, byPart: { 1: 0, 2: 0, 3: 0 } });
             
             // Saved history state
             const [history, setHistory] = useState(() => {
@@ -1946,6 +2036,10 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     totalQuestions: extraMeta.totalQuestions || 35,
                     partScores: extraMeta.partScores || [],
                     tabSwitches: extraMeta.tabSwitches || 0,
+                    rapidClicks: extraMeta.rapidClicks || 0,
+                    noAudioClicks: extraMeta.noAudioClicks || 0,
+                    totalListenedSeconds: extraMeta.totalListenedSeconds || 0,
+                    partListenedSeconds: extraMeta.partListenedSeconds || {},
                     submittedAt: extraMeta.submittedAt || formattedDate
                 };
 
@@ -2000,7 +2094,11 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     partScores: partScores || [],
                     elapsedSeconds: item.elapsedSeconds || 0,
                     submittedAt: item.submittedAt || item.date,
-                    tabSwitches: typeof item.tabSwitches === 'number' ? item.tabSwitches : viol.tabSwitches
+                    tabSwitches: typeof item.tabSwitches === 'number' ? item.tabSwitches : viol.tabSwitches,
+                    rapidClicks: typeof item.rapidClicks === 'number' ? item.rapidClicks : viol.rapidClicks,
+                    noAudioClicks: typeof item.noAudioClicks === 'number' ? item.noAudioClicks : viol.noAudioClicks,
+                    totalListenedSeconds: item.totalListenedSeconds || 0,
+                    partListenedSeconds: item.partListenedSeconds || {}
                 };
                 window.VstepResultReport.open(payload);
             };
@@ -2040,7 +2138,8 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 const submittedAt = new Date().toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
                 const viol = (typeof window.VstepResultReport !== 'undefined')
                     ? window.VstepResultReport.getViolations(selectedTest.id)
-                    : { tabSwitches: 0 };
+                    : { tabSwitches: 0, rapidClicks: 0, noAudioClicks: 0 };
+                const listenedSnapshot = listeningMetricsRef.current || { totalSeconds: 0, byPart: { 1: 0, 2: 0, 3: 0 } };
 
                 const reportPayload = {
                     testId: selectedTest.id,
@@ -2054,7 +2153,11 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     partScores,
                     elapsedSeconds,
                     submittedAt,
-                    tabSwitches: viol.tabSwitches
+                    tabSwitches: viol.tabSwitches || 0,
+                    rapidClicks: viol.rapidClicks || 0,
+                    noAudioClicks: viol.noAudioClicks || 0,
+                    totalListenedSeconds: listenedSnapshot.totalSeconds || 0,
+                    partListenedSeconds: listenedSnapshot.byPart || {}
                 };
                 
                 saveAttempt(selectedTest.id, selectedTest.title, score, answers, reportPayload);
@@ -2067,14 +2170,20 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     const durText = (typeof window.VstepResultReport !== 'undefined')
                         ? window.VstepResultReport.formatDuration(elapsedSeconds).text
                         : `${Math.floor(elapsedSeconds / 60)}p ${elapsedSeconds % 60}s`;
+                    const listenedText = (typeof window.VstepResultReport !== 'undefined')
+                        ? window.VstepResultReport.formatDuration(listenedSnapshot.totalSeconds || 0).text
+                        : `${Math.floor((listenedSnapshot.totalSeconds || 0) / 60)}p ${(listenedSnapshot.totalSeconds || 0) % 60}s`;
                     window.VstepExamRoom.recordTestCompletion('listening', selectedTest.id, {
-                        details: `${vstepScore.toFixed(1)}/10 (${score}/${totalQuestions || 35} câu) | ${partSummary} | ⏱️ ${durText} | Tab: ${viol.tabSwitches}`,
+                        details: `${vstepScore.toFixed(1)}/10 (${score}/${totalQuestions || 35} câu) | ${partSummary} | ⏱️ ${durText} | 🔊 Nghe: ${listenedText} | Tab: ${viol.tabSwitches || 0} | Lụi: ${viol.rapidClicks || 0} | Không nghe: ${viol.noAudioClicks || 0}`,
                         correctCount: score,
                         totalQuestions: totalQuestions || 35,
                         vstepScore: vstepScore,
                         partSummary: partSummary,
                         durationText: durText,
-                        tabSwitches: viol.tabSwitches
+                        listenedText: listenedText,
+                        tabSwitches: viol.tabSwitches || 0,
+                        rapidClicks: viol.rapidClicks || 0,
+                        noAudioClicks: viol.noAudioClicks || 0
                     });
                 }
                 
@@ -2130,7 +2239,11 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                             partScores: historyItem.partScores || [],
                             elapsedSeconds: historyItem.elapsedSeconds || 0,
                             submittedAt: historyItem.submittedAt || historyItem.date,
-                            tabSwitches: typeof historyItem.tabSwitches === 'number' ? historyItem.tabSwitches : viol.tabSwitches
+                            tabSwitches: typeof historyItem.tabSwitches === 'number' ? historyItem.tabSwitches : viol.tabSwitches,
+                            rapidClicks: typeof historyItem.rapidClicks === 'number' ? historyItem.rapidClicks : viol.rapidClicks,
+                            noAudioClicks: typeof historyItem.noAudioClicks === 'number' ? historyItem.noAudioClicks : viol.noAudioClicks,
+                            totalListenedSeconds: historyItem.totalListenedSeconds || 0,
+                            partListenedSeconds: historyItem.partListenedSeconds || {}
                         });
                     } else {
                         setLatestReportData(null);
@@ -2138,6 +2251,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     setCurrentScreen('results');
                 } else {
                     examStartTimeRef.current = Date.now();
+                    listeningMetricsRef.current = { totalSeconds: 0, byPart: { 1: 0, 2: 0, 3: 0 } };
                     setLatestReportData(null);
                     const savedProgress = localStorage.getItem('vstep_saved_progress_' + test.id);
                     if (savedProgress) {
@@ -2352,6 +2466,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 onSubmit={handleFinishTest}
                                 onBackToDashboard={handleBackToDashboard}
                                 onSubmitDirectly={handleFinishTest}
+                                listeningMetricsRef={listeningMetricsRef}
                             />
                         )}
                         {currentScreen === 'results' && (
