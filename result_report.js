@@ -78,8 +78,30 @@
         };
     }
 
+    function isTeacherSession() {
+        try {
+            const rawSess = sessionStorage.getItem('vstep_user_session') || localStorage.getItem('vstep_user_session');
+            if (rawSess) {
+                const parsed = JSON.parse(rawSess);
+                if (parsed) {
+                    if (parsed.isTeacher === true) return true;
+                    const pn = String(parsed.name || '').trim().toUpperCase();
+                    const pc = String(parsed.className || parsed.class || '').trim().toUpperCase();
+                    if (pn === 'PTMN' || pc === 'GV' || pn.includes('PTMN')) return true;
+                }
+            }
+            const sn = String(localStorage.getItem('vstep_student_name') || sessionStorage.getItem('vstep_student_name') || '').trim().toUpperCase();
+            const sc = String(localStorage.getItem('vstep_student_class') || sessionStorage.getItem('vstep_student_class') || '').trim().toUpperCase();
+            if (sn === 'PTMN' || sc === 'GV' || sn.includes('PTMN')) return true;
+        } catch (e) {}
+        return false;
+    }
+
     const lastViolationByType = { tab: 0, rapid_click: 0, no_audio: 0 };
     function recordViolation(testId, type) {
+        if (isTeacherSession()) {
+            return { tabSwitches: 0, rapidClicks: 0, noAudioClicks: 0 };
+        }
         const t = type || 'tab';
         const now = Date.now();
         const cooldown = t === 'tab' ? 2000 : (t === 'rapid_click' ? 4000 : 6000);
@@ -117,6 +139,7 @@
     }
 
     function showLiveWarning(opts) {
+        if (isTeacherSession()) return;
         injectStyles();
         const existing = document.getElementById('vstep-live-warning-overlay');
         if (existing) existing.remove();
