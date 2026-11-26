@@ -308,9 +308,17 @@
                 correctCount: typeof meta.correctCount === "number" ? meta.correctCount : undefined,
                 totalQuestions: typeof meta.totalQuestions === "number" ? meta.totalQuestions : undefined,
                 vstepScore: typeof meta.vstepScore === "number" ? meta.vstepScore : undefined,
+                answeredCount: typeof meta.answeredCount === "number" ? meta.answeredCount : undefined,
                 partSummary: meta.partSummary || undefined,
+                partScores: Array.isArray(meta.partScores) ? meta.partScores : undefined,
+                wrongQuestions: Array.isArray(meta.wrongQuestions) ? meta.wrongQuestions : undefined,
+                answers: (meta.answers && typeof meta.answers === "object") ? meta.answers : undefined,
+                elapsedSeconds: typeof meta.elapsedSeconds === "number" ? meta.elapsedSeconds : undefined,
+                totalListenedSeconds: typeof meta.totalListenedSeconds === "number" ? meta.totalListenedSeconds : undefined,
+                partListenedSeconds: (meta.partListenedSeconds && typeof meta.partListenedSeconds === "object") ? meta.partListenedSeconds : undefined,
                 durationText: meta.durationText || undefined,
                 listenedText: meta.listenedText || undefined,
+                submittedAt: meta.submittedAt || undefined,
                 tabSwitches: typeof meta.tabSwitches === "number" ? meta.tabSwitches : undefined,
                 rapidClicks: typeof meta.rapidClicks === "number" ? meta.rapidClicks : undefined,
                 noAudioClicks: typeof meta.noAudioClicks === "number" ? meta.noAudioClicks : undefined
@@ -324,6 +332,22 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             }).catch(() => {});
+
+            // Also append immutable attempt record for multi-attempt Teacher Dashboard history
+            if (sk === "listening") {
+                const attemptId = `${Date.now()}_${studentKey}_t${tNum}`;
+                const attemptRecord = Object.assign({
+                    attemptId,
+                    studentKey,
+                    testId: tNum,
+                    skill: sk
+                }, payload);
+                fetch(`${RTDB_BASE}/listening_submissions/${attemptId}.json`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(attemptRecord)
+                }).catch(() => {});
+            }
         }
 
         // 3. Google Sheet 2-way Web App sync

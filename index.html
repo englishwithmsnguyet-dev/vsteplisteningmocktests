@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261126_v42">
+    <link rel="stylesheet" href="style.css?v=20261126_v43">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261126_v42"></script>
+    <script src="data.js?v=20261126_v43"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v28"></script>
 
@@ -56,8 +56,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <!-- Room Proctoring & Official Result Report -->
     <script>window.VSTEP_ROOM_SKILL = 'listening';</script>
-    <script src="result_report.js?v=20261126_v42"></script>
-    <script src="exam_room.js?v=20261125_v24"></script>
+    <script src="result_report.js?v=20261126_v43"></script>
+    <script src="exam_room.js?v=20261126_v43"></script>
 </head>
 <body>
     
@@ -288,7 +288,7 @@
         };
 
         // --- DASHBOARD COMPONENT ---
-        function Dashboard({ tests, onStartTest, onOpenVocab, history, onClearHistory, onOpenReport, isTeacher = false }) {
+        function Dashboard({ tests, onStartTest, onOpenVocab, onOpenTeacherResults, history, onClearHistory, onOpenReport, isTeacher = false }) {
             const completedCount = history.length;
             const avgScore = completedCount > 0 
                 ? (history.reduce((sum, h) => sum + h.correctCount, 0) / completedCount).toFixed(1) 
@@ -306,9 +306,20 @@
                             <h2>LUYỆN NGHE CÙNG MISS NGUYET</h2>
                             <p>Hệ thống thi thử Listening VSTEP chuẩn hóa. Cung cấp 9 đề luyện nghe hoàn chỉnh với audio chất lượng cao, giải thích từ vựng chi tiết, bản dịch đề thi và minigame ôn tập tương tác sinh động.</p>
                         </div>
-                        <button className="btn btn-primary" onClick={onOpenVocab}>
-                            <i className="fa-solid fa-book-open"></i> Kho Từ Vựng ({allVocabCount} Từ)
-                        </button>
+                        <div style={{display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center'}}>
+                            {isTeacher && onOpenTeacherResults && (
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={onOpenTeacherResults}
+                                    style={{background: 'linear-gradient(135deg, #d97706, #4f46e5)', border: 'none', boxShadow: '0 6px 16px rgba(79,70,229,0.28)'}}
+                                >
+                                    <i className="fa-solid fa-chart-column"></i> Kết Quả Học Viên (GV)
+                                </button>
+                            )}
+                            <button className="btn btn-primary" onClick={onOpenVocab}>
+                                <i className="fa-solid fa-book-open"></i> Kho Từ Vựng ({allVocabCount} Từ)
+                            </button>
+                        </div>
                     </div>
 
                     <div className="stats-grid">
@@ -2408,6 +2419,487 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
             );
         }
 
+        // --- TEACHER RESULTS HUB (DÀNH RIÊNG CHO GIÁO VIÊN PTMN) ---
+        function TeacherResultsHub({ tests, onBackToDashboard, onReviewStudentSubmission }) {
+            const RTDB_BASE = 'https://vstep6868-default-rtdb.firebaseio.com';
+            const [rows, setRows] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState('');
+            const [lastUpdated, setLastUpdated] = useState('');
+            const [searchTerm, setSearchTerm] = useState('');
+            const [classFilter, setClassFilter] = useState('ALL');
+            const [testFilter, setTestFilter] = useState('ALL');
+            const [levelFilter, setLevelFilter] = useState('ALL');
+            const [hideTeacherTests, setHideTeacherTests] = useState(false);
+
+            const normalizeRecord = (rec, meta = {}) => {
+                if (!rec || typeof rec !== 'object') return null;
+                const testId = parseInt(rec.testId || meta.testId, 10) || 0;
+                if (testId <= 0) return null;
+                const name = rec.name || meta.name || meta.studentKey || 'Học viên';
+                const className = rec.className || meta.className || '';
+                const totalQuestions = parseInt(rec.totalQuestions || 35, 10) || 35;
+                let correctCount = typeof rec.correctCount === 'number' ? rec.correctCount : null;
+                let vstepScore = typeof rec.vstepScore === 'number' ? rec.vstepScore : null;
+                if (vstepScore == null && typeof rec.details === 'string') {
+                    const m = rec.details.match(/([\d.]+)\s*\/\s*10/);
+                    if (m) vstepScore = parseFloat(m[1]);
+                }
+                if (correctCount == null && typeof rec.details === 'string') {
+                    const m = rec.details.match(/\((\d+)\s*\/\s*35/);
+                    if (m) correctCount = parseInt(m[1], 10);
+                }
+                if (vstepScore == null && correctCount != null) vstepScore = convertVstepScore(correctCount);
+                const updatedAt = Number(rec.updatedAt || 0);
+                const isTeacherRow = String(className).toUpperCase() === 'GV' || String(name).toUpperCase().includes('PTMN');
+                let normalizedAnswers = null;
+                if (rec.answers && typeof rec.answers === 'object') {
+                    normalizedAnswers = {};
+                    Object.entries(rec.answers).forEach(([k, v]) => {
+                        if (v !== null && v !== undefined && v !== '') normalizedAnswers[k] = v;
+                    });
+                    if (Object.keys(normalizedAnswers).length === 0) normalizedAnswers = null;
+                }
+                const normalizedPartListened = {};
+                if (rec.partListenedSeconds && typeof rec.partListenedSeconds === 'object') {
+                    Object.entries(rec.partListenedSeconds).forEach(([k, v]) => {
+                        if (typeof v === 'number') normalizedPartListened[k] = v;
+                    });
+                }
+                return {
+                    uid: meta.uid || `${meta.source}_${meta.studentKey || ''}_${testId}_${updatedAt}`,
+                    source: meta.source,
+                    attemptId: rec.attemptId || meta.attemptId || null,
+                    studentKey: rec.studentKey || meta.studentKey || null,
+                    name,
+                    className,
+                    isTeacherRow,
+                    testId,
+                    correctCount,
+                    totalQuestions,
+                    answeredCount: typeof rec.answeredCount === 'number' ? rec.answeredCount : (normalizedAnswers ? Object.keys(normalizedAnswers).length : correctCount),
+                    vstepScore: typeof vstepScore === 'number' ? vstepScore : 0,
+                    partSummary: rec.partSummary || '',
+                    partScores: Array.isArray(rec.partScores) ? rec.partScores : [],
+                    wrongQuestions: Array.isArray(rec.wrongQuestions) ? rec.wrongQuestions : null,
+                    answers: normalizedAnswers,
+                    elapsedSeconds: typeof rec.elapsedSeconds === 'number' ? rec.elapsedSeconds : 0,
+                    totalListenedSeconds: typeof rec.totalListenedSeconds === 'number' ? rec.totalListenedSeconds : 0,
+                    partListenedSeconds: normalizedPartListened,
+                    durationText: rec.durationText || '',
+                    listenedText: rec.listenedText || '',
+                    tabSwitches: typeof rec.tabSwitches === 'number' ? rec.tabSwitches : 0,
+                    rapidClicks: typeof rec.rapidClicks === 'number' ? rec.rapidClicks : 0,
+                    noAudioClicks: typeof rec.noAudioClicks === 'number' ? rec.noAudioClicks : 0,
+                    details: rec.details || '',
+                    submittedAt: rec.submittedAt || (updatedAt ? new Date(updatedAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : ''),
+                    updatedAt
+                };
+            };
+
+            const loadSubmissions = async () => {
+                setLoading(true);
+                setError('');
+                try {
+                    const [subRes, progRes] = await Promise.all([
+                        fetch(`${RTDB_BASE}/listening_submissions.json`, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null),
+                        fetch(`${RTDB_BASE}/student_progress.json`, { cache: 'no-store' }).then(r => r.ok ? r.json() : null)
+                    ]);
+
+                    const merged = [];
+                    const seenKeys = new Set();
+
+                    // 1. Multi-attempt immutable submissions (richest data)
+                    if (subRes && typeof subRes === 'object') {
+                        Object.entries(subRes).forEach(([attemptId, rec]) => {
+                            const row = normalizeRecord(rec, { source: 'listening_submissions', attemptId, uid: `sub_${attemptId}` });
+                            if (row) {
+                                merged.push(row);
+                                seenKeys.add(`${row.studentKey || row.name}__${row.testId}__${Math.floor(row.updatedAt / 5000)}`);
+                            }
+                        });
+                    }
+
+                    // 2. Legacy & latest student_progress records
+                    if (progRes && typeof progRes === 'object') {
+                        Object.entries(progRes).forEach(([studentKey, node]) => {
+                            if (!node || typeof node !== 'object' || !node.listening) return;
+                            Object.entries(node.listening).forEach(([tidStr, rec]) => {
+                                const row = normalizeRecord(rec, {
+                                    source: 'student_progress',
+                                    studentKey,
+                                    testId: tidStr,
+                                    name: node.name,
+                                    className: node.className,
+                                    uid: `prog_${studentKey}_${tidStr}`
+                                });
+                                if (row) {
+                                    const dedupeKey = `${row.studentKey || row.name}__${row.testId}__${Math.floor(row.updatedAt / 5000)}`;
+                                    if (!seenKeys.has(dedupeKey)) {
+                                        seenKeys.add(dedupeKey);
+                                        merged.push(row);
+                                    }
+                                }
+                            });
+                        });
+                    }
+
+                    merged.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+                    setRows(merged);
+                    setLastUpdated(new Date().toLocaleTimeString('vi-VN'));
+                } catch (err) {
+                    setError('Không thể tải dữ liệu từ Firebase (' + (err && err.message ? err.message : 'Lỗi kết nối') + ').');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            useEffect(() => {
+                loadSubmissions();
+            }, []);
+
+            const allClasses = Array.from(new Set(rows.map(r => r.className).filter(Boolean))).sort();
+
+            const filteredRows = rows.filter(r => {
+                if (hideTeacherTests && r.isTeacherRow) return false;
+                if (classFilter !== 'ALL' && r.className !== classFilter) return false;
+                if (testFilter !== 'ALL' && String(r.testId) !== String(testFilter)) return false;
+                if (searchTerm.trim()) {
+                    const q = searchTerm.trim().toLowerCase();
+                    const hay = `${r.name} ${r.className} test ${r.testId}`.toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                const hasWarn = (r.tabSwitches > 0) || (r.rapidClicks > 0) || (r.noAudioClicks > 0);
+                if (levelFilter === 'C1' && r.vstepScore < 8.5) return false;
+                if (levelFilter === 'B2' && (r.vstepScore < 6.0 || r.vstepScore >= 8.5)) return false;
+                if (levelFilter === 'B1' && (r.vstepScore < 4.0 || r.vstepScore >= 6.0)) return false;
+                if (levelFilter === 'LOW' && r.vstepScore >= 4.0) return false;
+                if (levelFilter === 'WARN' && !hasWarn) return false;
+                return true;
+            });
+
+            const uniqueStudents = new Set(filteredRows.map(r => `${r.name.toLowerCase()}__${r.className.toLowerCase()}`)).size;
+            const avgVstep = filteredRows.length > 0
+                ? (filteredRows.reduce((s, r) => s + (r.vstepScore || 0), 0) / filteredRows.length).toFixed(1)
+                : '0.0';
+            const passB2Count = filteredRows.filter(r => r.vstepScore >= 6.0).length;
+            const warnCount = filteredRows.filter(r => (r.tabSwitches > 0) || (r.rapidClicks > 0) || (r.noAudioClicks > 0)).length;
+
+            const handleOpenStudentReport = (row) => {
+                if (typeof window.VstepResultReport === 'undefined') return;
+                const matchedTest = tests.find(t => t.id === row.testId);
+                let partScores = row.partScores;
+                if ((!partScores || partScores.length === 0) && matchedTest && matchedTest.test && row.answers) {
+                    const subs = ['Thông báo ngắn', '3 đoạn Hội thoại', '3 bài Nói / Giảng'];
+                    partScores = matchedTest.test.parts.map((part, idx) => {
+                        let pCorrect = 0;
+                        part.questions.forEach(q => { if (row.answers[q.id] === q.correct) pCorrect++; });
+                        return { id: part.id, name: `Part ${idx + 1}`, sub: subs[idx] || '', correct: pCorrect, total: part.questions.length };
+                    });
+                }
+                window.VstepResultReport.open({
+                    testId: row.testId,
+                    testTitle: matchedTest ? matchedTest.title : `VSTEP Listening Mock Test ${String(row.testId).padStart(2, '0')}`,
+                    studentName: row.name,
+                    studentClass: row.className,
+                    correctCount: row.correctCount || 0,
+                    totalQuestions: row.totalQuestions || 35,
+                    answeredCount: row.answeredCount != null ? row.answeredCount : (row.correctCount || 0),
+                    vstepScore: row.vstepScore || 0,
+                    partScores: partScores || [],
+                    wrongQuestions: row.wrongQuestions || [],
+                    elapsedSeconds: row.elapsedSeconds || 0,
+                    totalListenedSeconds: row.totalListenedSeconds || 0,
+                    partListenedSeconds: row.partListenedSeconds || {},
+                    tabSwitches: row.tabSwitches || 0,
+                    rapidClicks: row.rapidClicks || 0,
+                    noAudioClicks: row.noAudioClicks || 0,
+                    submittedAt: row.submittedAt
+                });
+            };
+
+            const handleDeleteRow = async (row) => {
+                if (!window.confirm(`Xóa lượt thi Test ${String(row.testId).padStart(2, '0')} của "${row.name} (${row.className})" khỏi bảng kết quả Firebase?`)) return;
+                try {
+                    const reqs = [];
+                    if (row.attemptId) {
+                        reqs.push(fetch(`${RTDB_BASE}/listening_submissions/${encodeURIComponent(row.attemptId)}.json`, { method: 'DELETE' }));
+                    }
+                    if (row.source === 'student_progress' && row.studentKey) {
+                        reqs.push(fetch(`${RTDB_BASE}/student_progress/${encodeURIComponent(row.studentKey)}/listening/${row.testId}.json`, { method: 'DELETE' }));
+                    }
+                    await Promise.all(reqs);
+                    setRows(prev => prev.filter(r => r.uid !== row.uid));
+                } catch (e) {
+                    alert('Không thể xóa dữ liệu lúc này. Vui lòng thử lại.');
+                }
+            };
+
+            const handleExportCSV = () => {
+                if (!filteredRows.length) {
+                    alert('Không có dữ liệu nào để xuất Excel.');
+                    return;
+                }
+                const headers = ['STT', 'Họ và tên', 'Lớp', 'Đề thi', 'Số câu đúng', 'Điểm VSTEP', 'Xếp loại', 'Chi tiết Part', 'Câu sai chi tiết', 'Thời gian làm', 'Thời gian nghe Audio', 'Chuyển tab', 'Click lụi', 'Chưa nghe Audio', 'Thời điểm nộp'];
+                const csvLines = [headers.join(',')];
+                filteredRows.forEach((r, i) => {
+                    const band = r.vstepScore >= 8.5 ? 'C1' : r.vstepScore >= 6.0 ? 'B2' : r.vstepScore >= 4.0 ? 'B1' : 'Chưa đạt B1';
+                    const wrongStr = Array.isArray(r.wrongQuestions)
+                        ? (r.wrongQuestions.length === 0 ? 'Không sai' : r.wrongQuestions.map(w => `C${w.id}(${w.chosen || 'trống'}->${w.correct})`).join('; '))
+                        : '';
+                    const cols = [
+                        i + 1,
+                        r.name,
+                        r.className,
+                        `Test ${String(r.testId).padStart(2, '0')}`,
+                        r.correctCount != null ? `${r.correctCount}/${r.totalQuestions}` : '',
+                        r.vstepScore.toFixed(1),
+                        band,
+                        r.partSummary || r.details,
+                        wrongStr,
+                        r.durationText || (r.elapsedSeconds ? formatTimeStr(r.elapsedSeconds) : ''),
+                        r.listenedText || (r.totalListenedSeconds ? formatTimeStr(r.totalListenedSeconds) : ''),
+                        r.tabSwitches,
+                        r.rapidClicks,
+                        r.noAudioClicks,
+                        r.submittedAt
+                    ].map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`);
+                    csvLines.push(cols.join(','));
+                });
+                const blob = new Blob(['\uFEFF' + csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Ket_Qua_Listening_Miss_Nguyet_${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            };
+
+            return (
+                <div className="animate-fade-in">
+                    <div className="teacher-hub-header">
+                        <div>
+                            <div style={{fontSize: '0.74rem', fontWeight: 800, letterSpacing: '0.08em', opacity: 0.85, textTransform: 'uppercase', marginBottom: '4px'}}>
+                                <i className="fa-solid fa-crown" style={{color: '#fbbf24', marginRight: '6px'}}></i>
+                                CỔNG QUẢN LÝ GIÁO VIÊN (PTMN) • ĐỒNG BỘ TRỰC TIẾP FIREBASE
+                            </div>
+                            <h2 style={{margin: 0, fontSize: '1.45rem', fontWeight: 900}}>
+                                📊 Bảng Kết Quả Làm Bài Listening Của Học Viên
+                            </h2>
+                            <div style={{fontSize: '0.8rem', opacity: 0.88, marginTop: '4px'}}>
+                                {lastUpdated ? `Cập nhật lúc ${lastUpdated} • Hiển thị ${filteredRows.length}/${rows.length} lượt nộp bài` : 'Đang đồng bộ dữ liệu trực tuyến...'}
+                            </div>
+                        </div>
+                        <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px'}}>
+                            <button className="btn btn-sm" style={{background: 'rgba(255,255,255,0.16)', color: '#fff', border: '1px solid rgba(255,255,255,0.35)'}} onClick={loadSubmissions}>
+                                <i className={`fa-solid fa-rotate ${loading ? 'fa-spin' : ''}`}></i> Làm mới
+                            </button>
+                            <button className="btn btn-sm" style={{background: '#10b981', color: '#fff', border: 'none'}} onClick={handleExportCSV}>
+                                <i className="fa-solid fa-file-excel"></i> Xuất Excel (.CSV)
+                            </button>
+                            <button className="btn btn-sm" style={{background: 'rgba(255,255,255,0.92)', color: '#1e1b4b', border: 'none'}} onClick={onBackToDashboard}>
+                                <i className="fa-solid fa-arrow-left"></i> Về Trang Chủ
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="teacher-hub-kpi-grid">
+                        <div className="teacher-kpi-card">
+                            <span className="teacher-kpi-label"><i className="fa-solid fa-clipboard-check" style={{color: '#4f46e5'}}></i> Tổng lượt nộp bài</span>
+                            <span className="teacher-kpi-val">{filteredRows.length}</span>
+                            <span className="teacher-kpi-sub">Trên tổng {rows.length} lượt đã lưu</span>
+                        </div>
+                        <div className="teacher-kpi-card">
+                            <span className="teacher-kpi-label"><i className="fa-solid fa-user-graduate" style={{color: '#0891b2'}}></i> Học viên đã nộp</span>
+                            <span className="teacher-kpi-val">{uniqueStudents}</span>
+                            <span className="teacher-kpi-sub">{allClasses.length} lớp có dữ liệu</span>
+                        </div>
+                        <div className="teacher-kpi-card">
+                            <span className="teacher-kpi-label"><i className="fa-solid fa-award" style={{color: '#059669'}}></i> Điểm VSTEP trung bình</span>
+                            <span className="teacher-kpi-val">{avgVstep} <span style={{fontSize: '0.85rem', fontWeight: 700, color: '#64748b'}}>/10</span></span>
+                            <span className="teacher-kpi-sub">Đạt B2+ (≥6.0): {passB2Count} lượt</span>
+                        </div>
+                        <div className="teacher-kpi-card">
+                            <span className="teacher-kpi-label"><i className="fa-solid fa-shield-halved" style={{color: '#dc2626'}}></i> Cảnh báo trung thực</span>
+                            <span className="teacher-kpi-val" style={{color: warnCount > 0 ? '#dc2626' : '#059669'}}>{warnCount}</span>
+                            <span className="teacher-kpi-sub">Chuyển tab / Click lụi / Chưa nghe</span>
+                        </div>
+                    </div>
+
+                    <div className="teacher-filter-bar">
+                        <input
+                            type="text"
+                            className="teacher-filter-input"
+                            placeholder="🔍 Tìm theo tên học viên hoặc lớp..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <select className="teacher-filter-select" value={classFilter} onChange={(e) => setClassFilter(e.target.value)}>
+                            <option value="ALL">Tất cả các lớp ({allClasses.length})</option>
+                            {allClasses.map(c => <option key={c} value={c}>Lớp {c}</option>)}
+                        </select>
+                        <select className="teacher-filter-select" value={testFilter} onChange={(e) => setTestFilter(e.target.value)}>
+                            <option value="ALL">Tất cả 9 đề thi</option>
+                            {tests.map(t => <option key={t.id} value={t.id}>Listening Test {String(t.id).padStart(2, '0')}</option>)}
+                        </select>
+                        <select className="teacher-filter-select" value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
+                            <option value="ALL">Tất cả kết quả</option>
+                            <option value="C1">Đạt C1 (≥ 8.5)</option>
+                            <option value="B2">Đạt B2 (6.0 – 8.0)</option>
+                            <option value="B1">Đạt B1 (4.0 – 5.5)</option>
+                            <option value="LOW">Chưa đạt B1 (&lt; 4.0)</option>
+                            <option value="WARN">⚠️ Có cảnh báo trung thực</option>
+                        </select>
+                        <label style={{display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', color: 'var(--text-dark)', padding: '0 4px'}}>
+                            <input type="checkbox" checked={hideTeacherTests} onChange={(e) => setHideTeacherTests(e.target.checked)} />
+                            Ẩn lượt test của GV (PTMN)
+                        </label>
+                    </div>
+
+                    <div className="teacher-table-card">
+                        {error && (
+                            <div style={{padding: '16px 20px', color: '#b91c1c', background: '#fef2f2', fontWeight: 700}}>
+                                <i className="fa-solid fa-circle-exclamation"></i> {error}
+                            </div>
+                        )}
+                        <div className="teacher-table-scroll">
+                            <table className="teacher-results-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Học viên &amp; Lớp</th>
+                                        <th>Đề thi</th>
+                                        <th>Điểm &amp; Xếp loại</th>
+                                        <th>Chi tiết Part</th>
+                                        <th>Câu sai</th>
+                                        <th>Thời gian &amp; Nghe Audio</th>
+                                        <th>Trung thực</th>
+                                        <th>Nộp lúc</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan="10" style={{textAlign: 'center', padding: '36px', color: '#64748b', fontWeight: 700}}>
+                                                <i className="fa-solid fa-spinner fa-spin" style={{marginRight: '8px'}}></i>
+                                                Đang tải bảng kết quả từ Firebase...
+                                            </td>
+                                        </tr>
+                                    ) : filteredRows.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="10" style={{textAlign: 'center', padding: '36px', color: '#64748b', fontWeight: 600}}>
+                                                Chưa có lượt nộp bài nào phù hợp với bộ lọc hiện tại.
+                                            </td>
+                                        </tr>
+                                    ) : filteredRows.map((r, idx) => {
+                                        const scoreClass = r.vstepScore >= 8.5 ? 'c1' : r.vstepScore >= 6.0 ? 'b2' : r.vstepScore >= 4.0 ? 'b1' : 'low';
+                                        const bandLabel = r.vstepScore >= 8.5 ? 'C1' : r.vstepScore >= 6.0 ? 'B2' : r.vstepScore >= 4.0 ? 'B1' : '< B1';
+                                        const hasWarn = (r.tabSwitches > 0) || (r.rapidClicks > 0) || (r.noAudioClicks > 0);
+                                        const wrongList = Array.isArray(r.wrongQuestions) ? r.wrongQuestions : null;
+                                        return (
+                                            <tr key={r.uid}>
+                                                <td style={{fontWeight: 700, color: '#94a3b8'}}>{idx + 1}</td>
+                                                <td>
+                                                    <div style={{fontWeight: 800, color: 'var(--text-dark)'}}>{r.name}</div>
+                                                    <span style={{fontSize: '0.73rem', fontWeight: 700, color: r.isTeacherRow ? '#b45309' : '#4f46e5'}}>
+                                                        {r.className ? `Lớp ${r.className}` : 'Chưa rõ lớp'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span style={{fontWeight: 800, color: '#4338ca'}}>TEST {String(r.testId).padStart(2, '0')}</span>
+                                                </td>
+                                                <td>
+                                                    <span className={`teacher-score-pill ${scoreClass}`}>
+                                                        {r.vstepScore.toFixed(1)}/10 • {bandLabel}
+                                                    </span>
+                                                    <div style={{fontSize: '0.75rem', color: '#64748b', marginTop: '3px', fontWeight: 700}}>
+                                                        Đúng: {r.correctCount != null ? `${r.correctCount}/${r.totalQuestions}` : '—'}
+                                                    </div>
+                                                </td>
+                                                <td style={{fontSize: '0.78rem', fontWeight: 700, whiteSpace: 'nowrap'}}>
+                                                    {r.partSummary || '—'}
+                                                </td>
+                                                <td>
+                                                    <div className="teacher-wrong-preview">
+                                                        {wrongList == null ? (
+                                                            <span style={{opacity: 0.6}}>Chưa lưu chi tiết cũ</span>
+                                                        ) : wrongList.length === 0 ? (
+                                                            <span style={{color: '#059669', fontWeight: 700}}>Đúng tuyệt đối 35/35</span>
+                                                        ) : (
+                                                            <>
+                                                                <strong style={{color: '#dc2626'}}>{wrongList.length} câu: </strong>
+                                                                {wrongList.slice(0, 8).map(w => `C${w.id}(${w.chosen || '-'}→${w.correct})`).join(', ')}
+                                                                {wrongList.length > 8 ? ` ...(+${wrongList.length - 8})` : ''}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td style={{fontSize: '0.77rem', whiteSpace: 'nowrap'}}>
+                                                    <div>⏱️ {r.durationText || (r.elapsedSeconds ? formatTimeStr(r.elapsedSeconds) : '—')}</div>
+                                                    <div style={{color: '#475569', marginTop: '2px'}}>🔊 {r.listenedText || (r.totalListenedSeconds ? formatTimeStr(r.totalListenedSeconds) : '—')}</div>
+                                                </td>
+                                                <td>
+                                                    {hasWarn ? (
+                                                        <span className="teacher-flag-pill warn" title={`Chuyển tab: ${r.tabSwitches} | Click lụi: ${r.rapidClicks} | Chưa nghe: ${r.noAudioClicks}`}>
+                                                            <i className="fa-solid fa-triangle-exclamation"></i>
+                                                            Tab {r.tabSwitches} • Lụi {r.rapidClicks} • Ko nghe {r.noAudioClicks}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="teacher-flag-pill ok">
+                                                            <i className="fa-solid fa-circle-check"></i> Trung thực
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td style={{fontSize: '0.76rem', color: '#64748b', whiteSpace: 'nowrap'}}>
+                                                    {r.submittedAt || '—'}
+                                                </td>
+                                                <td>
+                                                    <div style={{display: 'flex', gap: '6px', flexWrap: 'nowrap'}}>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-secondary-outline btn-sm"
+                                                            style={{padding: '5px 8px', fontSize: '0.75rem'}}
+                                                            onClick={() => handleOpenStudentReport(r)}
+                                                            title="Xem Phiếu Báo Cáo Kết Quả"
+                                                        >
+                                                            <i className="fa-solid fa-file-invoice"></i> Phiếu
+                                                        </button>
+                                                        {r.answers && onReviewStudentSubmission && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-primary btn-sm"
+                                                                style={{padding: '5px 8px', fontSize: '0.75rem'}}
+                                                                onClick={() => onReviewStudentSubmission(r)}
+                                                                title="Mở chi tiết toàn bộ 35 câu làm bài của học viên này"
+                                                            >
+                                                                <i className="fa-solid fa-magnifying-glass"></i> Bài làm
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-secondary-outline btn-sm"
+                                                            style={{padding: '5px 7px', fontSize: '0.75rem', color: '#dc2626', borderColor: 'rgba(220,38,38,0.35)'}}
+                                                            onClick={() => handleDeleteRow(r)}
+                                                            title="Xóa lượt thi này khỏi bảng"
+                                                        >
+                                                            <i className="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         // --- REACT ERROR BOUNDARY ---
         class ErrorBoundary extends React.Component {
             constructor(props) {
@@ -2439,6 +2931,59 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
         }
 
         // --- LOGIN COMPONENT ---
+        
+        const VALID_STUDENTS = {
+            "CB210": [
+                "Nguyễn Võ Thành Đạt", "Lê Huỳnh Thanh Duy", "Nguyễn Cao Kỳ Duyên", "Đào Ngọc Hân", 
+                "Trần Văn Hữu", "Trần Văn Kim Khoa", "Nguyễn Thanh Nâng", "Huỳnh Kỳ Nguyên", 
+                "Võ Thị Kim Nguyên", "Võ Hùng Sanh", "Tiền Thị Thanh Thảo", "Trần Thị Thanh Thảo", 
+                "Đặng Thị Kim Thoa", "Trần Thị Tiên Tiên", "Lê Kim Tuyền"
+            ],
+            "CB211": [
+                "Hồ Anh Quân", "Lê Thành Nghiệp", "Lê Khánh Lâm", "Huỳnh Thị Ngọc Thắm", 
+                "Mai Trần Xuân Mai", "Lê Thị Uyển Nhi", "Nguyễn Thụy Thanh Trúc"
+            ],
+            "CB213": [
+                "Nguyễn Quốc Anh", "Hoàng Hợp Minh Châu", "Đặng Châu Gia Huy", "Trần Minh Tuệ Mẩn", 
+                "Trần Minh Tuệẫn", "Đặng Thị Trúc Măng", "Trương Thị Kha My", "Ngô Diễm My", 
+                "Chiêm Chúc Ngân", "Huỳnh Thị Yến Nhi", "Phạm Nguyễn Tâm Như", "Phạm Nhựt Tiến", 
+                "Phạm Nhật Tiến", "Lê Thị Tú Trinh", "Trần Ngọc Vinh"
+            ],
+            "ONB103": [
+                "Nguyễn Thị Duy", "Phạm Trần Mỹ Hân", "Trịnh Thị Thu Hiền", "Nguyễn Hoàng Kha", 
+                "Phạm Thị Út Lụa", "Phạm Thị Út Lua", "Lê Huỳnh Diễm My", "Nguyễn Thị Ngọc Mỹ", 
+                "Huỳnh Thị Kim Ngân", "Trần Thị Kim Ngân", "Nguyễn Thị Tiểu Phụng", "Trần Yến Phụng", 
+                "Phạm Ngọc Thạch", "Cao Thị Thu Trang", "Nguyễn Thị Thanh Tuyền", "Trần Phạm Phương Uyên", 
+                "Trần Ngô Mỹ Vy"
+            ],
+            "B212": [
+                "Nguyễn Duy Hồng Anh", "Nguyễn Ngọc Minh Anh", "Nguyễn Lê Mỹ Hân", "Nguyễn Hồng Minh Huy", 
+                "Nguyễn Quốc Khải", "Đoàn Nguyễn Đình Khang", "Lê Nguyễn Gia Khánh", "Nguyễn Hữu Khánh", 
+                "Hồ Thị Ngọc Lan", "Trần Thị Hồng Lỉnh", "Võ Thị Triệu Minh", "Hứa Đình Nghi", 
+                "Võ Thị Bảo Ngọc", "Lê Tiến Phát", "Nguyễn Kim Tiền", "Lê Thị Bảo Trân", 
+                "Võ Thị Diễm Trinh", "Nguyễn Tấn Trung", "Nguyễn Tiến Trung", "Trần Thị Ánh Tuyết", 
+                "Đặng Nguyễn Khánh Uyên", "Nguyễn Thị Chúc Yến"
+            ],
+            "CB206": [
+                "Văn Như Anh", "Nguyễn Thị Vân Anh", "Nguyễn Thị Hồng Duyên", "Nguyễn Thị Thúy Hồng",
+                "Trương Ngọc Nhi", "Nguyễn Phạm Như Quỳnh", "Trần Lê Quỳnh", "Thị Mỹ Tâm", "Ông Lê Thành",
+                "Trần Nguyễn Thanh Thảo", "Phan Nhật Thiện", "Nguyễn Mỹ Tiên", "Trần Thị Cẩm Tiên",
+                "Võ Trần Bảo Tính", "Trương Thanh Toàn", "Phạm Ngọc Trâm", "Nguyễn Võ Bảo Trân"
+            ],
+            "CB219": [
+                "Lưu Thị Vân Anh", "Nguyễn Tuấn Anh", "Trần Thị Huỳnh Duy", "Duy Thị Quỳnh Hân",
+                "Trần Thị Xuân Hoa", "Nguyễn Phạm Khang", "Đặng Văn Khánh", "Chim Nhật Luân",
+                "Lư Vĩnh Phúc", "Nguyễn Chí Thiện", "Trần Thị Ngọc Thơ", "Huỳnh Yến Trang",
+                "Thị Thu Trinh", "Nguyễn Thị Mỹ Xuyên", "Nguyễn Như Ý"
+            ],
+            "CB220": [
+                "Lý Quốc Dũng", "Phan Minh Khôi", "Huỳnh Văn My", "Mai Thúy Ngân",
+                "Võ Huỳnh Thảo Nguyên", "Đặng Dũ Nguyên", "Nguyễn Gia Nguyễn", "Trương Thị Thảo Như",
+                "Huỳnh Nhật Phát", "Nguyễn Huỳnh Thanh Sơn", "Thái Nhựt Thịnh", "Trần Nguyễn Huỳnh Trâm",
+                "Nguyễn Thị Tường Vi", "Lê Tường Vy", "Bùi Ngọc Như Ý"
+            ]
+        };
+
         const VALID_CLASSES = ['CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'GV'];
         const VALID_PASSWORDS = ['STUDYHARD', 'VSTEPSEPTEMBER', 'PTMN2896', 'PTMN2412', 'PTMN2805', 'PRACTICELISTENING'];
 
@@ -2517,6 +3062,17 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     if (!VALID_PASSWORDS.includes(trimmedPassword.toUpperCase())) {
                         setErrorMsg('Mật khẩu không chính xác! Vui lòng kiểm tra lại.');
                         return;
+                    }
+
+                    // Kiểm tra Họ và tên trong danh sách lớp
+                    const roster = VALID_STUDENTS[finalClass] || [];
+                    if (roster.length > 0) {
+                        const normInp = removeVietnameseTones(trimmedName);
+                        const matchedStudent = roster.find(st => removeVietnameseTones(st) === normInp);
+                        if (!matchedStudent) {
+                            setErrorMsg(`Họ và tên "${trimmedName}" không có trong danh sách lớp ${finalClass}! Vui lòng kiểm tra lại họ và tên có dấu.`);
+                            return;
+                        }
                     }
                 }
 
@@ -3060,10 +3616,18 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         details: `${vstepScore.toFixed(1)}/10 (${score}/${totalQuestions || 35} câu) | ${partSummary} | ⏱️ ${durText} | 🔊 Nghe: ${listenedText} | Tab: ${viol.tabSwitches || 0} | Lụi: ${viol.rapidClicks || 0} | Không nghe: ${viol.noAudioClicks || 0}`,
                         correctCount: score,
                         totalQuestions: totalQuestions || 35,
+                        answeredCount: answeredCount,
                         vstepScore: vstepScore,
                         partSummary: partSummary,
+                        partScores: partScores,
+                        wrongQuestions: wrongQuestions,
+                        answers: answers,
+                        elapsedSeconds: elapsedSeconds,
+                        totalListenedSeconds: listenedSnapshot.totalSeconds || 0,
+                        partListenedSeconds: listenedSnapshot.byPart || {},
                         durationText: durText,
                         listenedText: listenedText,
+                        submittedAt: submittedAt,
                         tabSwitches: viol.tabSwitches || 0,
                         rapidClicks: viol.rapidClicks || 0,
                         noAudioClicks: viol.noAudioClicks || 0
@@ -3233,6 +3797,19 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         </div>
                         
                         <div className="global-sidebar-nav">
+                            {isCurrentUserTeacher && (
+                                <div
+                                    className={`sidebar-nav-item teacher-results-nav ${currentScreen === 'teacher_results' ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setCurrentScreen('teacher_results');
+                                        window.scrollTo(0, 0);
+                                    }}
+                                >
+                                    <i className="fa-solid fa-chart-column" style={{width: '20px', textAlign: 'center'}}></i>
+                                    <span>KẾT QUẢ HỌC VIÊN (GV)</span>
+                                </div>
+                            )}
+
                             <div 
                                 className={`sidebar-nav-item garden-nav-item ${currentScreen === 'garden' ? 'active' : ''}`}
                                 id="sidebar-nav-garden"
@@ -3316,7 +3893,42 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                             </div>
                         )}
 
-                        <main className="container" style={{paddingBottom: currentScreen === 'test' ? '120px' : '40px', maxWidth: currentScreen === 'test' ? '1100px' : '1000px', flex: 1}}>
+                        <main className="container" style={{paddingBottom: currentScreen === 'test' ? '120px' : '40px', maxWidth: currentScreen === 'teacher_results' ? '1220px' : (currentScreen === 'test' ? '1100px' : '1000px'), flex: 1}}>
+                        {/* DEDICATED TEACHER RESULTS DASHBOARD (PTMN ONLY) */}
+                        {currentScreen === 'teacher_results' && isCurrentUserTeacher && (
+                            <TeacherResultsHub
+                                tests={ALL_TESTS}
+                                onBackToDashboard={handleBackToDashboard}
+                                onReviewStudentSubmission={(row) => {
+                                    const matchedTest = ALL_TESTS.find(t => t.id === row.testId);
+                                    if (!matchedTest) return;
+                                    setSelectedTest(matchedTest);
+                                    setAnswers(row.answers || {});
+                                    setLatestReportData({
+                                        testId: row.testId,
+                                        testTitle: matchedTest.title,
+                                        studentName: row.name,
+                                        studentClass: row.className,
+                                        correctCount: row.correctCount || 0,
+                                        totalQuestions: row.totalQuestions || 35,
+                                        answeredCount: row.answeredCount != null ? row.answeredCount : Object.keys(row.answers || {}).length,
+                                        vstepScore: row.vstepScore || 0,
+                                        partScores: row.partScores || [],
+                                        wrongQuestions: row.wrongQuestions || [],
+                                        elapsedSeconds: row.elapsedSeconds || 0,
+                                        submittedAt: row.submittedAt,
+                                        tabSwitches: row.tabSwitches || 0,
+                                        rapidClicks: row.rapidClicks || 0,
+                                        noAudioClicks: row.noAudioClicks || 0,
+                                        totalListenedSeconds: row.totalListenedSeconds || 0,
+                                        partListenedSeconds: row.partListenedSeconds || {}
+                                    });
+                                    setCurrentScreen('results');
+                                    window.scrollTo(0, 0);
+                                }}
+                            />
+                        )}
+
                         {/* DEDICATED FLOWER GARDEN TAB */}
                         {currentScreen === 'garden' && (
                             <div className="garden-dedicated-view" style={{ maxWidth: '680px', width: '92%', margin: '0 auto 24px auto' }}>
@@ -3345,6 +3957,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 tests={ALL_TESTS} 
                                 onStartTest={handleStartTest} 
                                 onOpenVocab={() => setCurrentScreen('vocab')} 
+                                onOpenTeacherResults={() => { setCurrentScreen('teacher_results'); window.scrollTo(0, 0); }}
                                 history={history}
                                 onClearHistory={handleClearHistory}
                                 onOpenReport={handleOpenHistoryReport}
