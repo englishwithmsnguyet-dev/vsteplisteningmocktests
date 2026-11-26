@@ -781,6 +781,9 @@
                 </div>
             </div>
             <div class="vrr-footer">
+                <button type="button" class="vrr-btn vrr-btn-copy" id="vrr-btn-send-gf" onclick="VstepResultReport.resendGoogleForm()" style="background:linear-gradient(135deg,#059669,#10b981);">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo Google Form
+                </button>
                 <button type="button" class="vrr-btn vrr-btn-copy" id="vrr-btn-copy-summary" onclick="VstepResultReport.copySummary()">
                     <i class="fa-solid fa-copy"></i> Sao chép báo cáo gửi Cô
                 </button>
@@ -870,26 +873,47 @@
         ].filter(Boolean).join(' | ');
     }
 
-    function submitToGoogleForm(rawData) {
+    function submitEventToGoogleForm(text) {
         try {
-            const payloadText = buildGoogleFormPayload(rawData);
-            if (!payloadText) return Promise.resolve(false);
+            if (!text) return Promise.resolve(false);
             const formData = new URLSearchParams();
-            formData.append(GOOGLE_FORM_ENTRY, payloadText);
+            formData.append(GOOGLE_FORM_ENTRY, String(text));
             return fetch(GOOGLE_FORM_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                keepalive: true,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData.toString()
             }).then(() => true).catch(err => {
-                console.log('Google Form result report log:', err);
+                console.log('Google Form event log:', err);
                 return false;
             });
         } catch (e) {
-            console.log('Google Form result report error:', e);
+            console.log('Google Form event error:', e);
             return Promise.resolve(false);
         }
+    }
+
+    function submitToGoogleForm(rawData) {
+        const payloadText = buildGoogleFormPayload(rawData);
+        return submitEventToGoogleForm(payloadText);
+    }
+
+    function resendGoogleForm() {
+        if (!currentReportState) return;
+        const btn = document.getElementById('vrr-btn-send-gf');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+        }
+        submitToGoogleForm(currentReportState).then(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã gửi lên Google Form!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi báo cáo Google Form';
+                }, 2600);
+            }
+        });
     }
 
     function rerenderIfOpen() {
@@ -1305,7 +1329,9 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
         close,
         copySummary,
         buildGoogleFormPayload,
+        submitEventToGoogleForm,
         submitToGoogleForm,
+        resendGoogleForm,
         printReport,
         openTeacherBoard,
         refreshTeacherBoard,
