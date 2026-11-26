@@ -4,6 +4,8 @@
 
     const VIOLATION_STORAGE_KEY = 'vstep_listening_report_violations_v1';
     const RTDB_BASE = 'https://vstep6868-default-rtdb.firebaseio.com';
+    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdvqKCdfELTc7Jc-60zqM7qECu7se1ZmE29j7QnuaNATk6NPA/formResponse';
+    const GOOGLE_FORM_ENTRY = 'entry.388968236';
     let currentReportState = null;
 
     function escHtml(str) {
@@ -729,7 +731,7 @@
                 <div>
                     <div class="vrr-brand">ENGLISH WITH MISS NGUYET • VSTEP LISTENING</div>
                     <h2 class="vrr-title"><i class="fa-solid fa-file-invoice"></i> PHIẾU BÁO CÁO KẾT QUẢ</h2>
-                    <div class="vrr-sync-pill synced"><i class="fa-solid fa-circle-check"></i> Đã chấm điểm chuẩn VSTEP &amp; đồng bộ hệ thống Cô Nguyệt</div>
+                    <div class="vrr-sync-pill synced"><i class="fa-solid fa-circle-check"></i> Đã chấm điểm chuẩn VSTEP &amp; gửi báo cáo chi tiết lên Google Form Cô Nguyệt</div>
                 </div>
                 <button type="button" class="vrr-close-btn" onclick="VstepResultReport.close()" title="Đóng">&times;</button>
             </div>
@@ -811,10 +813,83 @@
             rapidClicks: typeof data.rapidClicks === 'number' ? data.rapidClicks : viol.rapidClicks,
             noAudioClicks: typeof data.noAudioClicks === 'number' ? data.noAudioClicks : viol.noAudioClicks,
             totalListenedSeconds: Number(data.totalListenedSeconds || 0),
-            partListenedSeconds: data.partListenedSeconds || {}
+            partListenedSeconds: data.partListenedSeconds || {},
+            wrongQuestions: Array.isArray(data.wrongQuestions) ? data.wrongQuestions : []
         };
         rerenderIfOpen();
         return currentReportState;
+    }
+
+    function buildGoogleFormPayload(rawData) {
+        const d = rawData || currentReportState;
+        if (!d) return '';
+        const st = getLoggedInStudent();
+        const studentName = (d.studentName && d.studentName !== 'Học viên') ? d.studentName : st.name;
+        const studentClass = d.studentClass || st.className;
+        const testPad = String(parseInt(d.testId, 10) || 1).padStart(2, '0');
+        const totalQuestions = parseInt(d.totalQuestions || 35, 10) || 35;
+        const correctCount = parseInt(d.correctCount || 0, 10) || 0;
+        const answeredCount = parseInt(d.answeredCount != null ? d.answeredCount : correctCount, 10) || 0;
+        const vstepScore = Number(d.vstepScore || 0);
+        const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+        const cert = getCertificationStatus(vstepScore, answeredCount);
+        const dur = formatDuration(d.elapsedSeconds || 0);
+        const listenedDur = formatDuration(d.totalListenedSeconds || 0);
+        const byPart = d.partListenedSeconds || {};
+        const partAudioText = [1, 2, 3].map(pid => `P${pid}: ${formatDuration(byPart[pid] || 0).text}`).join(', ');
+        const partSummary = (d.partScores || []).length > 0
+            ? d.partScores.map((p, i) => `Part ${i + 1}: ${p.correct}/${p.total}`).join(' | ')
+            : '';
+
+        let wrongText = '';
+        if (Array.isArray(d.wrongQuestions)) {
+            if (d.wrongQuestions.length === 0) {
+                wrongText = 'Câu sai: Không sai câu nào (35/35)';
+            } else {
+                const detailItems = d.wrongQuestions.map(w => `C${w.id}(${w.chosen ? w.chosen : 'trống'}->${w.correct})`);
+                wrongText = `Câu sai (${d.wrongQuestions.length}): ${detailItems.join(', ')}`;
+            }
+        }
+
+        const submittedAt = d.submittedAt || new Date().toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+        const tabSw = d.tabSwitches || 0;
+        const rapid = d.rapidClicks || 0;
+        const noAud = d.noAudioClicks || 0;
+
+        return [
+            `[KẾT QUẢ THI] ${studentName} - Lớp ${studentClass}`,
+            `LISTENING MOCK TEST ${testPad}`,
+            `Điểm: ${vstepScore.toFixed(1)}/10 (${correctCount}/${totalQuestions} câu đúng - ${accuracy}%, Đã làm: ${answeredCount}/${totalQuestions})`,
+            `Xếp loại: ${cert.badge}`,
+            partSummary,
+            wrongText,
+            `Thời gian làm: ${dur.text}`,
+            `Nghe Audio: ${listenedDur.text} (${partAudioText})`,
+            `Trung thực: Chuyển tab ${tabSw}, Click lụi ${rapid}, Chưa nghe ${noAud}`,
+            `Nộp lúc: ${submittedAt}`
+        ].filter(Boolean).join(' | ');
+    }
+
+    function submitToGoogleForm(rawData) {
+        try {
+            const payloadText = buildGoogleFormPayload(rawData);
+            if (!payloadText) return Promise.resolve(false);
+            const formData = new URLSearchParams();
+            formData.append(GOOGLE_FORM_ENTRY, payloadText);
+            return fetch(GOOGLE_FORM_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                keepalive: true,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            }).then(() => true).catch(err => {
+                console.log('Google Form result report log:', err);
+                return false;
+            });
+        } catch (e) {
+            console.log('Google Form result report error:', e);
+            return Promise.resolve(false);
+        }
     }
 
     function rerenderIfOpen() {
@@ -867,12 +942,18 @@
         const cert = getCertificationStatus(d.vstepScore, d.answeredCount);
         const partText = (d.partScores || []).map(p => `${p.name}: ${p.correct}/${p.total}`).join(' | ');
         const listenedDur = formatDuration(d.totalListenedSeconds || 0);
+        const wrongLine = Array.isArray(d.wrongQuestions)
+            ? (d.wrongQuestions.length === 0
+                ? '✅ Câu sai: Không sai câu nào (35/35)'
+                : `❌ Câu sai (${d.wrongQuestions.length}): ${d.wrongQuestions.map(w => `C${w.id}(${w.chosen || 'trống'}→${w.correct})`).join(', ')}`)
+            : '';
         const text = [
             `🎧 BÁO CÁO KẾT QUẢ VSTEP LISTENING MOCK TEST ${testPad}`,
             `👤 Học viên: ${d.studentName} — Lớp: ${d.studentClass}`,
             `📅 Nộp lúc: ${d.submittedAt} | ⏱️ Thời gian: ${dur.text} | 🔊 Đã nghe Audio: ${listenedDur.text}`,
             `🎯 Điểm: ${d.vstepScore.toFixed(1)}/10 (${d.correctCount}/${d.totalQuestions} câu đúng)`,
             partText ? `📊 Chi tiết: ${partText}` : '',
+            wrongLine,
             `🏅 Đánh giá: ${cert.badge}`,
             `🛡️ Trung thực: Chuyển tab ${d.tabSwitches || 0} • Click lụi ${d.rapidClicks || 0} • Không nghe Audio ${d.noAudioClicks || 0}`
         ].filter(Boolean).join('\n');
@@ -1223,6 +1304,8 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
         open,
         close,
         copySummary,
+        buildGoogleFormPayload,
+        submitToGoogleForm,
         printReport,
         openTeacherBoard,
         refreshTeacherBoard,

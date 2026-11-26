@@ -43,11 +43,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Roboto+Serif:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
     
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=20261125_v40">
+    <link rel="stylesheet" href="style.css?v=20261126_v41">
     <link rel="stylesheet" href="flower_garden.css?v=20261116_v21">
     
     <!-- Extracted Test Data -->
-    <script src="data.js?v=20261125_v40"></script>
+    <script src="data.js?v=20261126_v41"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
     <script src="flower_garden.js?v=20261125_v28"></script>
 
@@ -56,7 +56,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <!-- Room Proctoring & Official Result Report -->
     <script>window.VSTEP_ROOM_SKILL = 'listening';</script>
-    <script src="result_report.js?v=20261125_v32"></script>
+    <script src="result_report.js?v=20261126_v41"></script>
     <script src="exam_room.js?v=20261125_v24"></script>
 </head>
 <body>
@@ -2439,7 +2439,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
         }
 
         // --- LOGIN COMPONENT ---
-        const VALID_CLASSES = ['CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'B2', 'GV'];
+        const VALID_CLASSES = ['CB196', 'CB206', 'CB210', 'CB211', 'CB213', 'CB219', 'CB220', 'ONB103', 'B209', 'B212', 'GV'];
         const VALID_PASSWORDS = ['STUDYHARD', 'VSTEPSEPTEMBER', 'PTMN2896', 'PTMN2412', 'PTMN2805', 'PRACTICELISTENING'];
 
         function LoginScreen({ onLoginSuccess }) {
@@ -2484,6 +2484,10 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 const normName = trimmedName.toUpperCase();
                 const noToneName = removeVietnameseTones(trimmedName);
                 const isGiaTue = noToneName.includes('gia tue') || noToneName.replace(/\s+/g, '').includes('giatue');
+                if (isGiaTue || finalClass === 'B2') {
+                    setErrorMsg('Tài khoản học viên "Gia Tuệ" hiện đã bị KHÓA! Vui lòng liên hệ Giáo viên (Cô Nguyệt).');
+                    return;
+                }
                 const isTeacher = (normName === 'PTMN' && (trimmedClass === 'GV' || !trimmedClass)) || (normName === 'PTMN' && trimmedClass === 'GV');
                 let finalClass = trimmedClass;
 
@@ -2500,15 +2504,8 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         return;
                     }
 
-                    if (finalClass === 'B2') {
-                        if (!isGiaTue) {
-                            setErrorMsg('Mã lớp B2 hiện chỉ dành riêng cho học viên Gia Tuệ (B2)! Vui lòng kiểm tra lại Họ tên hoặc Mã lớp.');
-                            return;
-                        }
-                    }
-
                     if (!VALID_CLASSES.includes(finalClass)) {
-                        setErrorMsg(`Lớp không hợp lệ! Hệ thống chấp nhận các lớp: ${VALID_CLASSES.filter(c => c !== 'GV' && c !== 'B2').join(', ')} và Gia Tuệ (B2).`);
+                        setErrorMsg(`Lớp không hợp lệ! Hệ thống chấp nhận các lớp: ${VALID_CLASSES.filter(c => c !== 'GV').join(', ')}.`);
                         return;
                     }
 
@@ -2794,7 +2791,9 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     if (!saved) return null;
                     const parsed = JSON.parse(saved);
                     const banned = ['CB201', 'CB202', 'B220'];
-                    if (parsed && parsed.className && banned.includes(parsed.className.toUpperCase())) {
+                    const normSaved = (parsed && parsed.name ? parsed.name : '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+                    const isGiaTue = normSaved.includes('gia tue') || normSaved.replace(/\s+/g, '').includes('giatue');
+                    if (parsed && (isGiaTue || parsed.className === 'B2' || (parsed.className && banned.includes(parsed.className.toUpperCase())))) {
                         sessionStorage.removeItem('vstep_user_session');
                         localStorage.removeItem('vstep_user_session');
                         return null;
@@ -2959,6 +2958,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 let answeredCount = 0;
                 const partSubLabels = ['Thông báo ngắn', '3 đoạn Hội thoại', '3 bài Nói / Giảng'];
                 const partScores = [];
+                const wrongQuestions = [];
 
                 selectedTest.test.parts.forEach((part, idx) => {
                     let pCorrect = 0;
@@ -2969,6 +2969,12 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         if (answers[q.id] === q.correct) {
                             score++;
                             pCorrect++;
+                        } else {
+                            wrongQuestions.push({
+                                id: q.id,
+                                chosen: answers[q.id] || '',
+                                correct: q.correct
+                            });
                         }
                     });
                     partScores.push({
@@ -3000,6 +3006,7 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                     answeredCount,
                     vstepScore,
                     partScores,
+                    wrongQuestions,
                     elapsedSeconds,
                     submittedAt,
                     tabSwitches: viol.tabSwitches || 0,
@@ -3012,6 +3019,20 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 saveAttempt(selectedTest.id, selectedTest.title, score, answers, reportPayload);
                 setLatestReportData(reportPayload);
                 localStorage.removeItem('vstep_saved_progress_' + selectedTest.id);
+
+                // Gửi báo cáo kết quả chi tiết tự động lên Google Form của Cô Nguyệt
+                if (typeof window.VstepResultReport !== 'undefined' && typeof window.VstepResultReport.submitToGoogleForm === 'function') {
+                    window.VstepResultReport.submitToGoogleForm(reportPayload);
+                } else {
+                    try {
+                        const gfUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdvqKCdfELTc7Jc-60zqM7qECu7se1ZmE29j7QnuaNATk6NPA/formResponse';
+                        const partTxt = partScores.map((p, i) => `Part ${i + 1}: ${p.correct}/${p.total}`).join(' | ');
+                        const wrongTxt = wrongQuestions.length === 0 ? 'Không sai câu nào' : `Câu sai (${wrongQuestions.length}): ${wrongQuestions.map(w => `C${w.id}(${w.chosen || 'trống'}->${w.correct})`).join(', ')}`;
+                        const gfBody = new URLSearchParams();
+                        gfBody.append('entry.388968236', `[KẾT QUẢ THI] ${reportPayload.studentName || 'Học viên'} - Lớp ${reportPayload.studentClass || ''} | LISTENING MOCK TEST ${String(selectedTest.id).padStart(2, '0')} | Điểm: ${vstepScore.toFixed(1)}/10 (${score}/${totalQuestions || 35} câu đúng) | ${partTxt} | ${wrongTxt} | Nộp lúc: ${submittedAt}`);
+                        fetch(gfUrl, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: gfBody.toString() }).catch(() => {});
+                    } catch (e) {}
+                }
 
                 // Sync score & completion to Firebase RTDB + Google Sheet via VstepExamRoom
                 if (typeof window.VstepExamRoom !== 'undefined' && typeof window.VstepExamRoom.recordTestCompletion === 'function') {
