@@ -423,6 +423,7 @@
       }
 
       if (container.querySelector('#garden-pot-wrapper')) {
+        this.bindEvents();
         return true; // Đã có đầy đủ cấu trúc
       }
 
@@ -514,6 +515,7 @@
         </div>
       `;
 
+      this.bindEvents();
       return true;
     },
 
@@ -1103,55 +1105,157 @@
     },
 
     bindEvents() {
-      // Care action buttons
+      // 1. Global Capture-Phase Event Delegation (Runs once, 100% resilient to React SPA unmounting / re-rendering)
+      if (!this._globalDelegationBound && typeof document !== 'undefined') {
+        this._globalDelegationBound = true;
+        document.addEventListener('click', (e) => {
+          const target = e.target;
+          if (!target) return;
+
+          // Care action buttons
+          if (target.closest('#btn-water-flower')) {
+            e.preventDefault();
+            this.water();
+            return;
+          }
+          if (target.closest('#btn-sun-flower')) {
+            e.preventDefault();
+            this.sunbathe();
+            return;
+          }
+          if (target.closest('#btn-fertilize-flower')) {
+            e.preventDefault();
+            this.fertilize();
+            return;
+          }
+          if (target.closest('#btn-harvest-flower')) {
+            e.preventDefault();
+            this.harvest();
+            return;
+          }
+          if (target.closest('#btn-quiz-flower')) {
+            e.preventDefault();
+            this.openQuizModal();
+            return;
+          }
+
+          // Flower Seed Selector modal buttons
+          if (target.closest('#btn-open-seed-modal, #btn-change-flower-tag, .btn-switch-seed')) {
+            e.preventDefault();
+            this.openFlowerSelectorModal();
+            return;
+          }
+
+          // Header modal button for flower basket
+          if (target.closest('#btn-open-flower-basket')) {
+            e.preventDefault();
+            this.openBasketModal();
+            return;
+          }
+
+          // Header water & sun pill click to open earning guide
+          if (target.closest('#btn-open-earn-water, #garden-water-pill, #btn-open-earn-sun, #garden-sun-pill')) {
+            e.preventDefault();
+            this.openEarnWaterModal();
+            return;
+          }
+
+          // Student name click to rename
+          if (target.closest('#garden-student-name')) {
+            e.preventDefault();
+            this.promptRenameStudent();
+            return;
+          }
+
+          // Seed Selection inside modal
+          const seedBtn = target.closest('[data-seed-action]');
+          if (seedBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const fid = seedBtn.getAttribute('data-seed-action');
+            if (fid) {
+              this.switchFlower(fid);
+              const m = document.getElementById('flower-seed-modal');
+              if (m) m.classList.remove('active');
+            }
+            return;
+          }
+          const seedCard = target.closest('.seed-option-card');
+          if (seedCard && seedCard.closest('#flower-seed-modal')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const fid = seedCard.getAttribute('data-seed-id');
+            if (fid) {
+              this.switchFlower(fid);
+              const m = document.getElementById('flower-seed-modal');
+              if (m) m.classList.remove('active');
+            }
+            return;
+          }
+
+          // Modal close buttons (all garden modals)
+          if (target.closest('.modal-close-btn, #btn-close-seed-modal, #btn-close-harvest-modal, #btn-close-quiz-modal, #btn-close-earn-modal, #btn-close-basket-modal')) {
+            e.preventDefault();
+            document.querySelectorAll('.garden-modal, #flower-seed-modal, #garden-harvest-modal, #garden-quiz-modal, #garden-earn-modal, #garden-basket-modal').forEach(m => m.classList.remove('active'));
+            return;
+          }
+
+          // Stage click for petting plant
+          const stageEl = target.closest('#garden-stage');
+          if (stageEl && !target.closest('button')) {
+            this.petPlant();
+            return;
+          }
+        }, true);
+      }
+
+      // 2. Direct bindings as safe fallback
       const btnWater = document.getElementById('btn-water-flower');
       const btnSun = document.getElementById('btn-sun-flower');
       const btnFertilize = document.getElementById('btn-fertilize-flower');
       const btnHarvest = document.getElementById('btn-harvest-flower');
       const btnQuiz = document.getElementById('btn-quiz-flower');
 
-      if (btnWater) btnWater.addEventListener('click', () => this.water());
-      if (btnSun) btnSun.addEventListener('click', () => this.sunbathe());
-      if (btnFertilize) btnFertilize.addEventListener('click', () => this.fertilize());
-      if (btnHarvest) btnHarvest.addEventListener('click', () => this.harvest());
-      if (btnQuiz) btnQuiz.addEventListener('click', () => this.openQuizModal());
+      if (btnWater) btnWater.onclick = (e) => { e.preventDefault(); this.water(); };
+      if (btnSun) btnSun.onclick = (e) => { e.preventDefault(); this.sunbathe(); };
+      if (btnFertilize) btnFertilize.onclick = (e) => { e.preventDefault(); this.fertilize(); };
+      if (btnHarvest) btnHarvest.onclick = (e) => { e.preventDefault(); this.harvest(); };
+      if (btnQuiz) btnQuiz.onclick = (e) => { e.preventDefault(); this.openQuizModal(); };
 
-      // Flower Seed Selector modal buttons
       const btnOpenSeed = document.getElementById('btn-open-seed-modal');
-      if (btnOpenSeed) btnOpenSeed.addEventListener('click', () => this.openFlowerSelectorModal());
+      if (btnOpenSeed) btnOpenSeed.onclick = (e) => { e.preventDefault(); this.openFlowerSelectorModal(); };
 
       const btnChangeFlowerTag = document.getElementById('btn-change-flower-tag');
-      if (btnChangeFlowerTag) btnChangeFlowerTag.addEventListener('click', () => this.openFlowerSelectorModal());
+      if (btnChangeFlowerTag) btnChangeFlowerTag.onclick = (e) => { e.preventDefault(); this.openFlowerSelectorModal(); };
 
-      // Header modal button for flower basket
       const btnOpenBasket = document.getElementById('btn-open-flower-basket');
-      if (btnOpenBasket) btnOpenBasket.addEventListener('click', () => this.openBasketModal());
+      if (btnOpenBasket) btnOpenBasket.onclick = (e) => { e.preventDefault(); this.openBasketModal(); };
 
-      // Header water & sun pill click to open earning guide
       const btnOpenEarnWater = document.getElementById('btn-open-earn-water');
-      if (btnOpenEarnWater) btnOpenEarnWater.addEventListener('click', (e) => {
+      if (btnOpenEarnWater) btnOpenEarnWater.onclick = (e) => {
+        e.preventDefault();
         e.stopPropagation();
         this.openEarnWaterModal();
-      });
+      };
       const waterPill = document.getElementById('garden-water-pill');
-      if (waterPill) waterPill.addEventListener('click', () => this.openEarnWaterModal());
+      if (waterPill) waterPill.onclick = () => this.openEarnWaterModal();
 
       const btnOpenEarnSun = document.getElementById('btn-open-earn-sun');
-      if (btnOpenEarnSun) btnOpenEarnSun.addEventListener('click', (e) => {
+      if (btnOpenEarnSun) btnOpenEarnSun.onclick = (e) => {
+        e.preventDefault();
         e.stopPropagation();
         this.openEarnWaterModal();
-      });
+      };
       const sunPill = document.getElementById('garden-sun-pill');
-      if (sunPill) sunPill.addEventListener('click', () => this.openEarnWaterModal());
+      if (sunPill) sunPill.onclick = () => this.openEarnWaterModal();
 
-      // Stage click for petting plant
       const stage = document.getElementById('garden-stage');
       if (stage) {
-        stage.addEventListener('click', (e) => {
+        stage.onclick = (e) => {
           if (!e.target.closest('button')) {
             this.petPlant();
           }
-        });
+        };
       }
     },
 
@@ -1317,6 +1421,15 @@
       this.updateSpeechBubble(`Chào mừng ${clean} đến với Chậu Cỏ May Mắn! Chăm chỉ tích lũy nước nỗ lực mỗi ngày nhé! 🍀✨`);
       if (typeof showToast === 'function') {
         showToast(`🍀 Đã chuyển sang Chậu Cỏ May Mắn của học viên: ${clean}!`);
+      }
+    },
+
+    promptRenameStudent() {
+      const flower = this.getCurrentFlower();
+      const current = this.getStudentName() === 'Bạn' ? '' : this.getStudentName();
+      const entered = prompt(`Nhập họ và tên học viên của bạn để khắc tên lên chậu hoa ${flower.icon || '🌱'}:`, current);
+      if (entered !== null && entered.trim()) {
+        this.setStudentName(entered.trim());
       }
     },
 
@@ -1574,6 +1687,11 @@
         delete potWrapper.dataset.flowerId;
       }
       this.render();
+
+      const seedModal = document.getElementById('flower-seed-modal');
+      if (seedModal) {
+        seedModal.classList.remove('active');
+      }
 
       GardenAudio.playWater();
       this.createLeafConfetti();
@@ -3795,6 +3913,9 @@
       if (glow) {
         glow.style.background = p >= 100 ? flower.bgGlow : 'radial-gradient(circle, rgba(209, 250, 229, 0.45) 0%, transparent 70%)';
       }
+
+      // Re-bind click events on newly rendered or refreshed elements
+      this.bindEvents();
     },
 
     updateSpeechBubble(msg) {

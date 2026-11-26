@@ -49,7 +49,7 @@
     <!-- Extracted Test Data -->
     <script src="data.js?v=20261126_v43"></script>
     <script src="flower_definitions.js?v=20261116_v21"></script>
-    <script src="flower_garden.js?v=20261125_v28"></script>
+    <script src="flower_garden.js?v=20261126_v44"></script>
 
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -3654,6 +3654,16 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                 window.VSTEP_IS_LISTENING_RUNNING = () => currentScreen === 'test';
                 window.VSTEP_CURRENT_SCREEN = () => currentScreen;
                 window.VSTEP_OPEN_GARDEN = () => setCurrentScreen('garden');
+                if (currentScreen === 'garden' && window.FlowerGarden) {
+                    setTimeout(() => {
+                        if (typeof window.FlowerGarden.ensureGardenContainerDom === 'function') {
+                            window.FlowerGarden.ensureGardenContainerDom();
+                        }
+                        if (typeof window.FlowerGarden.render === 'function') {
+                            window.FlowerGarden.render();
+                        }
+                    }, 50);
+                }
             }, [currentScreen, selectedTest, answers, currentUser]);
 
             const handleStartTest = (test, reviewAnswers = null, historyItem = null) => {
@@ -3816,7 +3826,14 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                 onClick={() => {
                                     setCurrentScreen('garden');
                                     if (window.FlowerGarden) {
-                                        setTimeout(() => window.FlowerGarden.render(), 100);
+                                        setTimeout(() => {
+                                            if (typeof window.FlowerGarden.ensureGardenContainerDom === 'function') {
+                                                window.FlowerGarden.ensureGardenContainerDom();
+                                            }
+                                            if (typeof window.FlowerGarden.render === 'function') {
+                                                window.FlowerGarden.render();
+                                            }
+                                        }, 60);
                                     }
                                 }}
                             >
