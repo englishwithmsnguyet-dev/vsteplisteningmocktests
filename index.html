@@ -56,7 +56,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <!-- Room Proctoring & Official Result Report -->
     <script>window.VSTEP_ROOM_SKILL = 'listening';</script>
-    <script src="result_report.js?v=20261126_v43"></script>
+    <script src="result_report.js?v=20261127_v46"></script>
     <script src="exam_room.js?v=20261126_v43"></script>
 </head>
 <body>
@@ -2843,9 +2843,13 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                                                 </td>
                                                 <td>
                                                     {hasWarn ? (
-                                                        <span className="teacher-flag-pill warn" title={`Chuyển tab: ${r.tabSwitches} | Click lụi: ${r.rapidClicks} | Chưa nghe: ${r.noAudioClicks}`}>
+                                                        <span className="teacher-flag-pill warn" title={`Rời tab: ${r.tabSwitches} | Đánh lụi: ${r.rapidClicks} | Chưa nghe Audio: ${r.noAudioClicks}`}>
                                                             <i className="fa-solid fa-triangle-exclamation"></i>
-                                                            Tab {r.tabSwitches} • Lụi {r.rapidClicks} • Ko nghe {r.noAudioClicks}
+                                                            {[
+                                                                r.tabSwitches > 0 ? `Rời tab: ${r.tabSwitches}` : null,
+                                                                r.rapidClicks > 0 ? `Đánh lụi: ${r.rapidClicks}` : null,
+                                                                r.noAudioClicks > 0 ? `Chưa nghe: ${r.noAudioClicks}` : null
+                                                            ].filter(Boolean).join(' • ')}
                                                         </span>
                                                     ) : (
                                                         <span className="teacher-flag-pill ok">
@@ -3402,24 +3406,45 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
 
             const isCurrentUserTeacher = isTeacherAccount(currentUser);
 
-            // Track tab switches / leaving exam window while taking a test (Miễn trừ hoàn toàn cho GV PTMN)
+            // Track genuine tab switches ONLY (document.hidden >= 2s; ignores false blur from volume/OS popups/confirm dialogs; exempts GV PTMN)
             useEffect(() => {
                 if (currentScreen !== 'test' || !selectedTest || isCurrentUserTeacher) return;
+                let hiddenTimer = null;
+                let confirmedTabLeave = false;
+                let latestTabCount = 0;
+
                 const onVisibilityChange = () => {
-                    if (document.hidden && typeof window.VstepResultReport !== 'undefined') {
-                        window.VstepResultReport.recordViolation(selectedTest.id, 'tab');
+                    if (document.hidden) {
+                        if (hiddenTimer) clearTimeout(hiddenTimer);
+                        hiddenTimer = setTimeout(() => {
+                            if (document.hidden && typeof window.VstepResultReport !== 'undefined') {
+                                confirmedTabLeave = true;
+                                const viol = window.VstepResultReport.recordViolation(selectedTest.id, 'tab');
+                                latestTabCount = (viol && viol.tabSwitches) ? viol.tabSwitches : (latestTabCount + 1);
+                            }
+                        }, 2000);
+                    } else {
+                        if (hiddenTimer) {
+                            clearTimeout(hiddenTimer);
+                            hiddenTimer = null;
+                        }
+                        if (confirmedTabLeave) {
+                            confirmedTabLeave = false;
+                            if (typeof window.VstepResultReport !== 'undefined' && typeof window.VstepResultReport.showLiveWarning === 'function') {
+                                window.VstepResultReport.showLiveWarning({
+                                    type: 'tab',
+                                    title: 'CẢNH BÁO RỜI PHÒNG THI NGHE!',
+                                    message: `Hệ thống phát hiện bạn vừa chuyển sang tab hoặc ứng dụng khác (Lần thứ ${latestTabCount}). Vui lòng ở lại màn hình làm bài để đảm bảo tính trung thực!`
+                                });
+                            }
+                        }
                     }
                 };
-                const onWindowBlur = () => {
-                    if (typeof window.VstepResultReport !== 'undefined') {
-                        window.VstepResultReport.recordViolation(selectedTest.id, 'tab');
-                    }
-                };
+
                 document.addEventListener('visibilitychange', onVisibilityChange);
-                window.addEventListener('blur', onWindowBlur);
                 return () => {
+                    if (hiddenTimer) clearTimeout(hiddenTimer);
                     document.removeEventListener('visibilitychange', onVisibilityChange);
-                    window.removeEventListener('blur', onWindowBlur);
                 };
             }, [currentScreen, selectedTest, isCurrentUserTeacher]);
 
@@ -3728,6 +3753,9 @@ const B64_SOUND_INCORRECT = 'data:audio/wav;base64,UklGRvSJAABXQVZFZm10IBAAAAABA
                         }
                     } else {
                         setAnswers({});
+                        if (typeof window.VstepResultReport !== 'undefined' && typeof window.VstepResultReport.resetViolations === 'function') {
+                            window.VstepResultReport.resetViolations(test.id);
+                        }
                     }
                     setCurrentScreen('test');
                 }

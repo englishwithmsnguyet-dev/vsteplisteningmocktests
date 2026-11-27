@@ -133,6 +133,16 @@
         };
     }
 
+    function resetViolations(testId) {
+        const key = getViolationKey(testId);
+        const map = readViolationMap();
+        map[key] = { tabSwitches: 0, rapidClicks: 0, noAudioClicks: 0, updatedAt: Date.now() };
+        writeViolationMap(map);
+        lastViolationByType.tab = 0;
+        lastViolationByType.rapid_click = 0;
+        lastViolationByType.no_audio = 0;
+    }
+
     function formatShortTime(sec) {
         const s = Math.max(0, Math.floor(Number(sec) || 0));
         const m = Math.floor(s / 60);
@@ -147,7 +157,8 @@
         if (existing) existing.remove();
 
         const isRapid = opts && opts.type === 'rapid_click';
-        const title = (opts && opts.title) || (isRapid ? 'CẢNH BÁO CLICK ĐÁP ÁN LIÊN TỤC!' : 'CẢNH BÁO CHƯA NGHE AUDIO!');
+        const isTab = opts && opts.type === 'tab';
+        const title = (opts && opts.title) || (isTab ? 'CẢNH BÁO RỜI MÀN HÌNH THI!' : (isRapid ? 'CẢNH BÁO CLICK ĐÁP ÁN LIÊN TỤC!' : 'CẢNH BÁO CHƯA NGHE AUDIO!'));
         const message = (opts && opts.message) || 'Vui lòng bật file Audio và nghe kỹ trước khi chọn đáp án.';
         const subNote = (opts && opts.subNote) || 'Hành vi này đã được hệ thống tự động ghi nhận vào Phiếu Báo Cáo Kết Quả và gửi về Bảng Điểm của Cô Nguyệt.';
 
@@ -160,11 +171,12 @@
         card.className = 'vrr-modal';
         card.style.maxWidth = '480px';
         card.style.border = '2px solid #fca5a5';
+        const iconCls = isTab ? 'fa-arrow-right-from-bracket' : (isRapid ? 'fa-bolt' : 'fa-volume-xmark');
         card.innerHTML = `
             <div class="vrr-header" style="background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%); padding: 18px 22px;">
                 <div>
                     <div class="vrr-brand" style="color: #fecaca;">🛡️ HỆ THỐNG GIÁM SÁT PHÒNG THI NGHE</div>
-                    <h3 class="vrr-title" style="font-size: 17px;"><i class="fa-solid ${isRapid ? 'fa-bolt' : 'fa-volume-xmark'}"></i> ${escHtml(title)}</h3>
+                    <h3 class="vrr-title" style="font-size: 17px;"><i class="fa-solid ${iconCls}"></i> ${escHtml(title)}</h3>
                 </div>
                 <button type="button" class="vrr-close-btn" id="vrr-warn-x" title="Đóng">&times;</button>
             </div>
@@ -705,7 +717,7 @@
                         🎧 Thời gian nghe Audio thực tế: <strong>${escHtml(listenedDur.text)}</strong> (${escHtml(partListenDetail)})
                     </div>
                     <div style="font-size:12px;color:#7f1d1d;opacity:0.9;">
-                        (Số lần vi phạm được lưu cố định theo bài thi, không bị xóa khi làm lại bài)
+                        (Hệ thống chỉ ghi nhận chuyển tab khi rời khỏi màn hình thi liên tục từ 2 giây trở lên; tính riêng theo từng lượt thi)
                     </div>
                 </div>`;
         }
@@ -1319,6 +1331,7 @@ body { margin: 24px; background: #ffffff; display: flex; justify-content: center
         getLoggedInStudent,
         getViolations,
         recordViolation,
+        resetViolations,
         showLiveWarning,
         formatDuration,
         formatShortTime,
